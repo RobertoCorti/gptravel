@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "gptravel"
+version = "0.1.0"
+description = "Project for travel plan creation using GPT model"
+authors = ["Stefano Polo <sp.stefano.polo@gmail.com>, Roberto Corti <robertocorti.job@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
