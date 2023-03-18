@@ -60,18 +60,38 @@
     button[type="submit"]:hover{
         background: #0059b3;
     }
+    select {
+  appearance: none;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'><path d='M7.41,8.59L12,13.17l4.59-4.58L18,10l-6,6l-6-6L7.41,8.59z'/></svg>") no-repeat right #FFFFFF;
+  background-position-x: 98%;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 16px;
+  padding: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+  font-family: 'Open Sans', sans-serif;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+select:focus {
+  outline: none;
+  border-color: #003366;
+}
   </style>
 </head>
 <body>
   <header>
     <h1 style="font-size: 36px;">GPTravel ✈️</h1>
   </header>
-  <form>
-    <label for="departure">Departure:</label>
-    <input type="text" name="departure" id="departure" required>
+  <form action="#", method="post">
 
-    <label for="arrival">Arrival:</label>
-    <input type="text" name="arrival" id="arrival" required>
+      <label for="country">Country to visit:</label>
+      <select name="country" id="country" required>
+      </select>
 
     <label for="departure_date">Departure date:</label>
     <input type="date" name="departure_date" id="departure_date" required>
@@ -81,5 +101,7 @@
 
     <button type="submit">Search</button>
   </form>
+<script src="{{url_for('static', filename='app.js')}}"></script>
 </body>
+
 </html>
