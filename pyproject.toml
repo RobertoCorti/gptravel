@@ -8,6 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 flask = "2.2.3"
+pycountry = "^22.3.5"
+wikipedia-api = "^0.5.8"
 
 
 [tool.poetry.group.dev.dependencies]
