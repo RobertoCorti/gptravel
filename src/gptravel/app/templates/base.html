@@ -87,21 +87,7 @@ select:focus {
   <header>
     <h1 style="font-size: 36px;">GPTravel ✈️</h1>
   </header>
-  <form action="#", method="post">
-
-      <label for="country">Country to visit:</label>
-      <select name="country" id="country" required>
-      </select>
-
-    <label for="departure_date">Departure date:</label>
-    <input type="date" name="departure_date" id="departure_date" required>
-
-    <label for="return_date">Return date:</label>
-    <input type="date" name="return_date" id="return_date" required>
-
-    <button type="submit">Search</button>
-  </form>
-<script src="{{url_for('static', filename='app.js')}}"></script>
+  {% block content %}{% endblock %}
 </body>
 
 </html>

@@ -11,14 +11,15 @@ def index():
                                 departure_date=request.form['departure_date'],
                                 return_date=request.form['return_date']))
     else:
-        return render_template('base.html')
+        return render_template('index.html')
 
 
 @app.route('/travel_plan/<country>/<departure_date>/<return_date>')
 def travel_plan(country, departure_date, return_date):
-    return "Travel plan for region: {}, departure date: {}, return date: {}".format(
-        country, departure_date, return_date
-    )
+    return render_template('travel_plan.html',
+                           country=country,
+                           departure_date=departure_date,
+                           return_date=return_date)
 
 
 if __name__ == "__main__":
