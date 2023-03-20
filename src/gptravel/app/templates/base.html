@@ -3,8 +3,9 @@
 <head>
   <title>GPTravel ✈️</title>
   <style>
+    /* CSS styles for the header and form elements */
     body{
-        background: #FFFFFF;
+        background: #f2f2f2;
         font-family: 'Open Sans', sans-serif;
         margin: 0;
         padding: 0;
@@ -16,78 +17,56 @@
         padding: 10px;
         text-align: center;
     }
-    form{
-        background: #F2F2F2;
-        border-radius: 5px;
-        box-shadow: 0 0 5px rgba(0,0,0,.1);
-        font-family: 'Open Sans', sans-serif;
-        padding: 20px;
-        width: 50%;
-        margin: 50px auto;
+    nav {
+        background-color: #0F2944;
+        height: 50px;
     }
-    label{
-        display: block;
-        font-size: 18px;
-        margin-bottom: 5px;
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        text-align: center;
     }
-    input[type="text"],
-    input[type="date"]{
-        border-radius: 3px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
-        font-size: 16px;
-        padding: 10px;
-        width: 100%;
-        margin-bottom: 20px;
-        font-family: 'Open Sans', sans-serif;
+    li {
+        display: inline-block;
+        margin: 0 10px;
     }
-    input[type="text"]:focus,
-    input[type="date"]:focus{
-        outline: none;
-        border-color: #003366;
-    }
-    button[type="submit"]{
-        background: #003366;
-        border: none;
-        border-radius: 3px;
+    li a {
         color: #FFFFFF;
-        cursor: pointer;
-        font-size: 18px;
-        padding: 10px 20px;
-        transition: background-color .2s;
         font-family: 'Montserrat', sans-serif;
+        text-decoration: none;
+        padding: 16px;
+        display: inline-block;
+        border-radius: 5px;
+        transition: background-color .3s;
     }
-    button[type="submit"]:hover{
-        background: #0059b3;
+    footer {
+        background-color: #f2f2f2;
+        color: #000000;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 14px;
+        text-align: center;
+        padding: 20px;
+        margin-top: auto;
     }
-    select {
-  appearance: none;
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'><path d='M7.41,8.59L12,13.17l4.59-4.58L18,10l-6,6l-6-6L7.41,8.59z'/></svg>") no-repeat right #FFFFFF;
-  background-position-x: 98%;
-  border-radius: 3px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  font-size: 16px;
-  padding: 10px;
-  width: 100%;
-  margin-bottom: 20px;
-  font-family: 'Open Sans', sans-serif;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-select:focus {
-  outline: none;
-  border-color: #003366;
-}
   </style>
+
+  <!-- Add the menu links to the header -->
+  <nav>
+    <ul>
+      <li><a href="/" style="text-decoration: none;">Home</a></li>
+      <li><a href="/about" style="text-decoration: none;">About</a></li>
+    </ul>
+  </nav>
 </head>
 <body>
   <header>
-    <h1 style="font-size: 36px;">GPTravel ✈️</h1>
+    <h1 style="font-size: 36px;"><a href="/" style="color: #FFFFFF; text-decoration: none;">GPTravel ✈️</a></h1>
   </header>
   {% block content %}{% endblock %}
+<!-- Add the footer content -->
+  <footer>
+    <p>&copy; 2023 GPTravel</p>
+  </footer>
 </body>
-
 </html>

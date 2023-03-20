@@ -8,10 +8,6 @@
         <div style="display: flex; gap: 2rem; align-items: center;">
           <div style="display: flex; flex-direction: column;">
             <h2 style="font-size: 2rem; margin: 0; text-align: center;">{{ destination }}</h2>
-            <p style="margin: 0; color: #666; font-size: 1.2rem; text-align: center;">{{ country }}</p>
-            {% if region %}
-              <p style="margin: 0; color: #666; font-size: 1.2rem; text-align: center;">{{ region }}</p>
-            {% endif %}
           </div>
         </div>
         <hr style="border: none; border-bottom: 1px solid #ddd;">
@@ -31,7 +27,7 @@
         {% if summary %}
           <hr style="border: none; border-bottom: 1px solid #ddd; margin-top: 2rem;">
           <div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Summary</h3>
+            <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Description</h3>
             <p style="font-size: 1.2rem;">{{ summary }}</p>
           </div>
         {% endif %}

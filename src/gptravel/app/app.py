@@ -51,15 +51,18 @@ def travel_plan(country, departure_date, return_date, region=None):
             wiki_summary = country_page.summary
 
     if wiki_summary is not None:
-        wiki_summary = '.'.join(wiki_summary.split('.')[:2])
+        wiki_summary = '.'.join(wiki_summary.split('.')[:3])
 
     return render_template('travel_plan.html',
-                           country=country_name,
                            departure_date=departure_date,
                            return_date=return_date,
-                           region=region,
                            summary=wiki_summary)
 
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
