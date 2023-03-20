@@ -130,3 +130,7 @@ dmypy.json
 
 # VSCode
 .vscode
+
+# pytest
+coverage.xml
+pytest-xunit.xml
