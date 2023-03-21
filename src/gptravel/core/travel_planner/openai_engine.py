@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 import openai
 
 from gptravel.core.travel_planner.prompt import Prompt
-from gptravel.core.travel_planner.travel_engine import TravelEngine
+from gptravel.core.travel_planner.travel_engine import TravelEngine, TravelPlanJSON
 
 
 class OpenAITravelEngine(TravelEngine, ABC):
@@ -35,13 +35,15 @@ class OpenAITravelEngine(TravelEngine, ABC):
     def _openai_call(self, prompt: Prompt) -> Dict[Any, Any]:
         pass
 
-    def get_travel_plan_json(self, prompt: Prompt) -> Dict[str, Dict[str, List[str]]]:
+    def get_travel_plan_json(self, prompt: Prompt) -> TravelPlanJSON:
         response = self._openai_call(prompt)
         message_response = response["choices"][0]["message"]["content"]
         json_parsed_list = self._regex(message_response)
         if len(json_parsed_list) > 1:
             warnings.warn("Found multiple json in travel planner response")
-        return json.loads(json_parsed_list[0])
+        return TravelPlanJSON(
+            travel_plan_json=json.loads(json_parsed_list[0]), json_keys=prompt.json_keys
+        )
 
     @property
     def finish_reason(self) -> Optional[str]:

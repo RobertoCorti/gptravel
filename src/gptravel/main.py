@@ -29,4 +29,4 @@ def main(destination_place: str, start_travel_place: str, n_days: str):
 
 
 if __name__ == "__main__":
-    main(destination_place="Thailand", start_travel_place="Milan", n_days="3")
+    main(destination_place="Budapest", start_travel_place="Milan", n_days="3")
