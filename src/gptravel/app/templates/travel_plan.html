@@ -1,37 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f2f2f2;">
-    <div style="background-color: #fff; border-radius: 1rem; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1); padding: 2rem; width: 50%;">
-      <h1 style="font-size: 3rem; margin-bottom: 1rem; color: #333; text-align: center;">Travel Plan</h1>
-      <div style="display: flex; flex-direction: column; gap: 1rem;">
-        <div style="display: flex; gap: 2rem; align-items: center;">
-          <div style="display: flex; flex-direction: column;">
-            <h2 style="font-size: 2rem; margin: 0; text-align: center;">{{ destination }}</h2>
-          </div>
+  <div class="travel-plan-container">
+    <div class="travel-plan">
+      <h1 class="travel-plan-title">{{ destination }}</h1>
+      <div class="travel-dates">
+        <div class="travel-date">
+          <p class="travel-date-label">Departure:</p>
+          <p class="travel-date-value">{{ departure_date }}</p>
         </div>
-        <hr style="border: none; border-bottom: 1px solid #ddd;">
-        <div>
-          <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Travel Dates</h3>
-          <div style="display: flex; gap: 2rem;">
-            <div>
-              <p style="margin: 0; font-size: 1.2rem; color: #666;"><strong>Departure:</strong></p>
-              <p style="margin: 0; font-size: 1.5rem;">{{ departure_date }}</p>
-            </div>
-            <div>
-              <p style="margin: 0; font-size: 1.2rem; color: #666;"><strong>Return:</strong></p>
-              <p style="margin: 0; font-size: 1.5rem;">{{ return_date }}</p>
-            </div>
-          </div>
+        <div class="travel-date">
+          <p class="travel-date-label">Return:</p>
+          <p class="travel-date-value">{{ return_date }}</p>
         </div>
-        {% if summary %}
-          <hr style="border: none; border-bottom: 1px solid #ddd; margin-top: 2rem;">
-          <div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Description</h3>
-            <p style="font-size: 1.2rem;">{{ summary }}</p>
-          </div>
-        {% endif %}
+      </div>
+      {% if summary %}
+        <div class="travel-summary">
+          <h3 class="travel-summary-title">Description</h3>
+          <p class="travel-summary-text">{{ summary }}</p>
+        </div>
+      {% endif %}
+      <div class="travel-itinerary">
+        <h3 class="travel-itinerary-title">Itinerary</h3>
+        <ul class="travel-itinerary-list">
+          {% for day, travel_dict in travel_plan.items() %}
+            <li class="travel-day">
+              <h4 class="travel-day-title">{{ day }}</h4>
+              {% for place, activities in travel_dict.items() %}
+                <p class="travel-day-activity"><strong>{{ place }}:</strong> {{ activities }}</p>
+              {% endfor %}
+            </li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
   </div>
+
 {% endblock %}

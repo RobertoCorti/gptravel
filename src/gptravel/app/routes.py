@@ -1,10 +1,21 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for
 import pycountry
 import wikipediaapi
+from src.gptravel.app import app
 
 wiki_wiki = wikipediaapi.Wikipedia('en')
 
-app = Flask(__name__)
+
+def _get_travel_plan():
+    """THIS IS HARDCODED FOR NOW, REMOVE IT"""
+    return {
+        "Day 1": {
+            "Rome": ["Visit Colosseum", "Visit Fontana di Trevi"],
+        },
+        "Day 2": {
+            "Florence": ["Visit Uffizi", "Walk in the city-center"]
+        }
+    }
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -50,19 +61,20 @@ def travel_plan(country, departure_date, return_date, region=None):
         if country_page.exists():
             wiki_summary = country_page.summary
 
+    travel_plan_json = _get_travel_plan()
+
     if wiki_summary is not None:
         wiki_summary = '.'.join(wiki_summary.split('.')[:3])
 
-    return render_template('travel_plan.html',
-                           departure_date=departure_date,
-                           return_date=return_date,
-                           summary=wiki_summary)
+    return render_template(
+        'travel_plan.html',
+        departure_date=departure_date,
+        return_date=return_date,
+        summary=wiki_summary,
+        travel_plan=travel_plan_json
+    )
 
 
 @app.route('/about')
 def about():
     return render_template('about.html')
-
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000, debug=True)

@@ -1,0 +1,111 @@
+/* Reset styles with normalize.css */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
+
+/* Set some global styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+/* Style the travel plan container */
+.travel-plan-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Style the travel plan */
+.travel-plan {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 24px;
+  width: 600px;
+}
+
+/* Style the travel plan title */
+.travel-plan-title {
+  font-size: 36px;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+/* Style the travel dates */
+.travel-dates {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+/* Style the travel date label */
+.travel-date-label {
+  font-size: 14px;
+  font-weight: 300;
+  margin-bottom: 4px;
+}
+
+/* Style the travel date value */
+.travel-date-value {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* Style the travel summary */
+.travel-summary {
+  margin-bottom: 24px;
+}
+
+/* Style the travel summary title */
+.travel-summary-title {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* Style the travel summary text */
+.travel-summary-text {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* Style the travel itinerary */
+.travel-itinerary {
+  margin-top: 24px;
+}
+
+/* Style the travel itinerary title */
+.travel-itinerary-title {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* Style the travel itinerary list */
+.travel-itinerary-list {
+  text-align: left;
+  list-style: none;
+  padding: 0;
+}
+
+/* Style the travel day */
+.travel-day {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+/* Style the travel day title */
+.travel-day-title {
+  alignment: left;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* Style the travel day activity */
+.travel-day-activity {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
