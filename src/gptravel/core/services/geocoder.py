@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Optional
 
 from geopy.geocoders import Nominatim
 
@@ -11,5 +12,8 @@ class GeoCoder:
             addressdetails=True,
         )
 
-    def country_from_location_name(self, location_name: str) -> str:
-        return self._geocoder(location_name).raw["address"]["country"]
+    def country_from_location_name(self, location_name: str) -> Optional[str]:
+        try:
+            return self._geocoder(location_name).raw["address"]["country"]
+        except AttributeError:
+            return None

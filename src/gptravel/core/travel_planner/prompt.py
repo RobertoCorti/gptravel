@@ -13,7 +13,7 @@ class Prompt(ABC):
 
     @abstractmethod
     @property
-    def json_keys(self) -> Dict[str]:
+    def json_keys(self) -> Dict[str, int]:
         pass
 
 

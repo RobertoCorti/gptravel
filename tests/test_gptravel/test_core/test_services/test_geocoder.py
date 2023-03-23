@@ -17,3 +17,4 @@ class TestGeoCoder:
             geo_coder.country_from_location_name("Los Angeles, US") == "United States"
         )
         assert geo_coder.country_from_location_name("Mumbai, India") == "India"
+        assert geo_coder.country_from_location_name("PortaSigrar") is None
