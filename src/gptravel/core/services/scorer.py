@@ -81,3 +81,4 @@ class ScoreActivitiesVariety(ScoreService):
                 travel_plan_scores.score_weight_key: self._score_weight,
             },
         )
+        labels = ["mountain", "city", "sea", "museum", "monument", "food", "relax", "sport", "history", "culture"]
