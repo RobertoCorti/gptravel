@@ -11,8 +11,8 @@ class Prompt(ABC):
     def prompt(self) -> str:
         return cleandoc(self._prompt)
 
-    @abstractmethod
     @property
+    @abstractmethod
     def json_keys(self) -> Dict[str, int]:
         pass
 

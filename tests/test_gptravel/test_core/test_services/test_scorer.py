@@ -1,6 +1,6 @@
 import pytest
 
-from gptravel.core.services.score_service import TravelPlanScore
+from gptravel.core.services.scorer import TravelPlanScore
 
 
 @pytest.fixture
