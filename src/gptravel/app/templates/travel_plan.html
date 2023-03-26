@@ -24,25 +24,20 @@
       <div class="travel-itinerary">
         <h3 class="travel-itinerary-title">Itinerary</h3>
         <div class="slideshow-container">
-          {% for day, travel_dict in travel_plan.items() %}
-            <div class="mySlides fade">
-              <div class="numbertext">
-                {{loop.index}} / {{travel_plan.keys()| length}}
+          {% for day, day_activity in travel_dict.items() %}
+            {% for city, city_dict in day_activity.items() %}
+              <div class="mySlides fade">
+              <div id="image-container">
+                <img src="{{ city_dict['image_url'] }}" style="width:550px">
               </div>
-              <img src="https://tourismmedia.italia.it/is/image/mitur/20210401173629-firenze-toscana-gettyimages-1145040590?wid=1600&hei=900&fit=constrain,1&fmt=webp" style="width:100%">
               <div class="text">
                 {{ day }}
               </div>
             </div>
+            {% endfor %}
           {% endfor %}
           <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
           <a class="next" onclick="plusSlides(1)">&#10095;</a>
-        </div>
-        <br>
-        <div style="text-align:center">
-          {% for i in range(travel_plan.keys()| length) %}
-            <span class="dot" onclick="currentSlide({{i}})"></span>
-          {% endfor %}
         </div>
       </div>
     </div>
@@ -50,7 +45,19 @@
 
   <script>
     var geoCoordinates = {{ destination_coordinates|tojson }};
-    var markerCoordinates = {{ markers_coordinates|tojson }};
+    var markerCoordinates = [
+    {% for day, location_dict in travel_dict.items() %}
+      {% for city, data_dict in location_dict.items() %}
+        {{ data_dict['coordinates']|safe }}
+        {% if not loop.last %}
+          ,
+        {% endif %}
+      {% endfor %}
+      {% if not loop.last %}
+        ,
+      {% endif %}
+    {% endfor %}
+  ];
   </script>
     <script src="{{url_for('static', filename='js/travel_plan.js')}}"></script>
 {% endblock %}

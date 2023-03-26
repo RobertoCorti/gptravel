@@ -13,7 +13,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 160vh;
+  height: 150vh;
 }
 
 /* Style the travel plan */
@@ -79,7 +79,7 @@ body {
 .travel-itinerary-title {
   font-size: 20px;
   font-weight: 500;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 /* Style the travel itinerary list */

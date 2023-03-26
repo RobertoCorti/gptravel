@@ -4,10 +4,18 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map);
 
+var latlngs = Array();
+
 // Creating markers
 for (let i = 0; i < markerCoordinates.length; i++) {
     var marker = L.marker(markerCoordinates[i]).addTo(map);
+    latlngs.push(marker.getLatLng());
 }
+
+var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
+
+// Zoom the map to the polyline
+map.fitBounds(polyline.getBounds());
 
 let slideIndex = 1;
 showSlides(slideIndex);
@@ -35,5 +43,5 @@ function showSlides(n) {
     dots[i].className = dots[i].className.replace(" active", "");
   }
   slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " active";
+  //dots[slideIndex-1].className += " active";
 }
