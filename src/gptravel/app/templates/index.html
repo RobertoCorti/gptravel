@@ -2,19 +2,19 @@
 
 {% block content %}
 
-  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; background-color: #f2f2f2;">
-    <div style="background-color: #fff; border-radius: 1rem; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1); padding: 2rem; width: 50%;">
-      <div style="padding: 40px; text-align: center;">
-        <h1 style="font-size: 28px; margin-bottom: 30px; height: 60px;">Where do you want to go?</h1>
+  <div class="search-form-container">
+    <div class="search-form-heading">
+      <div style="padding: inherit; text-align: center;">
+        <h1 style="margin-bottom: 30px; height: 100px;">Where do you want to go?</h1>
     <form action="#", method="post">
-      <div style="display: flex; justify-content: center; margin-bottom: 30px;">
-        <label for="country" style="font-size: 18px; margin-right: 20px;">Country:</label>
-        <select name="country" id="country" style="font-size: 18px; padding: 8px 10px; border-radius: 3px; border: 1px solid #ccc; box-sizing: border-box; font-family: 'Open Sans', sans-serif;" required>
+      <div class="form-field">
+        <label for="country">Country:</label>
+        <select name="country" id="country" required>
         </select>
       </div>
-      <div style="display: flex; justify-content: center; margin-bottom: 30px;">
-        <label for="region" style="font-size: 18px; margin-right: 20px;">Region:</label>
-        <select name="region" id="region" style="font-size: 18px; padding: 8px 10px; border-radius: 3px; border: 1px solid #ccc; box-sizing: border-box; font-family: 'Open Sans', sans-serif;">
+      <div class="form-field">
+        <label for="region">Region:</label>
+        <select name="region" id="region">
         </select>
       </div>
 
@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <button type="submit" style="background-color: #003366; color: #fff; font-size: 18px; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; transition: background-color .2s; font-family: 'Montserrat', sans-serif;">Search</button>
+      <button type="submit">Search</button>
     </form>
 
     <script src="{{url_for('static', filename='js/app.js')}}"></script>

@@ -1,0 +1,54 @@
+.search-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    background-color: #f2f2f2;
+}
+
+.search-form-heading {
+    background-color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 50%;
+}
+
+.form-field {
+    display: compact;
+    justify-content: center;
+    margin-bottom: 50px;
+    alignment: center;
+}
+
+.form-field label {
+    font-size: 18px;
+    margin-right: 20px;
+}
+.form-field select,
+.form-field input[type="country"],
+.form-field input[type="region"] {
+    font-size: 18px;
+    padding: 8px 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
+}
+
+button[type="submit"] {
+    background-color: #003366;
+    color: #FFFFFF;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color .2s;
+    font-family: 'Open Sans', sans-serif;
+}
+
+button:hover {
+    background-color: #00264d;
+}
