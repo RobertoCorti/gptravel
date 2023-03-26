@@ -14,6 +14,7 @@
           <p class="travel-date-value">{{ return_date }}</p>
         </div>
       </div>
+      <div id="map"></div>
       {% if summary %}
         <div class="travel-summary">
           <h3 class="travel-summary-title">Description</h3>
@@ -22,6 +23,32 @@
       {% endif %}
       <div class="travel-itinerary">
         <h3 class="travel-itinerary-title">Itinerary</h3>
+        <!-- The dots/circles -->
+      <!-- Slideshow container -->
+  <div class="slideshow-container">
+
+    <!-- Full-width images with number and caption text -->
+      {% for day, travel_dict in travel_plan.items() %}
+      <div class="mySlides fade">
+      <div class="numbertext">{{loop.index}} / 3</div>
+      <img src="https://tourismmedia.italia.it/is/image/mitur/20210401173629-firenze-toscana-gettyimages-1145040590?wid=1600&hei=900&fit=constrain,1&fmt=webp" style="width:100%">
+      <div class="text">{{ day }}</div>
+    </div>
+    {% endfor %}
+
+
+    <!-- Next and previous buttons -->
+    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+      </div>
+        <br>
+
+        <div style="text-align:center">
+          {% for i in [1, 2, 3] %}
+            <span class="dot" onclick="currentSlide({{i}})"></span>
+          {% endfor %}
+      </div>
+        <!--
         <ul class="travel-itinerary-list">
           {% for day, travel_dict in travel_plan.items() %}
             <li class="travel-day">
@@ -32,8 +59,14 @@
             </li>
           {% endfor %}
         </ul>
+        -->
       </div>
     </div>
   </div>
 
+  <script>
+    var geoCoordinates = {{ destination_coordinates|tojson }};
+    var markerCoordinates = {{ markers_coordinates|tojson }};
+  </script>
+    <script src="{{url_for('static', filename='js/travel_plan.js')}}"></script>
 {% endblock %}
