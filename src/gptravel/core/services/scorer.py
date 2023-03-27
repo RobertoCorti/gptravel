@@ -4,7 +4,7 @@ from typing import Dict, Optional, Union
 
 from gptravel.core.services.config import ACTIVITIES_LABELS
 from gptravel.core.services.engine.classifier import TextClassifier
-from gptravel.core.services.utils import entropy_score
+from gptravel.core.services.utils import theil_diversity_entropy_index
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 
@@ -70,26 +70,7 @@ class ScoreService(ABC):
         self._score_weight = score_weight
 
 
-class ActivitiesVarietyPlainScorer(ScoreService):
-    def __init__(self, score_weight: float = 0.7) -> None:
-        service_name = "Plain Activities Variety"
-        super().__init__(service_name, score_weight)
-
-    def score(
-        self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
-    ) -> None:
-        activities_list = travel_plan.travel_activities
-        score = len(set(activities_list)) / len(activities_list)
-        travel_plan_scores.add_score(
-            score_type=self._service_name,
-            score_dict={
-                travel_plan_scores.score_value_key: score,
-                travel_plan_scores.score_weight_key: self._score_weight,
-            },
-        )
-
-
-class ActivitiesVarietyClassifierScorer(ScoreService):
+class ActivitiesDiversityScorer(ScoreService):
     def __init__(
         self, text_classifier: TextClassifier, score_weight: float = 0.8
     ) -> None:
@@ -113,7 +94,9 @@ class ActivitiesVarietyClassifierScorer(ScoreService):
         aggregated_scores_normalized = {
             key: item / sum_scores for key, item in aggregated_scores.items()
         }
-        score = entropy_score(list(aggregated_scores_normalized.values()))
+        score = 1.0 - theil_diversity_entropy_index(
+            list(aggregated_scores_normalized.values())
+        )
         travel_plan_scores.add_score(
             score_type=self._service_name,
             score_dict={
@@ -129,8 +112,8 @@ if __name__ == "__main__":
 
     a = ZeroShotTextClassifier(True)
     scores = TravelPlanScore()
-    scorer = ActivitiesVarietyClassifierScorer(text_classifier=a)
-    out = scorer.score(
+    scorer = ActivitiesDiversityScorer(text_classifier=a)
+    scorer.score(
         TravelPlanJSON(
             travel_plan_json={
                 "Day 1": {
