@@ -26,7 +26,8 @@ def get_travel_plan():
 def get_image_from_unsplash(city: str) -> str:
     search_url = 'https://api.unsplash.com/search/photos/?query={}&orientation=landscape'.format(city)
     response = requests.get(search_url, headers={'Authorization': 'Client-ID {}'.format(UNSPLASH_ACCESS_KEY)})
-    photos = json.loads(response.text)['results']
+
+    photos = json.loads(response.text)['results'] if response.status_code == 200 else []
 
     if len(photos) > 0:
         photo = random.choice(photos)

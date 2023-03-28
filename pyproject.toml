@@ -11,6 +11,7 @@ flask = "2.2.3"
 pycountry = "^22.3.5"
 wikipedia-api = "^0.5.8"
 geopy = "^2.3.0"
+poetry-dotenv-plugin = "^0.1.0"
 
 
 [tool.poetry.group.dev.dependencies]

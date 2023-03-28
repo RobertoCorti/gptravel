@@ -136,4 +136,4 @@ poetry.lock
 *.iml
 *.ipr
 *.iws
-*.sublime-wo
+*.sublime-wo!/.env/
