@@ -1,5 +1,4 @@
 import unittest
-
 from gptravel.app.geo import user_agent
 from gptravel.app.utils import get_wikipedia_summary, get_travel_cities_coordinates, \
     get_travel_plan
