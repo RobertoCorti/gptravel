@@ -89,7 +89,7 @@ def prompt_factory() -> PromptFactory:
     return PromptFactory()
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def geo_coder():
     return GeoCoder()
 
