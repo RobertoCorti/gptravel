@@ -6,13 +6,8 @@ import pytest
 from gptravel.core.utils.regex import JsonExtractor
 
 
-@pytest.fixture
-def extractor():
-    return JsonExtractor()
-
-
 class TestJsonExtractor:
-    def test_simple_json(self, extractor):
+    def test_simple_json(self, extractor: JsonExtractor):
         text = '{"name": "John", "age": 30}'
         expected_output = [text]
         assert json.loads(extractor(text)[0]) == json.loads(expected_output[0])

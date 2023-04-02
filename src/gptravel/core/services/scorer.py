@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from gptravel.core.services.config import ACTIVITIES_LABELS
 from gptravel.core.services.engine.classifier import TextClassifier
@@ -14,9 +14,7 @@ class TravelPlanScore:
         self._score_weight_key = "score_weight"
         self._required_keys = set([self._score_value_key, self._score_weight_key])
 
-    def add_score(
-        self, score_type: str, score_dict: Dict[str, Union[float, int]]
-    ) -> None:
+    def add_score(self, score_type: str, score_dict: Dict[str, Any]) -> None:
         assert set(score_dict.keys()).intersection(self._required_keys) == set(
             self._required_keys
         )
@@ -68,6 +66,10 @@ class ScoreService(ABC):
         assert (score_weight >= 0.0) & (score_weight <= 1.0)
         self._score_weight = score_weight
 
+    @property
+    def service_name(self) -> str:
+        return self._service_name
+
 
 class ActivitiesDiversityScorer(ScoreService):
     def __init__(
@@ -103,5 +105,50 @@ class ActivitiesDiversityScorer(ScoreService):
                 travel_plan_scores.score_weight_key: self._score_weight,
                 "activities_distribution": aggregated_scores_normalized,
                 "labeled_activities": labeled_activities,
+            },
+        )
+
+
+class DayGenerationScorer(ScoreService):
+    def __init__(
+        self, n_days_required: int, score_weight: float = 0.4, day_key: str = "Day"
+    ) -> None:
+        service_name = "Day Coherence"
+        super().__init__(service_name, score_weight)
+        self._day_key = day_key
+        self._n_days_required = n_days_required
+
+    def score(
+        self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
+    ) -> None:
+        travel_plan_day_list = list(
+            set(travel_plan.get_key_values_by_name(self._day_key.lower()))
+        )
+        travel_plan_days = [
+            int(item.split(self._day_key)[-1]) for item in travel_plan_day_list
+        ]
+        min_day = min(travel_plan_days)
+        tot_planned_days = len(travel_plan_days)
+        score = (
+            1.0 - abs(self._n_days_required - tot_planned_days) / self._n_days_required
+        )
+        if score < 1:
+            self.score_weight = min(self.score_weight * 1.5, 1)
+        expected_list = [min_day + item for item in range(self._n_days_required)]
+        extra_days_in_travel = set(travel_plan_days) - set(expected_list).intersection(
+            travel_plan_days
+        )
+        missing_days_in_travel = set(expected_list) - set(expected_list).intersection(
+            travel_plan_days
+        )
+        travel_plan_scores.add_score(
+            score_type=self._service_name,
+            score_dict={
+                travel_plan_scores.score_value_key: score,
+                travel_plan_scores.score_weight_key: self._score_weight,
+                "misaligned_days": {
+                    "extra_days": list(extra_days_in_travel),
+                    "missing_days": list(missing_days_in_travel),
+                },
             },
         )
