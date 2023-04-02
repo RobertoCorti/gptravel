@@ -1,4 +1,45 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Define the API endpoint
+const endpoint = 'https://restcountries.com/v3.1/all';
+
+function fetchCountryNames() {
+  return fetch("https://restcountries.com/v3.1/all")
+    .then(response => response.json())
+    .then(data => data.map(country => country.name.common))
+    .catch(error => {
+      console.error(error);
+      return [];
+    });
+}
+let countries = [];
+fetchCountryNames().then(data => {
+      countries = data;
+});
+
+const resultBox = document.querySelector('.result-box');
+const inputBoxFrom = document.getElementById('from');
+
+inputBoxFrom.onkeyup = function(){
+    let result = [];
+    let input = inputBoxFrom.value;
+    if(input.length){
+        result = countries.filter((country)=>{
+            return country.toLowerCase().includes(input.toLowerCase());
+        });
+        console.log(result);
+    }
+    display(result);
+}
+
+function display(result) {
+    const content = result.map((list) => {
+        return "<li>" + list + "</li>";
+    });
+
+    resultBox.innerHTML = "<ul>" + content.join() + "</ul>";
+}
+
+
+/*document.addEventListener('DOMContentLoaded', () => {
   const countryDropdown = document.querySelector('#country');
   const regionDropdown = document.querySelector('#region');
   const departureDateInput = document.getElementById("departure_date");
@@ -50,4 +91,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
+*/

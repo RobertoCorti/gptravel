@@ -3,7 +3,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 80vh;
+    height: 100vh;
     background-color: #f2f2f2;
 }
 
@@ -13,28 +13,80 @@
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
     padding: 2rem;
     width: 50%;
+    height: auto;
+}
+
+.search-form-heading h1 {
+  margin-bottom: 30px;
+  font-size: 32px;
+  font-weight: 600;
 }
 
 .form-field {
-    display: compact;
-    justify-content: center;
-    margin-bottom: 50px;
-    alignment: center;
+  margin-bottom: 30px;
 }
 
 .form-field label {
-    font-size: 18px;
-    margin-right: 20px;
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
-.form-field select,
-.form-field input[type="country"],
-.form-field input[type="region"] {
-    font-size: 18px;
-    padding: 8px 10px;
-    border-radius: 3px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    font-family: 'Open Sans', sans-serif;
+
+.form-field input[type="text"],
+.form-field input[type="date"] {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  font-size: 16px;
+  color: #333;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.form-field input[type="text"]::placeholder,
+.form-field input[type="date"]::placeholder {
+  color: #999;
+}
+
+.result-box {
+  position: initial;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  max-height: 400px;
+  background-color: #fff;
+  border-top: none;
+  text-align: left;
+}
+
+.result-box ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.result-box li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.result-box li:last-child {
+  border-bottom: none;
+}
+
+.result-box a {
+  color: #333;
+  text-decoration: none;
+}
+
+.result-box a:hover {
+  color: #1a0dab;
+  text-decoration: underline;
 }
 
 button[type="submit"] {
@@ -49,6 +101,6 @@ button[type="submit"] {
     font-family: 'Open Sans', sans-serif;
 }
 
-button:hover {
-    background-color: #00264d;
+.form-field input[type="submit"]:hover {
+  background-color: #00264d;
 }

@@ -2,39 +2,35 @@
 
 {% block content %}
 
-  <div class="search-form-container">
-    <div class="search-form-heading">
-      <div style="padding: inherit; text-align: center;">
-        <h1 style="margin-bottom: 30px; height: 100px;">Where do you want to go?</h1>
-    <form action="#", method="post">
+<div class="search-form-container">
+  <div class="search-form-heading">
+    <h1>Where do you want to go?</h1>
+    <form action="#" method="post">
       <div class="form-field">
-        <label for="country">Country:</label>
-        <select name="country" id="country" required>
-        </select>
+        <label for="from">From:</label>
+        <input type="text" name="from" id="from" placeholder="Country, region or city name" autocomplete="off"  required>
+        <div class="result-box"></div>
       </div>
       <div class="form-field">
-        <label for="region">Region:</label>
-        <select name="region" id="region">
-        </select>
+        <label for="to">To:</label>
+        <input type="text" name="to" id="to" placeholder="Country, region or city name" required>
       </div>
-
-      <div style="display: flex; justify-content: center; margin-bottom: 30px;">
-        <div style="margin-right: 30px;">
-          <label for="departure_date" style="font-size: 18px;">Departure date:</label>
-          <input type="date" name="departure_date" id="departure_date" style="font-size: 18px; padding: 8px 10px; border-radius: 3px; border: 1px solid #ccc; box-sizing: border-box; font-family: 'Open Sans', sans-serif;" required>
-        </div>
-        <div>
-          <label for="return_date" style="font-size: 18px;">Return date:</label>
-          <input type="date" name="return_date" id="return_date" style="font-size: 18px; padding: 8px 10px; border-radius: 3px; border: 1px solid #ccc; box-sizing: border-box; font-family: 'Open Sans', sans-serif;" required>
-        </div>
+      <div class="form-field">
+        <label for="departure-date">Departure date:</label>
+        <input type="date" name="departure-date" id="departure-date" required>
       </div>
-
+      <div class="form-field">
+        <label for="return-date">Return date:</label>
+        <input type="date" name="return-date" id="return-date" required>
+      </div>
+      <div class="form-field">
+        <label for="travel-reason">Travel reason:</label>
+        <input type="text" name="travel-reason" id="travel-reason" placeholder="Enter a travel reason">
+      </div>
       <button type="submit">Search</button>
     </form>
-
-    <script src="{{url_for('static', filename='js/app.js')}}"></script>
   </div>
-    </div>
-    </div>
+</div>
+<script src="{{url_for('static', filename='js/app.js')}}"></script>
 
 {% endblock %}

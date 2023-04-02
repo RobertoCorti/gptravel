@@ -59,6 +59,7 @@ def get_image_from_unsplash_pool(city: str) -> dict:
 
 
 def get_travel_cities_images_url(travel_plan_dict: dict) -> dict:
+    ### TODO: usare asyncio
     with multiprocessing.Pool() as pool:
         city_results_list = pool.map(get_image_from_unsplash_pool,
                                      [city for day in travel_plan_dict.values() for city in day.keys()])
