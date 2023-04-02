@@ -25,8 +25,8 @@ def main(destination_place: str, start_travel_place: str, n_days: str):
 
     print(travel_plan_in_json_format)
     with open("travel_plan_{}_{}.json".format(destination_place, n_days), "w") as jfile:
-        json.dump(travel_plan_in_json_format, jfile)
+        json.dump(travel_plan_in_json_format.travel_plan, jfile)
 
 
 if __name__ == "__main__":
-    main(destination_place="Budapest", start_travel_place="Milan", n_days="3")
+    main(destination_place="Italy", start_travel_place="Berlin", n_days="3")

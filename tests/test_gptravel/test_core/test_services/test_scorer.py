@@ -4,7 +4,7 @@ from gptravel.core.services.scorer import TravelPlanScore
 
 
 @pytest.fixture
-def score():
+def score() -> TravelPlanScore:
     score = TravelPlanScore()
     score.add_score("type score", {"score_value": 100, "score_weight": 0.11})
     score.add_score("score livel", {"score_value": 80, "score_weight": 0.23})
@@ -12,12 +12,12 @@ def score():
     return score
 
 
-def test_add_score(score):
+def test_add_score(score: TravelPlanScore):
     score.add_score("score extra", {"score_value": 90, "score_weight": 0.10})
     assert score.score_map["score extra"] == {"score_value": 90, "score_weight": 0.10}
 
 
-def test_weighted_score(score):
+def test_weighted_score(score: TravelPlanScore):
     assert score.weighted_score == pytest.approx(78.367, 0.001)
 
 

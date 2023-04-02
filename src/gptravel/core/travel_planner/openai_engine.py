@@ -105,7 +105,7 @@ class CompletionGPTravelEngine(OpenAITravelEngine):
         )
 
     def _openai_call(self, prompt: Prompt) -> Dict[Any, Any]:
-        api_output = openai.ChatCompletion.create(
+        api_output = openai.Completion.create(
             model=self._model,
             prompt=prompt.prompt,
             temperature=self._temperature,

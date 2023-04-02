@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from typing import Dict, Optional, Union
 
 from gptravel.core.services.config import ACTIVITIES_LABELS
@@ -83,11 +82,11 @@ class ActivitiesDiversityScorer(ScoreService):
         self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
     ) -> None:
         activities_list = travel_plan.travel_activities
-        class_scores = self._classifier.predict(
+        labeled_activities = self._classifier.predict(
             input_text_list=activities_list, label_classes=self._activities_labels
         )
         aggregated_scores = {
-            key: sum(item[key] for item in class_scores)
+            key: sum(item[key] for item in labeled_activities.values())
             for key in self._activities_labels
         }
         sum_scores = sum(aggregated_scores.values())
@@ -103,45 +102,6 @@ class ActivitiesDiversityScorer(ScoreService):
                 travel_plan_scores.score_value_key: score,
                 travel_plan_scores.score_weight_key: self._score_weight,
                 "activities_distribution": aggregated_scores_normalized,
+                "labeled_activities": labeled_activities,
             },
         )
-
-
-if __name__ == "__main__":
-    from gptravel.core.services.engine.classifier import ZeroShotTextClassifier
-
-    a = ZeroShotTextClassifier(True)
-    scores = TravelPlanScore()
-    scorer = ActivitiesDiversityScorer(text_classifier=a)
-    scorer.score(
-        TravelPlanJSON(
-            travel_plan_json={
-                "Day 1": {
-                    "Bangkok": [
-                        "Visit Wat Phra Kaew and the Grand Palace",
-                        "Explore the Wat Pho Temple",
-                        "Ride a boat in the Chao Phraya River",
-                        "Shop at Chatuchak weekend market",
-                    ]
-                },
-                "Day 2": {
-                    "Phuket": [
-                        "Spend time at the Patong Beach",
-                        "Visit Big Buddha Phuket",
-                        "Explore the Phuket Old Town",
-                        "Enjoy local street food at night markets",
-                    ]
-                },
-                "Day 3": {
-                    "Krabi": [
-                        "Visit Railay Beach and the Phra Nang Cave",
-                        "Island hopping tour to Phi Phi Islands",
-                        "Hike to the Tiger Cave Temple",
-                        "Relax at Ao Nang Beach",
-                    ]
-                },
-            },
-            json_keys_depth_map={"city": 1, "day": 0},
-        ),
-        scores,
-    )

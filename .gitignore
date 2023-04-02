@@ -134,3 +134,6 @@ dmypy.json
 # pytest
 coverage.xml
 pytest-xunit.xml
+
+# output files
+*.json

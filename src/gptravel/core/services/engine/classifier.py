@@ -15,7 +15,7 @@ class TextClassifier(ABC):
     @abstractmethod
     def predict(
         self, input_text_list: List[str], label_classes: List[str]
-    ) -> List[Dict[str, float]]:
+    ) -> Dict[str, Dict[str, float]]:
         pass
 
 
@@ -35,7 +35,7 @@ class ZeroShotTextClassifier(TextClassifier):
         self,
         input_text_list: List[str],
         label_classes: List[str],
-    ) -> List[Dict[str, float]]:
+    ) -> Dict[str, Dict[str, float]]:
         payload = {
             "inputs": input_text_list,
             "parameters": {
@@ -44,10 +44,10 @@ class ZeroShotTextClassifier(TextClassifier):
             },
         }
         response = self._query(payload=payload)
-        return [
-            {
+        return {
+            item["sequence"]: {
                 label: float(value)
                 for label, value in zip(item["labels"], item["scores"])
             }
             for item in response
-        ]
+        }
