@@ -1,6 +1,8 @@
 from gptravel.core.services.engine.classifier import ZeroShotTextClassifier
 from gptravel.core.services.scorer import ActivitiesDiversityScorer, TravelPlanScore
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
+from gptravel.core.services.geocoder import GeoCoder
+import time
 
 if __name__ == "__main__":
     a = ZeroShotTextClassifier(True)

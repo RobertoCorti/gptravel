@@ -35,14 +35,14 @@ def main(
     travel_plan_in_json_format = engine.get_travel_plan_json(prompt)
 
     print(travel_plan_in_json_format.travel_plan)
-    with open("travel_plan_{}_{}.json".format(destination_place, n_days), "w") as jfile:
+    with open("trave-l_plan_{}_{}.json".format(destination_place, n_days), "w") as jfile:
         json.dump(travel_plan_in_json_format.travel_plan, jfile)
 
 
 if __name__ == "__main__":
     main(
-        destination_place="Thailand",
-        start_travel_place="Berlin",
+        destination_place="Milan",
+        start_travel_place="Rome",
         n_days="3",
         travel_theme="romantic",
     )

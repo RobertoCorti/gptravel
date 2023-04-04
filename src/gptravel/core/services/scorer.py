@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Union
 
 from gptravel.core.services.config import ACTIVITIES_LABELS
+from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.engine.classifier import TextClassifier
 from gptravel.core.services.utils import theil_diversity_entropy_index
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
@@ -152,3 +153,20 @@ class DayGenerationScorer(ScoreService):
                 },
             },
         )
+
+
+class CitiesCountryScorer(ScoreService):
+
+    def __init__(
+            self, destination: str,  geolocator: GeoCoder, score_weight: float = 1.0 
+    ) -> None:
+        service_name = "City Countries"
+        super().__init__(service_name, score_weight)
+        self._geolocator = geolocator
+        self._destination = destination
+
+    def score(
+        self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
+    ) -> None:
+        unique_cities = list(travel_plan.travel_cities)
+        pass

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from gptravel.core.services.utils import theil_diversity_entropy_index
+from gptravel.core.services.utils import theil_diversity_entropy_index, is_location_a_country
 
 
 def test_entropy_score():
@@ -42,3 +42,11 @@ def test_entropy_score():
     assert np.isclose(
         theil_diversity_entropy_index(input_list), expected_output, rtol=1e-6
     )
+
+
+def test_is_location_a_country():
+    assert is_location_a_country("Thailand")
+    assert is_location_a_country("Bangkok") == False
+    assert is_location_a_country("United States")
+    assert is_location_a_country("Milan") == False
+    assert is_location_a_country("Russia") 

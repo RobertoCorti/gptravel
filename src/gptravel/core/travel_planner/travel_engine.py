@@ -37,6 +37,10 @@ class TravelPlanJSON:
         except KeyError:
             return []
 
+    @property
+    def travel_cities(self) -> List[str]:
+        return self.get_key_values_by_name("city")
+
 
 class TravelEngine(ABC):
     def __init__(self) -> None:

@@ -10,6 +10,14 @@ load_dotenv()
 
 class TextClassifier(ABC):
     def __init__(self, multi_label: bool) -> None:
+        self.multi_label = multi_label
+
+    @property
+    def multi_label(self) -> bool:
+        return self._multi_label
+    
+    @multi_label.setter
+    def multi_label(self, multi_label: bool) -> None:
         self._multi_label = multi_label
 
     @abstractmethod
