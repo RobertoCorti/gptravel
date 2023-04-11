@@ -2,60 +2,8 @@
 <html>
 <head>
   <title>GPTravel ✈️</title>
-  <style>
-    /* CSS styles for the header and form elements */
-    body{
-        background: #f2f2f2;
-        font-family: 'Open Sans', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
-    header{
-        background: #0F2944;
-        color: #FFFFFF;
-        font-family: 'Montserrat', sans-serif;
-        padding: 10px;
-        text-align: center;
-    }
-    nav {
-        background-color: #0F2944;
-        height: 50px;
-    }
-    ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        text-align: center;
-    }
-    li {
-        display: inline-block;
-        margin: 0 10px;
-    }
-    li a {
-        color: #FFFFFF;
-        font-family: 'Montserrat', sans-serif;
-        text-decoration: none;
-        padding: 16px;
-        display: inline-block;
-        border-radius: 5px;
-        transition: background-color .3s;
-    }
-    footer {
-        background-color: #f2f2f2;
-        color: #000000;
-        font-family: 'Open Sans', sans-serif;
-        font-size: 14px;
-        text-align: center;
-        padding: 20px;
-        margin-top: auto;
-    }
-  </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/travel_plan.css') }}">
-  <!-- Add the menu links to the header -->
-   <!-- Include Leaflet.js library -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
      integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
      crossorigin=""/>

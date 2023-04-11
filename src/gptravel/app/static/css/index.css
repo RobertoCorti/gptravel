@@ -53,40 +53,25 @@
   color: #999;
 }
 
-.result-box {
-  position: initial;
-  top: 10px;
-  left: 0;
-  width: 100%;
-  max-height: 400px;
-  background-color: #fff;
-  border-top: none;
-  text-align: left;
+.result-box ul{
+    border-top: 1px solid #999999;
+    padding: 15px 10px;
 }
 
-.result-box ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.result-box ul li{
+    list-style: none;
+    border-bottom: 3px;
+    padding: 15px 10px;
+    cursor: pointer;
 }
 
-.result-box li {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+.result-box ul li:hover{
+    background: #f2f2f2;
 }
 
-.result-box li:last-child {
-  border-bottom: none;
-}
-
-.result-box a {
-  color: #333;
-  text-decoration: none;
-}
-
-.result-box a:hover {
-  color: #1a0dab;
-  text-decoration: underline;
+.result-box{
+    max-height: 300px;
+    overflow-y: scroll;
 }
 
 button[type="submit"] {

@@ -28,6 +28,10 @@ inputBoxFrom.onkeyup = function(){
         console.log(result);
     }
     display(result);
+
+    if (!result.length){
+        resultBox.innerHTML = '';
+    }
 }
 
 function display(result) {
@@ -35,7 +39,7 @@ function display(result) {
         return "<li>" + list + "</li>";
     });
 
-    resultBox.innerHTML = "<ul>" + content.join() + "</ul>";
+    resultBox.innerHTML = "<ul>" + content.join('') + "</ul>";
 }
 
 
