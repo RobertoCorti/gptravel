@@ -12,20 +12,34 @@ header{
     text-align: center;
 }
 
-nav{
+nav {
     background-color: #0F2944;
-    height: 20px;
     color: #ffffff;
-    padding: 30px;
- }
+    overflow: hidden;
+}
 
-form{
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
     display: flex;
-    flex-direction: row;
-    justify-content: left;
-    align-items: center;
-    flex-wrap: wrap;
-    padding: 20px 20px;
+}
+
+nav li {
+    float: left;
+}
+
+nav li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+nav li a:hover {
+    background-color: #ddd;
+    color: black;
 }
 
 .main-container{

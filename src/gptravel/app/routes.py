@@ -9,38 +9,31 @@ from src.gptravel.app import app
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        country = request.form['country']
-        departure_date = request.form['departure_date']
-        return_date = request.form['return_date']
-        region = request.form.get('region')
 
-        if region:
-            return redirect(url_for('travel_plan',
-                                    country=country,
-                                    departure_date=departure_date,
-                                    return_date=return_date,
-                                    region=region))
-        else:
-            return redirect(url_for('travel_plan',
-                                    country=country,
-                                    departure_date=departure_date,
-                                    return_date=return_date))
+        travel_plan_args = {
+            'departure': request.form['from'],
+            'destination': request.form['to'],
+            'departure_date': request.form['departure-date'],
+            'return_date': request.form['return-date'],
+            'travel_option': request.form.get('travel_option', 'None')
+        }
+
+        return redirect(url_for('travel_plan',
+                                **travel_plan_args))
     else:
         return render_template('index.html')
 
 
-@app.route('/travel_plan/<country>/<departure_date>/<return_date>')
-@app.route('/travel_plan/<country>/<departure_date>/<return_date>/<region>')
-def travel_plan(country: str, departure_date: str, return_date: str, region: str = None):
+@app.route('/from=<departure>/to=<destination>/departure_date=<departure_date>/return_date=<return_date>/travel_option=<travel_option>')
+def travel_plan(departure, destination, departure_date, return_date, travel_option):
     try:
-        country_name = pycountry.countries.get(alpha_2=country).name
+        destination_country_name = pycountry.countries.get(alpha_2=destination).name
     except AttributeError:
-        country_name = country
+        destination_country_name = destination
 
-    destination = region if region else country_name
-    wiki_summary = utils.get_wikipedia_summary(destination)
+    wiki_summary = utils.get_wikipedia_summary(destination_country_name)
 
-    destination_coordinates = geolocator.geocode(destination).latitude, geolocator.geocode(destination).longitude
+    destination_coordinates = geolocator.geocode(destination_country_name).latitude, geolocator.geocode(destination_country_name).longitude
 
     travel_plan_json = utils.get_travel_plan()
     markers_coordinates = utils.get_travel_cities_coordinates(travel_plan_json, geolocator)
@@ -60,7 +53,7 @@ def travel_plan(country: str, departure_date: str, return_date: str, region: str
 
     return render_template(
         'travel_plan.html',
-        destination=destination,
+        destination=destination_country_name,
         departure_date=departure_date,
         return_date=return_date,
         summary=wiki_summary,

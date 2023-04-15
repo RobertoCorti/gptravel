@@ -14,32 +14,13 @@
           <p class="travel-date-value">{{ return_date }}</p>
         </div>
       </div>
-      <div id="map"></div>
       {% if summary %}
         <div class="travel-summary">
-          <h3 class="travel-summary-title">Description</h3>
+          <h2 class="travel-summary-title">Description</h2>
           <p class="travel-summary-text">{{ summary }}</p>
         </div>
       {% endif %}
-      <div class="travel-itinerary">
-        <h3 class="travel-itinerary-title">Itinerary</h3>
-        <div class="slideshow-container">
-          {% for day, day_activity in travel_dict.items() %}
-            {% for city, city_dict in day_activity.items() %}
-              <div class="mySlides fade">
-              <div id="image-container">
-                <img src="{{ city_dict['image_url'] }}" style="width:550px">
-              </div>
-              <div class="text">
-                {{ day }}
-              </div>
-            </div>
-            {% endfor %}
-          {% endfor %}
-          <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-          <a class="next" onclick="plusSlides(1)">&#10095;</a>
-        </div>
-      </div>
+      <div id="map"></div>
     </div>
   </div>
 

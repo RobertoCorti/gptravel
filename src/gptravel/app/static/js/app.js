@@ -1,3 +1,38 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const fromDropdown = document.querySelector('#from');
+  const toDropdown = document.querySelector('#to');
+  const departureDateInput = document.getElementById("departure-date");
+  const returnDateInput = document.getElementById("return-date");
+
+  fetch('https://restcountries.com/v3.1/all')
+    .then(res => res.json())
+    .then(data => {
+      const sortedData = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+      let countryOutput = "<option disabled selected value>Select a Country</option>";
+      sortedData.forEach(country => {
+        countryOutput += `
+          <option value="${country.altSpellings[0]}">${country.name.common}</option>
+        `;
+      })
+      fromDropdown.innerHTML = countryOutput;
+      toDropdown.innerHTML = countryOutput;
+    })
+    .catch(err => console.error(err));
+
+  // Check if departure date is before return date
+  returnDateInput.addEventListener('change', event => {
+    // check if value is not empty
+    if (returnDateInput.value !== '' && departureDateInput.value !== '') {
+        if (departureDateInput.value > returnDateInput.value) {
+            alert('Return date must be after departure date');
+            returnDateInput.value = departureDateInput.value;
+        }
+    }
+  });
+
+});
+
+/*
 // Define the API endpoint
 const endpoint = 'https://restcountries.com/v3.1/all';
 
@@ -34,15 +69,19 @@ inputBoxFrom.onkeyup = function(){
     }
 }
 
-function display(result) {
+function display(result){
     const content = result.map((list) => {
-        return "<li>" + list + "</li>";
+        return "<li onclick=selectInput(this)>" + list + "</li>";
     });
 
     resultBox.innerHTML = "<ul>" + content.join('') + "</ul>";
 }
 
-
+function selectInput(list){
+    inputBoxFrom.value = list.innerHTML;
+    resultBox.innerHTML = '';
+}
+*/
 /*document.addEventListener('DOMContentLoaded', () => {
   const countryDropdown = document.querySelector('#country');
   const regionDropdown = document.querySelector('#region');

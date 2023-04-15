@@ -1,28 +1,22 @@
-/* Reset styles with normalize.css */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
-
 /* Style the travel plan container */
 .travel-plan-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 150vh;
+  padding: 20px;
 }
 
 /* Style the travel plan */
 .travel-plan {
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  padding: 24px;
   width: 600px;
 }
 
 /* Style the travel plan title */
 .travel-plan-title {
-  font-size: 36px;
-  font-weight: 500;
-  margin-bottom: 24px;
+  margin-bottom: 10px;
+  text-align: left;
 }
 
 /* Style the travel dates */
@@ -52,9 +46,8 @@
 
 /* Style the travel summary title */
 .travel-summary-title {
-  font-size: 20px;
-  font-weight: 500;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
+  text-align: left;
 }
 
 /* Style the travel summary text */
@@ -104,7 +97,7 @@
 }
 
 #map {
-  height: 300px;
+  height: 400px;
   width: 100%;
 }
 * {box-sizing:border-box}

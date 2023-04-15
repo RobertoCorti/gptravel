@@ -8,12 +8,11 @@
     <form action="#" method="post">
       <div class="form-field">
         <label for="from">From:</label>
-        <input type="text" name="from" id="from" placeholder="Country, region or city name" autocomplete="off"  required>
-        <div class="result-box"></div>
+        <select name="from" id="from" required></select>
       </div>
       <div class="form-field">
         <label for="to">To:</label>
-        <input type="text" name="to" id="to" placeholder="Country, region or city name" required>
+       <select name="to" id="to" required></select>
       </div>
       <div class="form-field">
         <label for="departure-date">Departure date:</label>
@@ -24,10 +23,19 @@
         <input type="date" name="return-date" id="return-date" required>
       </div>
       <div class="form-field">
-        <label for="travel-reason">Travel reason:</label>
-        <input type="text" name="travel-reason" id="travel-reason" placeholder="Enter a travel reason">
+        <label for="travel-option">Travel reason:</label>
+        <select name="travel-reason" id="travel-option">
+          <option disabled selected value>Select a travel option</option>
+            <option value="business">Business</option>
+            <option value="romantic">Romantic</option>
+            <option value="family">Family</option>
+            <option value="friends">Friends</option>
+            <option value="solo">Solo</option>
+        </select>
       </div>
+      <div class="form-submit">
       <button type="submit">Search</button>
+    </div>
     </form>
   </div>
 </div>

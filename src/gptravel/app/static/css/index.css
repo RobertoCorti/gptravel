@@ -4,28 +4,29 @@ form{
     justify-content: left;
     align-items: center;
     flex-wrap: wrap;
-    padding: 20px 20px;
+    width: 900px;
+    margin-left: auto;
 }
-
 .search-form-heading h1 {
   padding: 0 50px;
+  margin-bottom: 50px;
+  text-align: center;
 }
 
 .form-field {
-  margin-bottom: 30px;
-    padding: 10px 30px;
+  margin-bottom: 80px;
+  display: block
 }
 
 .form-field label {
   display: block;
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
-.form-field input[type="text"],
-.form-field input[type="date"] {
-  width: 100%;
+.form-field select {
+  display: block;
   padding: 12px 16px;
   border: none;
   border-radius: 4px;
@@ -38,30 +39,31 @@ form{
   appearance: none;
 }
 
-.form-field input[type="text"]::placeholder,
+.form-field select::placeholder {
+  color: #999;
+}
+
+.form-field input[type="date"] {
+  display: block;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  font-size: 16px;
+  color: #333;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
 .form-field input[type="date"]::placeholder {
   color: #999;
 }
 
-.result-box ul{
-    border-top: 1px solid #999999;
-    padding: 15px 10px;
-}
-
-.result-box ul li{
-    list-style: none;
-    border-bottom: 3px;
-    padding: 15px 10px;
-    cursor: pointer;
-}
-
-.result-box ul li:hover{
-    background: #f2f2f2;
-}
-
-.result-box{
-    max-height: 300px;
-    overflow-y: scroll;
+.form-submit {
+  align-items: center;
+  padding-left: 300px;
 }
 
 button[type="submit"] {
@@ -71,6 +73,7 @@ button[type="submit"] {
     padding: 10px 20px;
     border: none;
     border-radius: 3px;
+    align-items: center;
     cursor: pointer;
     transition: background-color .2s;
     font-family: 'Open Sans', sans-serif;
