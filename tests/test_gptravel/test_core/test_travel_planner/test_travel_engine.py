@@ -28,13 +28,17 @@ def test_travel_plan_single_city_per_day(
 
 
 def test_travel_plan_multiple_city_per_day(
-    travel_plan_multiple_city_per_day: TravelPlanJSON,
+    travel_plan_multiple_city_per_day_and_wrong_n_days: TravelPlanJSON,
 ):
-    days = travel_plan_multiple_city_per_day.get_key_values_by_name(key_name="day")
+    days = travel_plan_multiple_city_per_day_and_wrong_n_days.get_key_values_by_name(
+        key_name="day"
+    )
     assert days == ["Day 1", "Day 2"]
-    cities = travel_plan_multiple_city_per_day.get_key_values_by_name(key_name="city")
+    cities = travel_plan_multiple_city_per_day_and_wrong_n_days.get_key_values_by_name(
+        key_name="city"
+    )
     assert cities == ["Bangkok", "Phuket", "Krabi"]
-    activities = travel_plan_multiple_city_per_day.travel_activities
+    activities = travel_plan_multiple_city_per_day_and_wrong_n_days.travel_activities
     assert activities == [
         "Visit Wat Phra Kaew and the Grand Palace",
         "Explore the Wat Pho Temple",

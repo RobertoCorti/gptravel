@@ -11,10 +11,31 @@ from gptravel.core.utils.regex import JsonExtractor
 
 class TravelPlanJSON:
     def __init__(
-        self, travel_plan_json: Dict[Any, Any], json_keys_depth_map: Dict[str, int]
+        self,
+        departure_place: str,
+        destination_place: str,
+        n_days: int,
+        travel_plan_json: Dict[Any, Any],
+        json_keys_depth_map: Dict[str, int],
+        **kwargs
     ) -> None:
+        self._n_days = n_days
+        self._departure_place = departure_place
+        self._destination_place = destination_place
         self._travel_plan = travel_plan_json
         self._keys_map = json_keys_depth_map
+
+    @property
+    def departure_place(self) -> str:
+        return self._departure_place
+
+    @property
+    def destination_place(self) -> str:
+        return self._destination_place
+
+    @property
+    def n_days(self) -> int:
+        return self._n_days
 
     @property
     def travel_plan(self) -> Dict[Any, Any]:

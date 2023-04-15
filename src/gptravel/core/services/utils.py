@@ -18,12 +18,23 @@ def theil_diversity_entropy_index(groups: List[Union[float, int]]) -> float:
     return (max_entropy - entropy) / max_entropy
 
 
+def weighted_average(
+    values: List[Union[int, float]], weights: List[Union[int, float]]
+) -> float:
+    assert len(values) == len(weights)
+    return sum([values[i] * weights[i] for i in range(len(values))]) / sum(weights)
+
+
 def is_location_a_country(location: str) -> bool:
     country_value = "country"
     key_with_max_value = ""
     if "milan" not in location.lower():
         classifier = ZeroShotTextClassifier(False)
         labels = [country_value, "city", "continent"]
-        prediction = classifier.predict(input_text_list=[location], label_classes=labels)
-        key_with_max_value = max(prediction[location], key=lambda key: prediction[location][key])
+        prediction = classifier.predict(
+            input_text_list=[location], label_classes=labels
+        )
+        key_with_max_value = max(
+            prediction[location], key=lambda key: prediction[location][key]
+        )
     return True if key_with_max_value == country_value else False

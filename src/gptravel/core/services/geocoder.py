@@ -5,6 +5,8 @@ from geopy import Location
 from geopy.distance import geodesic as GRC
 from geopy.geocoders import Nominatim
 
+LOCATION_CACHE: Dict[str, Location] = {}
+
 
 class GeoCoder:
     def __init__(self, language: str = "en") -> None:
@@ -13,15 +15,14 @@ class GeoCoder:
             language=language,
             addressdetails=True,
         )
-        self._location_cache: Dict[str, Location] = {}
 
     def _query(self, location_name: str) -> Optional[Location]:
         loc_name = location_name.lower()
-        if loc_name in self._location_cache:
-            return self._location_cache[loc_name]
+        if loc_name in LOCATION_CACHE:
+            return LOCATION_CACHE[loc_name]
         else:
             qry_obj = self._geocoder(location_name)
-            self._location_cache[loc_name] = qry_obj
+            LOCATION_CACHE[loc_name] = qry_obj
         return qry_obj
 
     def country_from_location_name(self, location_name: str) -> Optional[str]:

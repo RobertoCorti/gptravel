@@ -35,7 +35,9 @@ def main(
     travel_plan_in_json_format = engine.get_travel_plan_json(prompt)
 
     print(travel_plan_in_json_format.travel_plan)
-    with open("trave-l_plan_{}_{}.json".format(destination_place, n_days), "w") as jfile:
+    with open(
+        "trave-l_plan_{}_{}.json".format(destination_place, n_days), "w"
+    ) as jfile:
         json.dump(travel_plan_in_json_format.travel_plan, jfile)
 
 

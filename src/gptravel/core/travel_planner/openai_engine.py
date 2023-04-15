@@ -42,6 +42,9 @@ class OpenAITravelEngine(TravelEngine, ABC):
         if len(json_parsed_list) > 1:
             warnings.warn("Found multiple json in travel planner response")
         return TravelPlanJSON(
+            departure_place=prompt.departure_place,
+            destination_place=prompt.destination_place,
+            n_days=prompt.n_travel_days,
             travel_plan_json=json.loads(json_parsed_list[0]),
             json_keys_depth_map=prompt.json_keys,
         )

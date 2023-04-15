@@ -1,8 +1,9 @@
+import time
+
 from gptravel.core.services.engine.classifier import ZeroShotTextClassifier
+from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.scorer import ActivitiesDiversityScorer, TravelPlanScore
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
-from gptravel.core.services.geocoder import GeoCoder
-import time
 
 if __name__ == "__main__":
     a = ZeroShotTextClassifier(True)
@@ -10,6 +11,9 @@ if __name__ == "__main__":
     scorer = ActivitiesDiversityScorer(text_classifier=a)
     scorer.score(
         TravelPlanJSON(
+            destination_place="Thailand",
+            departure_place="Milan",
+            n_days=3,
             travel_plan_json={
                 "Day 1": {
                     "Kuta": [
