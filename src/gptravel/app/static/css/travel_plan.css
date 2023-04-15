@@ -1,13 +1,6 @@
 /* Reset styles with normalize.css */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
 
-/* Set some global styles */
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #f7f7f7;
-  color: #333;
-}
-
 /* Style the travel plan container */
 .travel-plan-container {
   display: flex;

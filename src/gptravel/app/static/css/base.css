@@ -1,3 +1,24 @@
+body{
+    background: #FFFFFF;
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header{
+    background: #0F2944;
+    color: #FFFFFF;
+    padding: 10px;
+    text-align: center;
+}
+
+nav{
+    background-color: #0F2944;
+    height: 20px;
+    color: #ffffff;
+    padding: 30px;
+ }
+
 form{
     display: flex;
     flex-direction: row;
@@ -5,6 +26,14 @@ form{
     align-items: center;
     flex-wrap: wrap;
     padding: 20px 20px;
+}
+
+.main-container{
+    background: #FFFFFF;
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 50px 50px;
+    border-radius: 5px;
 }
 
 .search-form-heading h1 {
@@ -78,4 +107,11 @@ button[type="submit"] {
 
 .form-field input[type="submit"]:hover {
   background-color: #00264d;
+}
+
+footer{
+    color: #000000;
+    padding: 20px;
+    font-size: 15px;
+    text-align: center;
 }
