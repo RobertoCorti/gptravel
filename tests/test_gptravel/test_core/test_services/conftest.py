@@ -4,6 +4,7 @@ from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.scorer import (
     CitiesCountryScorer,
     DayGenerationScorer,
+    OptimizedItineraryScorer,
     TravelPlanScore,
 )
 
@@ -26,3 +27,8 @@ def cities_country_scorer(geo_coder: GeoCoder) -> CitiesCountryScorer:
 @pytest.fixture
 def day_generation_scorer() -> DayGenerationScorer:
     return DayGenerationScorer()
+
+
+@pytest.fixture
+def itinerary_scorer(geo_coder: GeoCoder) -> OptimizedItineraryScorer:
+    return OptimizedItineraryScorer(geo_coder)

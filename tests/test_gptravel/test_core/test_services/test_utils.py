@@ -3,6 +3,7 @@ import pytest
 
 from gptravel.core.services.utils import (
     is_location_a_country,
+    remove_consecutive_duplicates,
     theil_diversity_entropy_index,
 )
 
@@ -53,3 +54,30 @@ def test_is_location_a_country():
     assert is_location_a_country("United States")
     assert is_location_a_country("Milan") == False
     assert is_location_a_country("Russia")
+
+
+def test_remove_consecutive_duplicates():
+    assert remove_consecutive_duplicates([]) == []
+    assert remove_consecutive_duplicates([1]) == [1]
+    assert remove_consecutive_duplicates([1, 1, 1, 1]) == [1]
+    assert remove_consecutive_duplicates([1, 2, 3, 4]) == [1, 2, 3, 4]
+    assert remove_consecutive_duplicates([1, 1, 2, 2, 3, 4, 4]) == [1, 2, 3, 4]
+    assert remove_consecutive_duplicates([1, 1, 2, 2, 3, 4, 4, 1]) == [1, 2, 3, 4, 1]
+    assert remove_consecutive_duplicates([1, 1, 2, 2, 3, 4, 4, 1, 1]) == [1, 2, 3, 4, 1]
+    assert remove_consecutive_duplicates([1, 1, 2, 2, 3, 4, 1, 4, 1]) == [
+        1,
+        2,
+        3,
+        4,
+        1,
+        4,
+        1,
+    ]
+    assert remove_consecutive_duplicates([1, "a", "a", 2, 2, "b", "c", "c", 4]) == [
+        1,
+        "a",
+        2,
+        "b",
+        "c",
+        4,
+    ]

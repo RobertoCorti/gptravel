@@ -1,5 +1,5 @@
 import math
-from typing import List, Union
+from typing import Any, List, Union
 
 from gptravel.core.services.engine.classifier import ZeroShotTextClassifier
 
@@ -38,3 +38,9 @@ def is_location_a_country(location: str) -> bool:
             prediction[location], key=lambda key: prediction[location][key]
         )
     return True if key_with_max_value == country_value else False
+
+
+def remove_consecutive_duplicates(input_list: List[Any]) -> List[Any]:
+    return [
+        elem for i, elem in enumerate(input_list) if i == 0 or input_list[i - 1] != elem
+    ]

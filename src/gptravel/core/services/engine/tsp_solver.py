@@ -10,6 +10,11 @@ from gptravel.core.services.geocoder import GeoCoder
 class TSPSolver:
     def __init__(self, geocoder: GeoCoder) -> None:
         self._geocoder = geocoder
+        self._distance_matrix: np.ndarray = np.empty([2, 2])
+
+    @property
+    def distance_matrix(self) -> np.ndarray:
+        return self._distance_matrix
 
     def solve(
         self, cities: List[str], open_problem: bool = False
@@ -20,7 +25,7 @@ class TSPSolver:
                 if len(cities) < 10
                 else solve_tsp_simulated_annealing
             )
-            distance_matrix = np.array(
+            self._distance_matrix = np.array(
                 [
                     [
                         0.0
@@ -31,11 +36,10 @@ class TSPSolver:
                     for i in range(len(cities))
                 ]
             )
+            dm = np.copy(self._distance_matrix)
             if open_problem:
-                distance_matrix[:, 0] = 0.0
-            solution_indexes, solution_distance = solver(
-                distance_matrix=distance_matrix
-            )
+                dm[:, 0] = 0.0
+            solution_indexes, solution_distance = solver(distance_matrix=dm)
             return [cities[index] for index in solution_indexes], solution_distance
         else:
             return cities, 0.0

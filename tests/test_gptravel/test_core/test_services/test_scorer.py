@@ -3,6 +3,7 @@ import pytest
 from gptravel.core.services.scorer import (
     CitiesCountryScorer,
     DayGenerationScorer,
+    OptimizedItineraryScorer,
     TravelPlanScore,
 )
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
@@ -117,3 +118,22 @@ class TestCitiesCountryScorer:
         assert score_dict["score_value"] == pytest.approx(0.8, 0.01)
         assert score_dict["latitude_check"]["score"] == pytest.approx(1.0, 0.01)
         assert score_dict["country_check"]["score"] == pytest.approx(0.666, 0.01)
+
+
+class TestOptimizedItineraryScorer:
+    def test_with_different_cities(
+        self,
+        itinerary_scorer: OptimizedItineraryScorer,
+        travel_plan_multiple_city_per_day_and_wrong_n_days: TravelPlanJSON,
+        score_container: TravelPlanScore,
+    ) -> None:
+        itinerary_scorer.score(
+            travel_plan_multiple_city_per_day_and_wrong_n_days, score_container
+        )
+        score_dict = score_container.score_map[itinerary_scorer.service_name]
+        assert score_dict["score_value"] == pytest.approx(0.94485, 0.0001)
+        assert score_dict["tsp_solution"]["solution"] == ["bangkok", "krabi", "phuket"]
+        assert score_dict["tsp_solution"]["open_problem"]
+        assert score_dict["tsp_solution"]["distance"] == pytest.approx(727.7, 0.1)
+        assert score_dict["itinerary"]["distance"] == pytest.approx(770.2, 0.1)
+        assert score_dict["itinerary"]["solution"] == ["bangkok", "phuket", "krabi"]
