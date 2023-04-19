@@ -149,6 +149,35 @@ def travel_plan_fake_city() -> TravelPlanJSON:
 
 
 @pytest.fixture
+def italian_travel_plan() -> TravelPlanJSON:
+    return TravelPlanJSON(
+        destination_place="Italy",
+        departure_place="Paris",
+        n_days=4,
+        travel_plan_json={
+            "Day 1": {
+                "Paris": [
+                    "Take flight to Venice",
+                ]
+            },
+            "Day 2": {
+                "Venice": [
+                    "See San Marco",
+                ]
+            },
+            "Day 3": {
+                "Venice": [
+                    "Take a ride on gondola",
+                ],
+                "Palermo": ["Eat an arancina"],
+            },
+            "Day 4": {"Florence": ["Eat fiorentina"], "Paris": ["Return back home"]},
+        },
+        json_keys_depth_map={"city": 1, "day": 0},
+    )
+
+
+@pytest.fixture
 def travel_properties() -> Dict[str, Any]:
     return {
         "departure_place": "Milan",
