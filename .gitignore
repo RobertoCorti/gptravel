@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# VSCode
+.vscode
+
+# pytest
+coverage.xml
+pytest-xunit.xml
+
+# output files
+*.json

@@ -26,4 +26,4 @@ poetry add --group dev <package>
 ```
 To remove a package then run the command
 ```
-poectry remove <package>
+poetry remove <package>
