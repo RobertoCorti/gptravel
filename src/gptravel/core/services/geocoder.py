@@ -11,7 +11,7 @@ LOCATION_CACHE: Dict[str, Location] = {}
 class GeoCoder:
     def __init__(self, language: str = "en") -> None:
         self._geocoder = partial(
-            Nominatim(user_agent="geoapiExercises").geocode,
+            Nominatim(user_agent="geoapiExercises223").geocode,
             language=language,
             addressdetails=True,
         )
