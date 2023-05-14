@@ -66,14 +66,7 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
     prompt = prompt_factory.build_prompt(**travel_parameters)
     engine = openai_engine.ChatGPTravelEngine(max_tokens=MAX_TOKENS)
 
-    travel_plan = mock_get_travel_plan_json()
-    travel_plan_json = TravelPlanJSON(
-        departure_place='Italy',
-        destination_place='Malaysia',
-        n_days=6,
-        travel_plan_json = travel_plan,
-        json_keys_depth_map={"city": 1, "day": 0},
-    )
+    travel_plan_json = engine.get_travel_plan_json(prompt)
     print(travel_plan_json.travel_plan)
     score = 9
 

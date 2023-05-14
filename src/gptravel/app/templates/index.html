@@ -38,16 +38,32 @@
     </div>
     </form>
   </div>
+  <div id="loading-page">
+    <div class="lds-dual-ring"></div>
+  </div>
+
 </div>
 
 <script src="{{url_for('static', filename='js/app.js')}}"></script>
 <script>
+
+  // Hide loading page when the page is loaded
+  window.addEventListener('load', () => {
+        const loadingPage = document.getElementById('loading-page');
+        loadingPage.style.display = 'none';
+    });
+
   // Show the loading page when the form is submitted
   const searchForm = document.getElementById('search-form');
-  const searchButton = document.getElementById('submit');
-  searchForm.addEventListener('submit', () => {
-    document.body.classList.add('loading');
-    searchButton.disabled = true;
+  const loadingPage = document.getElementById('loading-page');
+  const searchFormHeading = document.querySelector('.search-form-heading');
+
+  searchForm.addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent the default form submission behavior
+    loadingPage.style.display = 'block'; // Show the loading page
+    searchForm.style.display = 'none'; // Hide the form
+    searchFormHeading.style.display = 'none'; // Hide the form header
+    searchForm.submit(); // Submit the form
   });
 </script>
 

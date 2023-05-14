@@ -4,8 +4,9 @@ form{
     justify-content: left;
     align-items: center;
     flex-wrap: wrap;
-    width: 900px;
+    width: 950px;
     margin-left: auto;
+    padding-left: 43px;
 }
 .search-form-heading h1 {
   padding: 0 50px;
@@ -81,4 +82,31 @@ button[type="submit"] {
 
 .form-field input[type="submit"]:hover {
   background-color: #00264d;
+}
+
+.lds-dual-ring {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 150px;
+    margin-bottom: 150px;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #00264d;
+  border-color: #00264d transparent #00264d transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
