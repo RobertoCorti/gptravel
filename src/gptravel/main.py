@@ -37,7 +37,7 @@ def main(
 
     prompt = prompt_factory.build_prompt(**travel_parameters)
 
-    engine = ChatGPTravelEngine(max_tokens=350)
+    engine = ChatGPTravelEngine(max_tokens=1050)
 
     travel_plan_in_json_format = engine.get_travel_plan_json(prompt)
     print(
@@ -123,8 +123,8 @@ def main(
 
 if __name__ == "__main__":
     main(
-        destination_place="Malaysia",
-        departure_place="Rome",
-        n_days=6,
+        destination_place="Jordan",
+        departure_place="Italy",
+        n_days=3,
         travel_theme=None,
     )

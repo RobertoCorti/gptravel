@@ -1,44 +1,41 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="travel-plan-container">
-    <div class="travel-plan">
-      <h1 class="travel-plan-title">{{ destination }}</h1>
-      <div class="travel-dates">
-        <div class="travel-date">
-          <p class="travel-date-label">Departure:</p>
-          <p class="travel-date-value">{{ departure_date }}</p>
+<div class="travel-plan-container">
+    <div class="travel-plan-head">
+        <div class="travel-plan-title">
+            <h1>Travel Plan</h1>
         </div>
-        <div class="travel-date">
-          <p class="travel-date-label">Return:</p>
-          <p class="travel-date-value">{{ return_date }}</p>
+        <div class="travel-score-box">
+            <h1 class="travel-score">
+                9
+            </h1>
+            <span class="travel-score-description">{{ travel_score_description }}
+            </span>
         </div>
-      </div>
-      {% if summary %}
-        <div class="travel-summary">
-          <h2 class="travel-summary-title">Description</h2>
-          <p class="travel-summary-text">{{ summary }}</p>
-        </div>
-      {% endif %}
-      <div id="map"></div>
     </div>
-  </div>
 
-  <script>
-    var geoCoordinates = {{ destination_coordinates|tojson }};
-    var markerCoordinates = [
-    {% for day, location_dict in travel_dict.items() %}
-      {% for city, data_dict in location_dict.items() %}
-        {{ data_dict['coordinates']|safe }}
-        {% if not loop.last %}
-          ,
-        {% endif %}
-      {% endfor %}
-      {% if not loop.last %}
-        ,
-      {% endif %}
-    {% endfor %}
-  ];
-  </script>
-    <script src="{{url_for('static', filename='js/travel_plan.js')}}"></script>
+    <div class="travel-plan-body">
+        {% for day, travel_day_content in travel_plan_json.items() %}
+           <button class="collapsible">{{ day }}</button>
+           <div class="content">
+                {% for city, city_activicties in travel_day_content.items() %}
+                    <div class="city">
+                        <h4>{{ city }}</h4>
+                    </div>
+                    {% for activity in city_activicties %}
+                        <ul class="activity">
+                            <p>{{ activity }}</p>
+                        </ul>
+                    {% endfor %}
+                {% endfor %}
+           </div>
+        {% endfor %}
+        <br>
+    </div>
+
+</div>
+
+<script src="{{url_for('static', filename='js/travel_plan.js')}}"></script>
+
 {% endblock %}

@@ -5,7 +5,7 @@
 <div class="main-container">
   <div class="search-form-heading">
     <h1>Where do you want to go?</h1>
-    <form action="#" method="post">
+    <form id="search-form" action="#" method="post">
       <div class="form-field">
         <label for="from">From:</label>
         <select name="from" id="from" required></select>
@@ -39,6 +39,16 @@
     </form>
   </div>
 </div>
+
 <script src="{{url_for('static', filename='js/app.js')}}"></script>
+<script>
+  // Show the loading page when the form is submitted
+  const searchForm = document.getElementById('search-form');
+  const searchButton = document.getElementById('submit');
+  searchForm.addEventListener('submit', () => {
+    document.body.classList.add('loading');
+    searchButton.disabled = true;
+  });
+</script>
 
 {% endblock %}
