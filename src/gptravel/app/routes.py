@@ -13,8 +13,8 @@ from src.gptravel.app.geo import geolocator
 from src.gptravel.app import app
 from src.gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
-
 MAX_TOKENS = 1024
+
 
 def mock_get_travel_plan_json():
     import os
@@ -22,6 +22,7 @@ def mock_get_travel_plan_json():
     with open('travel_plan_Malaysia_6.json', 'r') as f:
         travel_plan_json = json.load(f)
     return travel_plan_json
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -66,8 +67,8 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
     prompt = prompt_factory.build_prompt(**travel_parameters)
     engine = openai_engine.ChatGPTravelEngine(max_tokens=MAX_TOKENS)
 
-    travel_plan_json = engine.get_travel_plan_json(prompt)
-    print(travel_plan_json.travel_plan)
+    #travel_plan_json = engine.get_travel_plan_json(prompt)
+    travel_plan_json = mock_get_travel_plan_json()
     score = 9
 
     if score >= 9:
@@ -79,7 +80,6 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
     else:
         travel_score_description = "The travel score of {} indicates a fair rating for the travel plan. This score suggests room for improvement and areas that could be enhanced. While the trip may have its highlights, there might be aspects that need attention to make it more fulfilling.".format(
             score)
-
     """
     zs_classifier = classifier.ZeroShotTextClassifier(True)
     geo_decoder = geocoder.GeoCoder()
@@ -90,14 +90,16 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
     scorers_orchestrator.run(
         travel_plan_json=travel_plan_json, scores_container=score_container
     )
+    print("** Travel plan overall scores", score_container.weighted_score)
     """
 
     return render_template(
         'travel_plan.html',
-        destination=destination,
+        departure=departure_country_name,
+        destination=destination_country_name,
         departure_date=departure_date,
         return_date=return_date,
-        travel_plan_json=travel_plan_json.travel_plan,
+        travel_plan_json=travel_plan_json,
         travel_score_description=travel_score_description,
         # score_json=score_json
     )
