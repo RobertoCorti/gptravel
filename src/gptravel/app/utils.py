@@ -1,14 +1,14 @@
-import wikipediaapi
-import requests
-import json
-import random
-import multiprocessing
-import os
-
+import datetime
+import pycountry
 from geopy.geocoders.base import Geocoder
+from typing import Tuple, Dict, Any
+from gptravel.core.services import geocoder, score_builder, scorer
+from gptravel.core.services.engine import classifier
+from gptravel.core.travel_planner import openai_engine
+from gptravel.core.travel_planner.prompt import PromptFactory
+from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
-wiki_wiki = wikipediaapi.Wikipedia('en')
-UNSPLASH_ACCESS_KEY = os.environ.get('UNSPLASH_ACCESS_KEY')
+MAX_TOKENS = 1024
 
 def get_score_description(score: float) -> str:
     """
@@ -32,38 +32,6 @@ def get_score_description(score: float) -> str:
     elif 8 <= score <= 10:
         return "The score is very high."
 
-def get_travel_plan():
-    """THIS IS HARDCODED FOR NOW, REMOVE IT"""
-    return {
-        "Day 1": {
-            "Rome": ["Visit Colosseum", "Visit Fontana di Trevi"],
-        },
-        "Day 2": {
-            "Florence": ["Visit Uffizi", "Walk in the city-center"]
-        }
-    }
-
-
-def get_image_from_unsplash(city: str) -> str:
-    search_url = 'https://api.unsplash.com/search/photos/?query={}&orientation=landscape'.format(city)
-    response = requests.get(search_url, headers={'Authorization': 'Client-ID {}'.format(UNSPLASH_ACCESS_KEY)})
-
-    photos = json.loads(response.text)['results'] if response.status_code == 200 else []
-
-    if len(photos) > 0:
-        photo = random.choice(photos)
-        image_url = photo['urls']['regular']
-    else:
-        image_url = None
-
-    return image_url
-
-
-def get_wikipedia_summary(destination: str) -> str:
-    wiki_page = wiki_wiki.page(destination)
-    wiki_summary = wiki_page.summary
-    return '.'.join(wiki_summary.split('.')[:3]) if wiki_page.exists() else None
-
 
 def get_travel_cities_coordinates(travel_plan_dict: dict, geocoder: Geocoder) -> dict:
     return {
@@ -75,20 +43,108 @@ def get_travel_cities_coordinates(travel_plan_dict: dict, geocoder: Geocoder) ->
     }
 
 
-def get_image_from_unsplash_pool(city: str) -> dict:
-    return {city: get_image_from_unsplash(city)}
+def calculate_number_of_days(return_date, departure_date):
+    """
+    Calculates the number of travel days based on the departure and return dates.
+
+    Args:
+        return_date (str): Return date in the format 'YYYY-MM-DD'.
+        departure_date (str): Departure date in the format 'YYYY-MM-DD'.
+
+    Returns:
+        int: Number of travel days.
+    """
+    n_days = (datetime.datetime.strptime(return_date, '%Y-%m-%d') - datetime.datetime.strptime(departure_date,
+                                                                                               '%Y-%m-%d')).days
+    return n_days
 
 
-def get_travel_cities_images_url(travel_plan_dict: dict) -> dict:
-    ### TODO: usare asyncio
-    with multiprocessing.Pool() as pool:
-        city_results_list = pool.map(get_image_from_unsplash_pool,
-                                     [city for day in travel_plan_dict.values() for city in day.keys()])
-        city_results = {city: image_url for city_result in city_results_list for city, image_url in city_result.items()}
-        return {
-            day: {
-                city: city_results[city]
-                for city in day_activity.keys()
-            }
-            for day, day_activity in travel_plan_dict.items()
-        }
+def get_country_names(departure, destination):
+    """
+    Retrieves the country names based on the departure and destination codes.
+
+    Args:
+        departure (str): Departure code or name.
+        destination (str): Destination code or name.
+
+    Returns:
+        tuple: Tuple containing departure country name and destination country name.
+    """
+    try:
+        departure_country_name = pycountry.countries.get(alpha_2=departure).name
+        destination_country_name = pycountry.countries.get(alpha_2=destination).name
+    except AttributeError:
+        destination_country_name = destination
+        departure_country_name = departure
+    return departure_country_name, destination_country_name
+
+
+def build_travel_parameters(departure_country_name: str, destination_country_name: str, n_days: int,
+                            travel_option: str) -> Dict[str, Any]:
+    """
+    Builds the travel parameters dictionary.
+
+    Args:
+        departure_country_name (str): Departure country name.
+        destination_country_name (str): Destination country name.
+        n_days (int): Number of travel days.
+        travel_option (str): Travel option.
+
+    Returns:
+        dict: Travel parameters dictionary.
+    """
+    travel_parameters = {
+        "departure_place": departure_country_name,
+        "destination_place": destination_country_name,
+        "n_travel_days": n_days,
+        "travel_theme": travel_option
+    }
+    return travel_parameters
+
+
+def build_prompt(travel_parameters: Dict[str, Any]) -> str:
+    """
+    Builds the prompt for the travel plan based on the travel parameters.
+
+    Args:
+        travel_parameters (dict): Travel parameters.
+
+    Returns:
+        str: Prompt for the travel plan.
+    """
+    prompt_factory = PromptFactory()
+    prompt = prompt_factory.build_prompt(**travel_parameters)
+    return prompt
+
+
+def get_travel_plan_json(prompt: str) -> TravelPlanJSON:
+    """
+    Retrieves the travel plan JSON based on the provided prompt.
+
+    Args:
+        prompt (str): Prompt for the travel plan.
+
+    Returns:
+        TravelPlanJSON: Travel plan JSON.
+    """
+    engine = openai_engine.ChatGPTravelEngine(max_tokens=MAX_TOKENS)
+    return engine.get_travel_plan_json(prompt)
+
+
+def calculate_travel_score(travel_plan_dict: Dict[str, Any]) -> float:
+    """
+    Calculates the travel score based on the travel plan.
+
+    Args:
+        travel_plan_dict (dict): Travel plan dictionary.
+
+    Returns:
+        float: Travel score.
+    """
+    zs_classifier = classifier.ZeroShotTextClassifier(True)
+    geo_decoder = geocoder.GeoCoder()
+    score_container = scorer.TravelPlanScore()
+    scorers_orchestrator = score_builder.ScorerOrchestrator(geocoder=geo_decoder, text_classifier=zs_classifier)
+    scorers_orchestrator.run(travel_plan_json=travel_plan_dict, scores_container=score_container)
+    score = round(score_container.weighted_score * 10, 1)
+    return score
