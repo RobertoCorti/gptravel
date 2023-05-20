@@ -12,13 +12,12 @@ from src.gptravel.app import utils
 from src.gptravel.app.geo import geolocator
 from src.gptravel.app import app
 from src.gptravel.core.travel_planner.travel_engine import TravelPlanJSON
+import os
 
 MAX_TOKENS = 1024
 
 
 def mock_get_travel_plan_json():
-    import os
-    print(os.listdir())
     with open('travel_plan_Malaysia_6.json', 'r') as f:
         travel_plan_json = json.load(f)
     return travel_plan_json
@@ -67,7 +66,7 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
     prompt = prompt_factory.build_prompt(**travel_parameters)
     engine = openai_engine.ChatGPTravelEngine(max_tokens=MAX_TOKENS)
 
-    #travel_plan_json = engine.get_travel_plan_json(prompt)
+    #travel_plan_json = engine.get_travel_plan_json(prompt).travel_plan
     travel_plan_json = mock_get_travel_plan_json()
 
     """
@@ -84,8 +83,18 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
     """
     score = 8.5
     travel_score_description = utils.get_score_description(score)
+    destination_coordinates = geolocator.geocode(destination).latitude, geolocator.geocode(destination).longitude
     markers_coordinates = utils.get_travel_cities_coordinates(travel_plan_json, geolocator)
-    print(markers_coordinates)
+    travel_dict = {
+        day: {
+            city: {
+                'activities': travel_plan_json[day][city],
+                'coordinates': markers_coordinates[day][city],
+            }
+            for city in travel_plan_json[day].keys()
+        }
+        for day in travel_plan_json.keys()
+    }
 
 
     return render_template(
@@ -97,6 +106,9 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
         travel_plan_json=travel_plan_json,
         travel_score_description=travel_score_description,
         travel_score=score,
+        destination_coordinates=destination_coordinates,
+        markers_coordinates=markers_coordinates,
+        travel_dict=travel_dict,
     )
 
 

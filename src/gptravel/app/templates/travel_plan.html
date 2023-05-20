@@ -15,19 +15,31 @@
         </div>
     </div>
 
+    <div class="travel-plan-body-head">
+        <div id="map"></div>
+        <div data-skyscanner-widget="FlightSearchWidget"
+            data-origin-name="{{ departure }}"
+            data-destination-name="{{ destination }}"
+            data-currency="EUR"
+            data-departure-date="{{ departure_date }}"
+            data-return-date="{{ return_date }}"
+            class="skyscanner-widget"
+        ></div>
+    </div>
+
     <div class="travel-plan-body">
         {% for day, travel_day_content in travel_plan_json.items() %}
-           <button class="collapsible", id="collapsible-{{day}}">{{ day }}</button>
-           <div class="content", id="content-{{day}}">
+           <button class="collapsible">{{ day }}</button>
+           <div class="content">
                 {% for city, city_activicties in travel_day_content.items() %}
                     <div class="city">
                         <h4>{{ city }}</h4>
                     </div>
-                    <ul class="activity">
                     {% for activity in city_activicties %}
-                        <li>{{ activity }}</li>
+                        <ul class="activity">
+                            <p>{{ activity }}</p>
+                        </ul>
                     {% endfor %}
-                    </ul>
                 {% endfor %}
            </div>
         {% endfor %}
@@ -36,5 +48,37 @@
 
 </div>
 
-<script src="{{url_for('static', filename='js/travel_plan.js')}}"></script>
+<script>
+    var geoCoordinates = {{ destination_coordinates|tojson }};
+    var markerCoordinates = [
+    {% for day, location_dict in travel_dict.items() %}
+      {% for city, data_dict in location_dict.items() %}
+        {{ data_dict['coordinates']|safe }}
+        {% if not loop.last %}
+          ,
+        {% endif %}
+      {% endfor %}
+      {% if not loop.last %}
+        ,
+      {% endif %}
+    {% endfor %}
+  ];
+    var map = L.map('map').setView(geoCoordinates, 5);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+
+    var latlngs = Array();
+
+    // Creating markers
+    for (let i = 0; i < markerCoordinates.length; i++) {
+        var marker = L.marker(markerCoordinates[i]).addTo(map);
+        latlngs.push(marker.getLatLng());
+    }
+
+
+  </script>
+  <script src="https://widgets.skyscanner.net/widget-server/js/loader.js" async></script>
+  <script src="{{url_for('static', filename='js/travel_plan.js')}}"></script>
 {% endblock %}

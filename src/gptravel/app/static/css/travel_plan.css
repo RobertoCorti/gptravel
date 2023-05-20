@@ -120,3 +120,23 @@
   transition: max-height 0.2s ease-out;
   background-color: #f1f1f1;
 }
+
+.travel-plan-body-head {
+  width: 1090px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#map {
+  align-items: flex-start;
+  height: 300px;
+  width: 40%;
+}
+
+.skyscanner-widget {
+  width: 50%;
+  height: 100%;
+  border: none;
+}
