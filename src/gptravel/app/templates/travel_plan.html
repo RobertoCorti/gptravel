@@ -8,7 +8,7 @@
         </div>
         <div class="travel-score-box">
             <h1 class="travel-score">
-                9
+                {{ travel_score }}
             </h1>
             <span class="travel-score-description">{{ travel_score_description }}
             </span>
@@ -17,17 +17,17 @@
 
     <div class="travel-plan-body">
         {% for day, travel_day_content in travel_plan_json.items() %}
-           <button class="collapsible">{{ day }}</button>
-           <div class="content">
+           <button class="collapsible", id="collapsible-{{day}}">{{ day }}</button>
+           <div class="content", id="content-{{day}}">
                 {% for city, city_activicties in travel_day_content.items() %}
                     <div class="city">
                         <h4>{{ city }}</h4>
                     </div>
+                    <ul class="activity">
                     {% for activity in city_activicties %}
-                        <ul class="activity">
-                            <p>{{ activity }}</p>
-                        </ul>
+                        <li>{{ activity }}</li>
                     {% endfor %}
+                    </ul>
                 {% endfor %}
            </div>
         {% endfor %}
@@ -37,5 +37,4 @@
 </div>
 
 <script src="{{url_for('static', filename='js/travel_plan.js')}}"></script>
-
 {% endblock %}

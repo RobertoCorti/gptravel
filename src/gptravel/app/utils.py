@@ -10,6 +10,27 @@ from geopy.geocoders.base import Geocoder
 wiki_wiki = wikipediaapi.Wikipedia('en')
 UNSPLASH_ACCESS_KEY = os.environ.get('UNSPLASH_ACCESS_KEY')
 
+def get_score_description(score: float) -> str:
+    """
+    Returns a description based on the given score.
+
+    Parameters:
+    - score (float): The score to describe. Should be in the range of 0 to 10 (inclusive).
+
+    Returns:
+    - str: A description of the score.
+
+    """
+    if 0 <= score < 2:
+        return "The score is very low."
+    elif 2 <= score < 4:
+        return "The score is low."
+    elif 4 <= score < 6:
+        return "The score is medium."
+    elif 6 <= score < 8:
+        return "The score is high."
+    elif 8 <= score <= 10:
+        return "The score is very high."
 
 def get_travel_plan():
     """THIS IS HARDCODED FOR NOW, REMOVE IT"""

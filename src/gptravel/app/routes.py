@@ -69,17 +69,7 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
 
     #travel_plan_json = engine.get_travel_plan_json(prompt)
     travel_plan_json = mock_get_travel_plan_json()
-    score = 9
 
-    if score >= 9:
-        travel_score_description = "The travel score of {} indicates an excellent rating for the travel plan. This score suggests a highly recommended and enjoyable experience, with great destinations, activities, and accommodations. It signifies a well-planned and satisfying journey that promises memorable moments and delightful adventures.".format(
-            score)
-    elif score >= 7:
-        travel_score_description = "The travel score of {} suggests a good rating for the travel plan. This score indicates a pleasant experience with enjoyable destinations, activities, and accommodations. It promises a well-rounded and satisfying journey that offers memorable moments.".format(
-            score)
-    else:
-        travel_score_description = "The travel score of {} indicates a fair rating for the travel plan. This score suggests room for improvement and areas that could be enhanced. While the trip may have its highlights, there might be aspects that need attention to make it more fulfilling.".format(
-            score)
     """
     zs_classifier = classifier.ZeroShotTextClassifier(True)
     geo_decoder = geocoder.GeoCoder()
@@ -90,8 +80,13 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
     scorers_orchestrator.run(
         travel_plan_json=travel_plan_json, scores_container=score_container
     )
-    print("** Travel plan overall scores", score_container.weighted_score)
+    score = round(score_container.weighted_score*10, 2)
     """
+    score = 8.5
+    travel_score_description = utils.get_score_description(score)
+    markers_coordinates = utils.get_travel_cities_coordinates(travel_plan_json, geolocator)
+    print(markers_coordinates)
+
 
     return render_template(
         'travel_plan.html',
@@ -101,45 +96,9 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
         return_date=return_date,
         travel_plan_json=travel_plan_json,
         travel_score_description=travel_score_description,
-        # score_json=score_json
+        travel_score=score,
     )
-    """
-    try:
-        destination_country_name = pycountry.countries.get(alpha_2=destination).name
-    except AttributeError:
-        destination_country_name = destination
 
-    wiki_summary = utils.get_wikipedia_summary(destination_country_name)
-
-    destination_coordinates = geolocator.geocode(destination_country_name).latitude, geolocator.geocode(
-        destination_country_name).longitude
-
-    travel_plan_json = utils.get_travel_plan()
-    markers_coordinates = utils.get_travel_cities_coordinates(travel_plan_json, geolocator)
-    travel_images_url = utils.get_travel_cities_images_url(travel_plan_json)
-
-    travel_dict = {
-        day: {
-            city: {
-                'activities': travel_plan_json[day][city],
-                'coordinates': markers_coordinates[day][city],
-                'image_url': travel_images_url[day][city]
-            }
-            for city in travel_plan_json[day].keys()
-        }
-        for day in travel_plan_json.keys()
-    }
-
-    return render_template(
-        'travel_plan.html',
-        destination=destination_country_name,
-        departure_date=departure_date,
-        return_date=return_date,
-        summary=wiki_summary,
-        destination_coordinates=destination_coordinates,
-        travel_dict=travel_dict
-    )
-    """
 
 
 @app.route('/about')
