@@ -1,25 +1,7 @@
-import datetime
-import json
-
 from flask import render_template, request, redirect, url_for
-import pycountry
-
-from gptravel.core.services import geocoder, score_builder, scorer
-from gptravel.core.services.engine import classifier
-from gptravel.core.travel_planner import openai_engine
-from gptravel.core.travel_planner.prompt import PromptFactory
 from src.gptravel.app import utils
 from src.gptravel.app.geo import geolocator
 from src.gptravel.app import app
-from src.gptravel.core.travel_planner.travel_engine import TravelPlanJSON
-import os
-
-
-
-def mock_get_travel_plan_json():
-    with open('travel_plan_Malaysia_6.json', 'r') as f:
-        travel_plan_json = json.load(f)
-    return travel_plan_json
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -81,7 +63,6 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
         markers_coordinates=markers_coordinates,
         travel_dict=travel_dict,
     )
-
 
 
 @app.route('/about')
