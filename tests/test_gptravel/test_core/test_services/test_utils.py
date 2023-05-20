@@ -48,6 +48,7 @@ def test_entropy_score():
     )
 
 
+@pytest.mark.skip(reason="api key no available yet")
 def test_is_location_a_country():
     assert is_location_a_country("Thailand")
     assert is_location_a_country("Bangkok") == False
