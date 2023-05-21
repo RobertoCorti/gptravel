@@ -3,6 +3,7 @@ from typing import Dict, Optional
 
 from geopy import Location
 from geopy.distance import geodesic as GRC
+from geopy.extra.rate_limiter import RateLimiter
 from geopy.geocoders import Nominatim
 
 LOCATION_CACHE: Dict[str, Location] = {}
@@ -11,7 +12,9 @@ LOCATION_CACHE: Dict[str, Location] = {}
 class GeoCoder:
     def __init__(self, language: str = "en") -> None:
         self._geocoder = partial(
-            Nominatim(user_agent="geoapiExercises223").geocode,
+            RateLimiter(
+                Nominatim(user_agent="geoapiExercises223").geocode, min_delay_seconds=1
+            ),
             language=language,
             addressdetails=True,
         )
