@@ -14,17 +14,17 @@ class TestPrompt:
         self, travel_properties: Dict[str, Any], prompt_factory: PromptFactory
     ):
         prompt_class = prompt_factory.build_prompt(**travel_properties)
-        assert type(prompt_class) == PlainTravelPrompt
+        assert isinstance(prompt_class, PlainTravelPrompt)
         travel_properties["travel_theme"] = None
         prompt_class = prompt_factory.build_prompt(**travel_properties)
-        assert type(prompt_class) == PlainTravelPrompt
+        assert isinstance(prompt_class, PlainTravelPrompt)
 
     def test_thematic_prompt_from_factory(
         self, travel_properties: Dict[str, Any], prompt_factory: PromptFactory
     ):
         travel_properties["travel_theme"] = "romantic"
         prompt_class = prompt_factory.build_prompt(**travel_properties)
-        assert type(prompt_class) == ThematicTravelPrompt
+        assert isinstance(prompt_class, ThematicTravelPrompt)
 
     def test_properties(
         self, travel_properties: Dict[str, Any], prompt_factory: PromptFactory

@@ -32,7 +32,7 @@ def test_extract_keys_by_depth():
     json_obj = json.loads(json_str)
 
     assert extract_keys_by_depth_from_json(json_obj, 0) == ["a", "b", "c"]
-    assert extract_keys_by_depth_from_json(json_obj, 1) == []
+    assert not extract_keys_by_depth_from_json(json_obj, 1)
 
 
 def test_extract_inner_lists_from_json():
@@ -105,10 +105,10 @@ def test_extract_inner_list_nested():
 def test_extract_inner_list_empty():
     # Example with empty data
     data = {}
-    assert extract_inner_lists_from_json(data) == []
+    assert not extract_inner_lists_from_json(data)
 
 
 def test_extract_inner_list_wrong_input():
     # Example with wrong input type
     data = "wrong input type"
-    assert extract_inner_lists_from_json(data) == []
+    assert not extract_inner_lists_from_json(data)

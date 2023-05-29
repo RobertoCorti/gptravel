@@ -1,5 +1,8 @@
 name: test
 
+env:
+  ENV: "PROD"
+
 on:
   pull_request:
     branches: [ "main" ]
@@ -37,6 +40,8 @@ jobs:
         run: poetry install --no-interaction --no-root
       - name: Install library
         run: poetry install --no-interaction
+      - name: Run Tests
+        run: echo "Running Tests in $ENV environment"
       - run: |
           source $VENV
           pytest tests

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Union
 
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
