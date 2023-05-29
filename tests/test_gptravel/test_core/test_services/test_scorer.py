@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from gptravel.core.services.scorer import (
@@ -7,6 +9,11 @@ from gptravel.core.services.scorer import (
     TravelPlanScore,
 )
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
+
+uat_test = pytest.mark.skipif(
+    os.getenv("ENV", "UAT") == "PROD",
+    reason="Only run in UAT environment",
+)
 
 
 class TestTravelPlanScore:
@@ -41,7 +48,7 @@ class TestTravelPlanScore:
         assert score_container.weighted_score == pytest.approx(78.367, 0.001)
 
     def test_weighted_score_empty(self, score_container: TravelPlanScore):
-        assert score_container.weighted_score == None
+        assert not score_container.weighted_score
 
     def test_add_score_missing_key(self):
         score = TravelPlanScore()
@@ -89,6 +96,7 @@ class TestDayGenerationScorer:
         assert score_dict["misaligned_days"]["missing_days"] == [3]
 
 
+@uat_test
 class TestCitiesCountryScorer:
     def test_with_correct_travel_plan(
         self,
@@ -120,6 +128,7 @@ class TestCitiesCountryScorer:
         assert score_dict["country_check"]["score"] == pytest.approx(0.666, 0.01)
 
 
+@uat_test
 class TestOptimizedItineraryScorer:
     def test_with_different_cities(
         self,

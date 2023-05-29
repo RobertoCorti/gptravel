@@ -3,6 +3,7 @@ from typing import Dict, Optional
 
 from geopy import Location
 from geopy.distance import geodesic as GRC
+from geopy.extra.rate_limiter import RateLimiter
 from geopy.geocoders import Nominatim
 
 LOCATION_CACHE: Dict[str, Location] = {}
@@ -11,7 +12,9 @@ LOCATION_CACHE: Dict[str, Location] = {}
 class GeoCoder:
     def __init__(self, language: str = "en") -> None:
         self._geocoder = partial(
-            Nominatim(user_agent="geoapiExercises223").geocode,
+            RateLimiter(
+                Nominatim(user_agent="geoapiExercises223").geocode, min_delay_seconds=1
+            ),
             language=language,
             addressdetails=True,
         )
@@ -20,9 +23,8 @@ class GeoCoder:
         loc_name = location_name.lower()
         if loc_name in LOCATION_CACHE:
             return LOCATION_CACHE[loc_name]
-        else:
-            qry_obj = self._geocoder(location_name)
-            LOCATION_CACHE[loc_name] = qry_obj
+        qry_obj = self._geocoder(location_name)
+        LOCATION_CACHE[loc_name] = qry_obj
         return qry_obj
 
     def country_from_location_name(self, location_name: str) -> Optional[str]:
@@ -41,10 +43,9 @@ class GeoCoder:
     def location_distance(self, location_name_1: str, location_name_2: str) -> float:
         if location_name_1.lower() == location_name_2.lower():
             return 0.0
-        else:
-            location1_coords = self.location_coordinates(location_name_1)
-            location2_coords = self.location_coordinates(location_name_2)
-            return GRC(
-                (location1_coords["lat"], location1_coords["lon"]),
-                (location2_coords["lat"], location2_coords["lon"]),
-            ).km
+        location1_coords = self.location_coordinates(location_name_1)
+        location2_coords = self.location_coordinates(location_name_2)
+        return GRC(
+            (location1_coords["lat"], location1_coords["lon"]),
+            (location2_coords["lat"], location2_coords["lon"]),
+        ).km

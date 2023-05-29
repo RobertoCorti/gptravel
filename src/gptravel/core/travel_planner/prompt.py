@@ -88,5 +88,4 @@ class PromptFactory:
         kwargs = defaultdict(str, kwargs)
         if kwargs["travel_theme"]:
             return ThematicTravelPrompt(**kwargs)
-        else:
-            return PlainTravelPrompt(**kwargs)
+        return PlainTravelPrompt(**kwargs)

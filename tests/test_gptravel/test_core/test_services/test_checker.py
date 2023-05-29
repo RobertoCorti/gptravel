@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from gptravel.core.services.checker import ExistingDestinationsChecker
@@ -10,6 +12,13 @@ def existing_cities_checker(geo_coder: GeoCoder) -> ExistingDestinationsChecker:
     return ExistingDestinationsChecker(geo_coder)
 
 
+uat_test = pytest.mark.skipif(
+    os.getenv("ENV", "UAT") == "PROD",
+    reason="Only run in UAT environment",
+)
+
+
+@uat_test
 class TestExistinCityChecker:
     def test_existing_destinations(
         self,
@@ -23,4 +32,4 @@ class TestExistinCityChecker:
         existing_cities_checker: ExistingDestinationsChecker,
         travel_plan_fake_city: TravelPlanJSON,
     ) -> None:
-        assert existing_cities_checker.check(travel_plan_fake_city) == False
+        assert existing_cities_checker.check(travel_plan_fake_city) is False

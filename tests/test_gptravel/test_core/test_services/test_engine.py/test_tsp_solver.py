@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from gptravel.core.services.engine.tsp_solver import TSPSolver
@@ -9,6 +11,13 @@ def tsp_solver(geo_coder: GeoCoder) -> TSPSolver:
     return TSPSolver(geo_coder)
 
 
+uat_test = pytest.mark.skipif(
+    os.getenv("ENV", "UAT") == "PROD",
+    reason="Only run in UAT environment",
+)
+
+
+@uat_test
 class TestTSPSolver:
     def test_single_city(self, tsp_solver: TSPSolver) -> None:
         cities = ["Rome"]

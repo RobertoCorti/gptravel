@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pytest
 
@@ -48,12 +50,14 @@ def test_entropy_score():
     )
 
 
-@pytest.mark.skip(reason="api key no available yet")
+@pytest.mark.skipif(
+    os.getenv("HUGGING_FACE_KEY", "") == "", reason="no api key available"
+)
 def test_is_location_a_country():
     assert is_location_a_country("Thailand")
-    assert is_location_a_country("Bangkok") == False
+    assert not is_location_a_country("Bangkok")
     assert is_location_a_country("United States")
-    assert is_location_a_country("Milan") == False
+    assert not is_location_a_country("Milan")
     assert is_location_a_country("Russia")
 
 

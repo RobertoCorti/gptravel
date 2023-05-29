@@ -1,6 +1,6 @@
 import pytest
 
-from gptravel.core.utils.regex import JsonExtractor
+from gptravel.core.utils.regex_tool import JsonExtractor
 
 
 @pytest.fixture

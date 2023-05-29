@@ -1,8 +1,16 @@
+import os
+
 import pytest
 
 from gptravel.core.services.geocoder import GeoCoder
 
+uat_test = pytest.mark.skipif(
+    os.getenv("ENV", "UAT") == "PROD",
+    reason="Only run in UAT environment",
+)
 
+
+@uat_test
 class TestGeoCoder:
     def test_country_from_location_name(self, geo_coder: GeoCoder):
         assert geo_coder.country_from_location_name("Paris, France") == "France"
