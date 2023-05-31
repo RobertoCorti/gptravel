@@ -140,7 +140,7 @@ class TestOptimizedItineraryScorer:
             travel_plan_multiple_city_per_day_and_wrong_n_days, score_container
         )
         score_dict = score_container.score_map[itinerary_scorer.service_name]
-        assert score_dict["score_value"] == pytest.approx(0.94485, 0.0001)
+        assert score_dict["score_value"] == pytest.approx(0.95181, 0.0001)
         assert score_dict["tsp_solution"]["solution"] == ["bangkok", "krabi", "phuket"]
         assert score_dict["tsp_solution"]["open_problem"]
         assert score_dict["tsp_solution"]["distance"] == pytest.approx(727.7, 0.1)

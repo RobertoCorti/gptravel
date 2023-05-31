@@ -10,7 +10,7 @@ uat_test = pytest.mark.skipif(
 )
 
 
-@uat_test
+# @uat_test
 class TestGeoCoder:
     def test_country_from_location_name(self, geo_coder: GeoCoder):
         assert geo_coder.country_from_location_name("Paris, France") == "France"
