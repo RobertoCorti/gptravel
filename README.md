@@ -1,4 +1,5 @@
 # gptravel
+![Tests](https://github.com/RobertoCorti/gptravel/actions/workflows/python-tests.yml/badge.svg)
 
 This library uses the package manager poetry. To install poetry then run
 ```
@@ -26,4 +27,4 @@ poetry add --group dev <package>
 ```
 To remove a package then run the command
 ```
-poectry remove <package>
+poetry remove <package>
