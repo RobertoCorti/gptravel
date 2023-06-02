@@ -36,10 +36,9 @@ class TSPSolver:
                     for i in range(len(cities))
                 ]
             )
-            dm = np.copy(self._distance_matrix)
+            dist_mat = np.copy(self._distance_matrix)
             if open_problem:
-                dm[:, 0] = 0.0
-            solution_indexes, solution_distance = solver(distance_matrix=dm)
+                dist_mat[:, 0] = 0.0
+            solution_indexes, solution_distance = solver(distance_matrix=dist_mat)
             return [cities[index] for index in solution_indexes], solution_distance
-        else:
-            return cities, 0.0
+        return cities, 0.0

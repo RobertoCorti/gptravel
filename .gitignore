@@ -136,14 +136,7 @@ poetry.lock
 *.iml
 *.ipr
 *.iws
-*.sublime-wo!/.env/
-=======
-# VSCode
-.vscode
+*.sublime-wo
 
-# pytest
-coverage.xml
-pytest-xunit.xml
-
-# output files
+# JSON
 *.json

@@ -1,6 +1,13 @@
+import os
+
 import pytest
 
 from gptravel.core.services.geocoder import GeoCoder
+
+uat_test = pytest.mark.skipif(
+    os.getenv("ENV", "UAT") == "PROD",
+    reason="Only run in UAT environment",
+)
 
 
 class TestGeoCoder:
@@ -30,4 +37,7 @@ class TestGeoCoder:
     def test_location_distance(self, geo_coder: GeoCoder):
         assert geo_coder.location_distance("kolkata", "delhi") == pytest.approx(
             1305.106, 0.001
+        )
+        assert geo_coder.location_distance("delhi", "delhi") == pytest.approx(
+            0.0, 0.001
         )
