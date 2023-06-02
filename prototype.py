@@ -1,6 +1,8 @@
 import datetime
+import os
 from typing import Any, Dict
 
+import openai
 import streamlit as st
 import pycountry
 import allcities
@@ -11,12 +13,13 @@ COUNTRIES = (country.name.lower() for country in pycountry.countries)
 CITIES = (city.name.lower() for city in allcities.cities)
 
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def _get_travel_plan(openai_key: str,
                      departure: str, destination: str,
                      departure_date: datetime.datetime, return_date: datetime.datetime,
                      travel_reason: str) -> Dict[str, Any]:
     ## compute input params
+    os.environ['OPENAI_API_KEY'] = openai_key
     n_days = (return_date - departure_date).days
 
     travel_parameters = dict(departure_place=departure, destination_place=destination,
@@ -42,7 +45,7 @@ def travel_plan_page(travel_plan_dict, departure_date, return_date):
 
 def main():
     st.title("GPTravel")
-
+    st.write("\n\n")
     openai_key = st.sidebar.text_input("OpenAI API Key",
                                        help="Enter you OpenAI key",
                                        placeholder="Enter your OpenAI key here")
@@ -63,9 +66,25 @@ def main():
         if _is_valid_input(openai_key=openai_key,
                            departure_date=departure_date, return_date=return_date,
                            departure=departure, destination=destination):
-            with st.spinner('Wait for it...'):
+            with st.spinner('Preparing your travel plan...'):
                 travel_plan_dict = _get_travel_plan(**input_options)
-                travel_plan_page(travel_plan_dict=travel_plan_dict, departure_date=departure_date, return_date=return_date)
+                travel_plan_page(travel_plan_dict=travel_plan_dict, departure_date=departure_date,
+                                 return_date=return_date)
+
+
+def _is_valid_openai_key(openai_key: str):
+    openai.api_key = openai_key
+
+    try:
+        openai.Completion.create(
+            engine='davinci',
+            prompt='Hello, World!',
+            max_tokens=5
+        )
+    except openai.error.InvalidRequestError as e:
+        return False
+
+    return True
 
 
 def _is_valid_input(departure: str, destination: str,
@@ -80,8 +99,7 @@ def _is_valid_input(departure: str, destination: str,
     if departure_date >= return_date:
         st.sidebar.warning("Travel dates are not correct. Departure should be before return.")
         return False
-    if openai_key == '':
-        ### TODO (RC): check if the api key is a real one
+    if not _is_valid_openai_key(openai_key):
         st.sidebar.warning("Not valid OpenAI API Access Key")
         return False
 
