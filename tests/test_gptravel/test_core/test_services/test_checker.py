@@ -18,7 +18,6 @@ uat_test = pytest.mark.skipif(
 )
 
 
-@uat_test
 class TestExistinCityChecker:
     def test_existing_destinations(
         self,

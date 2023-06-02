@@ -1,7 +1,7 @@
 name: test
 
 env:
-  ENV: "PROD"
+  ENV: "TEST"
 
 on:
   pull_request:

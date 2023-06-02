@@ -96,7 +96,6 @@ class TestDayGenerationScorer:
         assert score_dict["misaligned_days"]["missing_days"] == [3]
 
 
-@uat_test
 class TestCitiesCountryScorer:
     def test_with_correct_travel_plan(
         self,
@@ -128,7 +127,6 @@ class TestCitiesCountryScorer:
         assert score_dict["country_check"]["score"] == pytest.approx(0.666, 0.01)
 
 
-@uat_test
 class TestOptimizedItineraryScorer:
     def test_with_different_cities(
         self,

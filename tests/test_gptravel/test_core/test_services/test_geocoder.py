@@ -10,7 +10,6 @@ uat_test = pytest.mark.skipif(
 )
 
 
-# @uat_test
 class TestGeoCoder:
     def test_country_from_location_name(self, geo_coder: GeoCoder):
         assert geo_coder.country_from_location_name("Paris, France") == "France"
@@ -38,4 +37,7 @@ class TestGeoCoder:
     def test_location_distance(self, geo_coder: GeoCoder):
         assert geo_coder.location_distance("kolkata", "delhi") == pytest.approx(
             1305.106, 0.001
+        )
+        assert geo_coder.location_distance("delhi", "delhi") == pytest.approx(
+            0.0, 0.001
         )
