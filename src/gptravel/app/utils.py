@@ -2,7 +2,8 @@ import datetime
 import pycountry
 from geopy.geocoders.base import Geocoder
 from typing import Tuple, Dict, Any
-from gptravel.core.services import geocoder, score_builder, scorer
+
+from gptravel.core.services import geocoder, scorer, score_builder
 from gptravel.core.services.engine import classifier
 from gptravel.core.travel_planner import openai_engine
 from gptravel.core.travel_planner.prompt import PromptFactory

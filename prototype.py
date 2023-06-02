@@ -2,16 +2,18 @@ import datetime
 import os
 from typing import Any, Dict
 
-import openai
 import streamlit as st
 import pycountry
 import allcities
 
 from gptravel.app import utils
 from gptravel.prototype import utils as prototype_utils
+from gptravel.prototype import help
 
 COUNTRIES = (country.name.lower() for country in pycountry.countries)
 CITIES = (city.name.lower() for city in allcities.cities)
+
+st.set_page_config(page_title="GPTravel", page_icon="✈️")
 
 
 @st.cache_data(show_spinner=False)
@@ -43,19 +45,41 @@ def travel_plan_page(travel_plan_dict, departure_date, return_date):
 
 
 def main():
-    st.title("GPTravel")
+    st.title("GPTravel ✈️")
     st.write("\n\n")
-    openai_key = st.sidebar.text_input("OpenAI API Key",
-                                       help="Enter you OpenAI key",
-                                       placeholder="Enter your OpenAI key here")
 
-    departure_date = st.sidebar.date_input("Select a date")
-    return_date = st.sidebar.date_input(key="return_date", label="Select a return date")
-    departure = st.sidebar.text_input(label="Departure", placeholder="Select a departure")
-    destination = st.sidebar.text_input(label="Destination", placeholder="Select a destination")
+    openai_key = st.sidebar.text_input(
+        "OpenAI API Key",
+        help=help.OPENAI_KEY_HELP,
+        placeholder="Enter your OpenAI key here"
+    )
+
+    departure_date = st.sidebar.date_input(
+        "Select a date",
+        help=help.DEPARTURE_DATE_HELP
+    )
+
+    return_date = st.sidebar.date_input(
+        label="Select a return date",
+        key="return_date",
+        help=help.RETURN_DATE_HELP
+    )
+
+    departure = st.sidebar.text_input(
+        label="Departure",
+        placeholder="Select a departure",
+        help=help.DEPARTURE_LOC_HELP
+    )
+
+    destination = st.sidebar.text_input(
+        label="Destination",
+        placeholder="Select a destination",
+        help=help.DESTINATION_LOC_HELP
+    )
 
     travel_reason = st.sidebar.selectbox("Select a travel reason",
-                                         ["", "Business", "Romantic", "Solo", "Friends", "Family"])
+                                         options=["", "Business", "Romantic", "Solo", "Friends", "Family"],
+                                         help=help.TRAVEL_REASON_HELP)
 
     input_options = dict(openai_key=openai_key, departure_date=departure_date, return_date=return_date,
                          departure=departure, destination=destination,
