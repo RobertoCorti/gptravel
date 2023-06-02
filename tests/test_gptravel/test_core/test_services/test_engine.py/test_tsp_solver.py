@@ -17,7 +17,6 @@ uat_test = pytest.mark.skipif(
 )
 
 
-@uat_test
 class TestTSPSolver:
     def test_single_city(self, tsp_solver: TSPSolver) -> None:
         cities = ["Rome"]

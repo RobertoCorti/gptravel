@@ -96,7 +96,6 @@ class TestDayGenerationScorer:
         assert score_dict["misaligned_days"]["missing_days"] == [3]
 
 
-@uat_test
 class TestCitiesCountryScorer:
     def test_with_correct_travel_plan(
         self,
@@ -128,7 +127,6 @@ class TestCitiesCountryScorer:
         assert score_dict["country_check"]["score"] == pytest.approx(0.666, 0.01)
 
 
-@uat_test
 class TestOptimizedItineraryScorer:
     def test_with_different_cities(
         self,
@@ -140,7 +138,7 @@ class TestOptimizedItineraryScorer:
             travel_plan_multiple_city_per_day_and_wrong_n_days, score_container
         )
         score_dict = score_container.score_map[itinerary_scorer.service_name]
-        assert score_dict["score_value"] == pytest.approx(0.94485, 0.0001)
+        assert score_dict["score_value"] == pytest.approx(0.95181, 0.0001)
         assert score_dict["tsp_solution"]["solution"] == ["bangkok", "krabi", "phuket"]
         assert score_dict["tsp_solution"]["open_problem"]
         assert score_dict["tsp_solution"]["distance"] == pytest.approx(727.7, 0.1)

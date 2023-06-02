@@ -1,10 +1,11 @@
+import os
 from functools import partial
 from typing import Dict, Optional
 
 from geopy import Location
 from geopy.distance import geodesic as GRC
 from geopy.extra.rate_limiter import RateLimiter
-from geopy.geocoders import Nominatim
+from geopy.geocoders import Photon
 
 LOCATION_CACHE: Dict[str, Location] = {}
 
@@ -12,12 +13,13 @@ LOCATION_CACHE: Dict[str, Location] = {}
 class GeoCoder:
     def __init__(self, language: str = "en") -> None:
         self._geocoder = partial(
-            RateLimiter(
-                Nominatim(user_agent="geoapiExercises223").geocode, min_delay_seconds=1
-            ),
+            Photon().geocode,
             language=language,
-            addressdetails=True,
         )
+        if os.getenv("ENV", "PROD") == "TEST":
+            self._geocoder = partial(
+                RateLimiter(Photon().geocode, min_delay_seconds=1.2), language=language
+            )
 
     def _query(self, location_name: str) -> Optional[Location]:
         loc_name = location_name.lower()
@@ -30,15 +32,14 @@ class GeoCoder:
     def country_from_location_name(self, location_name: str) -> Optional[str]:
         fetched_location = self._query(location_name)
         if fetched_location:
-            return fetched_location.raw["address"]["country"]
+            return fetched_location.raw["properties"]["country"]
         return fetched_location
 
     def location_coordinates(self, location_name: str) -> Dict[str, Optional[float]]:
         fetched_location = self._query(location_name)
-        extraction_keys = ["lat", "lon"]
         if fetched_location:
-            return dict((k, float(fetched_location.raw[k])) for k in extraction_keys)
-        return {key: None for key in extraction_keys}
+            return {"lat": fetched_location.latitude, "lon": fetched_location.longitude}
+        return {"lat": None, "lon": None}
 
     def location_distance(self, location_name_1: str, location_name_2: str) -> float:
         if location_name_1.lower() == location_name_2.lower():
