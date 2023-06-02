@@ -34,7 +34,7 @@ def travel_plan(departure, destination, departure_date, return_date, travel_opti
     travel_plan_json = utils.get_travel_plan_json(prompt)
     travel_plan_dict = travel_plan_json.travel_plan
 
-    score = utils.calculate_travel_score(travel_plan_json)
+    score = utils.get_scorer_orchestrator(travel_plan_json)
     travel_score_description = utils.get_score_description(score)
 
     destination_coordinates = geolocator.geocode(destination).latitude, geolocator.geocode(destination).longitude

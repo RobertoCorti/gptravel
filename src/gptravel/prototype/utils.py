@@ -1,7 +1,13 @@
 import datetime
+from typing import Dict, Any, Union
+
 import pycountry
 import allcities
 import openai
+
+from gptravel.core.services.engine import classifier
+from gptravel.core.services.scorer import TravelPlanScore, ActivitiesDiversityScorer
+from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 COUNTRIES = [country.name.lower() for country in pycountry.countries]
 CITIES = [city.name.lower() for city in allcities.cities]
@@ -84,3 +90,18 @@ def is_departure_before_return(departure_date: datetime.date, return_date: datet
         True if the departure date is before or equal to the return date, False otherwise.
     """
     return departure_date <= return_date
+
+
+def get_score_map(travel_plan_json: TravelPlanJSON) -> Dict[str, Dict[str, Union[float, int]]]:
+    """
+
+    """
+    zs_classifier = classifier.ZeroShotTextClassifier(True)
+    score_container = TravelPlanScore()
+    scorer_obj = ActivitiesDiversityScorer(text_classifier=zs_classifier)
+    scorer_obj.score(
+        travel_plan=travel_plan_json,
+        travel_plan_scores=score_container
+    )
+
+    return score_container.score_map

@@ -143,3 +143,6 @@ poetry.lock
 
 #XML
 *.xml
+
+## Notebooks
+notebooks/
