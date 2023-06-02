@@ -79,14 +79,14 @@ def get_country_names(departure, destination):
     return departure_country_name, destination_country_name
 
 
-def build_travel_parameters(departure_country_name: str, destination_country_name: str, n_days: int,
+def build_travel_parameters(departure: str, destination: str, n_days: int,
                             travel_option: str) -> Dict[str, Any]:
     """
     Builds the travel parameters dictionary.
 
     Args:
-        departure_country_name (str): Departure country name.
-        destination_country_name (str): Destination country name.
+        departure (str): Departure country name.
+        destination (str): Destination country name.
         n_days (int): Number of travel days.
         travel_option (str): Travel option.
 
@@ -94,8 +94,8 @@ def build_travel_parameters(departure_country_name: str, destination_country_nam
         dict: Travel parameters dictionary.
     """
     travel_parameters = {
-        "departure_place": departure_country_name,
-        "destination_place": destination_country_name,
+        "departure_place": departure,
+        "destination_place": destination,
         "n_travel_days": n_days,
         "travel_theme": travel_option
     }
