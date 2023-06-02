@@ -8,6 +8,7 @@ import pycountry
 import allcities
 
 from gptravel.app import utils
+from gptravel.prototype import utils as prototype_utils
 
 COUNTRIES = (country.name.lower() for country in pycountry.countries)
 CITIES = (city.name.lower() for city in allcities.cities)
@@ -86,12 +87,10 @@ def _is_valid_openai_key(openai_key: str):
 
     return True
 
-
 def _is_valid_input(departure: str, destination: str,
                     departure_date: datetime.datetime, return_date: datetime.datetime,
                     openai_key: str) -> bool:
-    if (departure.lower() not in CITIES and departure.lower() not in COUNTRIES) or (
-            destination.lower() not in CITIES and destination.lower() not in COUNTRIES):
+    if (not prototype_utils.is_valid_location(departure)) or (not prototype_utils.is_valid_location(destination)):
         st.sidebar.warning("Travel destination or/and departure is not valid.")
         st.markdown(f"{departure.lower()} not in CITIES: {departure.lower() not in CITIES}")
         st.markdown(f"{departure.lower()}not in COUNTRIES: {departure.lower() not in COUNTRIES}")
