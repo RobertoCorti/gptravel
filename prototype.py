@@ -19,14 +19,12 @@ def _get_travel_plan(openai_key: str,
                      departure: str, destination: str,
                      departure_date: datetime.datetime, return_date: datetime.datetime,
                      travel_reason: str) -> Dict[str, Any]:
-    ## compute input params
     os.environ['OPENAI_API_KEY'] = openai_key
     n_days = (return_date - departure_date).days
 
     travel_parameters = dict(departure_place=departure, destination_place=destination,
                              n_travel_days=n_days, travel_theme=travel_reason)
 
-    ## create plan
     prompt = utils.build_prompt(travel_parameters)
     travel_plan_json = utils.get_travel_plan_json(prompt)
     travel_plan_dict = travel_plan_json.travel_plan
@@ -73,19 +71,9 @@ def main():
                                  return_date=return_date)
 
 
-def _is_valid_openai_key(openai_key: str):
-    openai.api_key = openai_key
+def is_departure_before_return(departure_date: datetime.date, return_date: datetime.date) -> bool:
+    return departure_date >= return_date
 
-    try:
-        openai.Completion.create(
-            engine='davinci',
-            prompt='Hello, World!',
-            max_tokens=5
-        )
-    except openai.error.InvalidRequestError as e:
-        return False
-
-    return True
 
 def _is_valid_input(departure: str, destination: str,
                     departure_date: datetime.datetime, return_date: datetime.datetime,
@@ -95,10 +83,10 @@ def _is_valid_input(departure: str, destination: str,
         st.markdown(f"{departure.lower()} not in CITIES: {departure.lower() not in CITIES}")
         st.markdown(f"{departure.lower()}not in COUNTRIES: {departure.lower() not in COUNTRIES}")
         return False
-    if departure_date >= return_date:
+    if not prototype_utils.is_departure_before_return:
         st.sidebar.warning("Travel dates are not correct. Departure should be before return.")
         return False
-    if not _is_valid_openai_key(openai_key):
+    if not prototype_utils.is_valid_openai_key(openai_key):
         st.sidebar.warning("Not valid OpenAI API Access Key")
         return False
 
