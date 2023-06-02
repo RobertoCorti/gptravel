@@ -1,4 +1,5 @@
-OPENAI_KEY_HELP = "Enter your OpenAI key. If you don't have one, you can sign up at https://openai.com/ to get your API key."
+OPENAI_KEY_HELP = "Enter your OpenAI key. If you don't have one, " \
+                  "you can sign up at https://openai.com/ to get your API key."
 
 DEPARTURE_DATE_HELP = "Choose the date of departure."
 

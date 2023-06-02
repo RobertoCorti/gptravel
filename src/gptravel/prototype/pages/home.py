@@ -11,7 +11,13 @@ from gptravel.prototype.pages import travel as travel_page
 COUNTRIES = (country.name.lower() for country in pycountry.countries)
 CITIES = (city.name.lower() for city in allcities.cities)
 
+
 def main():
+    """
+    Main function for running GPTravel.
+
+    It allows users to input travel parameters and generates a travel plan when the "Let's go!" button is clicked.
+    """
     st.title("GPTravel ✈️")
     st.write("\n\n")
 
@@ -45,12 +51,18 @@ def main():
     )
 
     travel_reason = st.sidebar.selectbox("Select a travel reason",
-                                         options=["", "Business", "Romantic", "Solo", "Friends", "Family"],
+                                         options=["", "Business", "Romantic",
+                                                  "Solo", "Friends", "Family"],
                                          help=prototype_help.TRAVEL_REASON_HELP)
 
-    input_options = dict(openai_key=openai_key, departure_date=departure_date, return_date=return_date,
-                         departure=departure, destination=destination,
-                         travel_reason=None if travel_reason == '' else travel_reason)
+    input_options = {
+        "openai_key": openai_key,
+        "departure_date": departure_date,
+        "return_date": return_date,
+        "departure": departure,
+        "destination": destination,
+        "travel_reason": None if travel_reason == '' else travel_reason
+    }
 
     if st.sidebar.button("Let's go!"):
         if _is_valid_input(openai_key=openai_key,
@@ -60,13 +72,52 @@ def main():
                 travel_page.travel_plan(**input_options)
 
 
-def is_departure_before_return(departure_date: datetime.date, return_date: datetime.date) -> bool:
+def is_departure_before_return(departure_date: datetime.date,
+                               return_date: datetime.date) -> bool:
+    """
+    Check if the departure date is before the return date.
+
+    Parameters
+    ----------
+    departure_date : datetime.date
+        Departure date.
+    return_date : datetime.date
+        Return date.
+
+    Returns
+    -------
+    bool
+        True if the departure date is before the return date, False otherwise.
+    """
     return departure_date >= return_date
 
 
-def _is_valid_input(departure: str, destination: str,
-                    departure_date: datetime.datetime, return_date: datetime.datetime,
+def _is_valid_input(departure: str,
+                    destination: str,
+                    departure_date: datetime.datetime,
+                    return_date: datetime.datetime,
                     openai_key: str) -> bool:
+    """
+   Check if the input parameters are valid.
+
+   Parameters
+   ----------
+   departure : str
+       Departure location.
+   destination : str
+       Destination location.
+   departure_date : datetime.datetime
+       Departure date.
+   return_date : datetime.datetime
+       Return date.
+   openai_key : str
+       OpenAI API key.
+
+   Returns
+   -------
+   bool
+       True if the input parameters are valid, False otherwise.
+   """
     if (not prototype_utils.is_valid_location(departure)) or (not prototype_utils.is_valid_location(destination)):
         st.sidebar.warning("Travel destination or/and departure is not valid.")
         return False

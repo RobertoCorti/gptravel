@@ -1,5 +1,5 @@
 import datetime
-from typing import Dict, Any, Union
+from typing import Dict, Union
 
 import pycountry
 import allcities
@@ -94,7 +94,17 @@ def is_departure_before_return(departure_date: datetime.date, return_date: datet
 
 def get_score_map(travel_plan_json: TravelPlanJSON) -> Dict[str, Dict[str, Union[float, int]]]:
     """
+    Calculates the score map for a given travel plan.
 
+    Parameters
+    ----------
+    travel_plan_json : TravelPlanJSON
+        The JSON representation of the travel plan.
+
+    Returns
+    -------
+    Dict[str, Dict[str, Union[float, int]]]
+        A dictionary containing the score map for the travel plan.
     """
     zs_classifier = classifier.ZeroShotTextClassifier(True)
     score_container = TravelPlanScore()

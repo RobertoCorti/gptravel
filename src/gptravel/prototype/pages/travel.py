@@ -1,9 +1,9 @@
 import os
 import datetime
+from typing import Any, Dict, Tuple, Union
 import streamlit as st
 import plotly.graph_objects as go
 from plotly.graph_objs import Figure
-from typing import Any, Dict, Tuple, Union
 
 from gptravel.prototype import style as prototype_style
 from gptravel.app import utils
@@ -13,13 +13,42 @@ from gptravel.prototype import utils as prototype_utils
 @st.cache_data(show_spinner=False)
 def _get_travel_plan(openai_key: str,
                      departure: str, destination: str,
-                     departure_date: datetime.datetime, return_date: datetime.datetime,
-                     travel_reason: str) -> Tuple[Dict[Any, Any], Dict[str, Dict[str, Union[float, int]]]]:
+                     departure_date: datetime.datetime,
+                     return_date: datetime.datetime,
+                     travel_reason: str) \
+        -> Tuple[Dict[Any, Any], Dict[str, Dict[str, Union[float, int]]]]:
+    """
+    Get the travel plan and score dictionary.
+
+    Parameters
+    ----------
+    openai_key : str
+        OpenAI API key.
+    departure : str
+        Departure place.
+    destination : str
+        Destination place.
+    departure_date : datetime.datetime
+        Departure date.
+    return_date : datetime.datetime
+        Return date.
+    travel_reason : str
+        Reason for travel.
+
+    Returns
+    -------
+    Tuple[Dict[Any, Any], Dict[str, Dict[str, Union[float, int]]]]
+        A tuple containing the travel plan dictionary and the score dictionary.
+    """
     os.environ['OPENAI_API_KEY'] = openai_key
     n_days = (return_date - departure_date).days
 
-    travel_parameters = dict(departure_place=departure, destination_place=destination,
-                             n_travel_days=n_days, travel_theme=travel_reason)
+    travel_parameters = {
+        "departure_place": departure,
+        "destination_place": destination,
+        "n_travel_days": n_days,
+        "travel_theme": travel_reason
+    }
 
     prompt = utils.build_prompt(travel_parameters)
     travel_plan_json = utils.get_travel_plan_json(prompt)
@@ -31,6 +60,18 @@ def _get_travel_plan(openai_key: str,
 
 
 def create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
+    """
+    Create expanders for displaying the travel plan.
+
+    Parameters
+    ----------
+    departure_date : datetime.datetime
+        Departure date.
+    score_dict : Dict[str, Any]
+        Score dictionary.
+    travel_plan_dict : Dict[Any, Any]
+        Travel plan dictionary.
+    """
     for day_num, (day_key, places_dict) in enumerate(travel_plan_dict.items()):
         date_str = (departure_date + datetime.timedelta(days=int(day_num))).strftime("%d-%m-%Y")
         expander_day_num = st.expander(f"{day_key} ({date_str})", expanded=True)
@@ -48,6 +89,19 @@ def create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
 
 
 def get_score_pie_chart(score_dict: Dict[str, Any]) -> Figure:
+    """
+    Generate a pie chart for the score distribution.
+
+    Parameters
+    ----------
+    score_dict : Dict[str, Any]
+        Score dictionary.
+
+    Returns
+    -------
+    Figure
+        The generated pie chart.
+    """
     labels = []
     values = []
     colors = []
@@ -59,7 +113,7 @@ def get_score_pie_chart(score_dict: Dict[str, Any]) -> Figure:
             colors.append(prototype_style.COLOR_LABEL_ACTIVITY_DICT[key])
 
     fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.75,
-                                 marker=dict(colors=colors),
+                                 marker={"colors":colors},
                                  hovertemplate='<b>%{label}</b><br>%{percent:.2f}%<extra></extra>')])
 
     return fig
@@ -69,11 +123,28 @@ def travel_plan(openai_key: str,
                 departure: str, destination: str,
                 departure_date: datetime.datetime, return_date: datetime.datetime,
                 travel_reason: str):
+    """
+    Generate a travel plan and display it.
+
+    Parameters
+    ----------
+    openai_key : str
+        OpenAI API key.
+    departure : str
+        Departure place.
+    destination : str
+        Destination place.
+    departure_date : datetime.datetime
+        Departure date.
+    return_date : datetime.datetime
+        Return date.
+    travel_reason : str
+        Reason for travel.
+    """
     travel_plan_dict, score_dict = _get_travel_plan(openai_key=openai_key,
                                                     departure=departure, destination=destination,
                                                     departure_date=departure_date, return_date=return_date,
                                                     travel_reason=travel_reason)
     create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict)
-
     fig = get_score_pie_chart(score_dict)
     st.plotly_chart(fig)

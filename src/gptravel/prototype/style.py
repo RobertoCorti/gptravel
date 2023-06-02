@@ -11,4 +11,6 @@ COLOR_LABEL_ACTIVITY_DICT = {
    'shopping': "#0066cc"
 }
 
-LABEL_BOX_STYLE = "font-family: 'Roboto', sans-serif; font-size: 15px; color: white; border: 1px solid black; padding: 5px; border-radius: 5px; padding: 2px;"
+LABEL_BOX_STYLE = "font-family: 'Roboto', sans-serif; font-size: 15px;" \
+                  " color: white; border: 1px solid black; padding: 5px; " \
+                  "border-radius: 5px; padding: 2px;"
