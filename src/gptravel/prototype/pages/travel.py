@@ -1,14 +1,20 @@
 import os
 import datetime
 from typing import Any, Dict, Tuple, Union
+
+import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 from plotly.graph_objs import Figure
 
 from gptravel.prototype import style as prototype_style
+from gptravel.prototype import help as prototype_help
 from gptravel.app import utils
 from gptravel.prototype import utils as prototype_utils
+import folium
+from streamlit_folium import st_folium
 
+from openai.error import RateLimitError
 
 def main(openai_key: str,
          departure: str, destination: str,
@@ -33,11 +39,38 @@ def main(openai_key: str,
     travel_reason : str
         Reason for travel.
     """
-    travel_plan_dict, score_dict = _get_travel_plan(openai_key=openai_key,
+    try:
+        travel_plan_dict, score_dict = _get_travel_plan(openai_key=openai_key,
                                                     departure=departure, destination=destination,
                                                     departure_date=departure_date, return_date=return_date,
                                                     travel_reason=travel_reason)
+    except RateLimitError as openai_rate_limit_error:
+        st.error(openai_rate_limit_error)
+
+    _show_travel_itinerary(travel_plan_dict, destination)
+
+    st.markdown(f"#### Overall Travel Score: \t\t\t\t"
+                f"{score_dict['Activities Variety']['score_weight']*100:.0f} / 100", help=prototype_help.TRAVEL_SCORE_HELP)
     _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict)
+
+
+def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
+    travel_plan_cities_names = tuple(
+        city.lower() for day in travel_plan_dict.keys() for city in travel_plan_dict[day].keys())
+    cities_coordinates = prototype_utils.get_cities_coordinates(travel_plan_cities_names, destination)
+
+    coordinates_array = np.array([[coords[0], coords[1]] for coords in cities_coordinates.values()])
+    mean_point_coordinates = np.median(coordinates_array, axis=0)
+    zoom_start = 6 if prototype_utils.is_a_country(destination) else 8
+    m = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
+
+    for city, coordinates in cities_coordinates.items():
+        folium.Marker(
+            coordinates, popup=city.name, tooltip=city.name
+        ).add_to(m)
+
+    # call to render Folium map in Streamlit
+    st_folium(m, height=400, width=1000, returned_objects=[])
 
 
 @st.cache_data(show_spinner=False)

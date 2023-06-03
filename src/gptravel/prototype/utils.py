@@ -1,6 +1,8 @@
+import collections
 import datetime
-from typing import Dict, Union
+from typing import Dict, Union, Tuple, List
 
+import numpy as np
 import pycountry
 import allcities
 import openai
@@ -9,8 +11,8 @@ from gptravel.core.services.engine import classifier
 from gptravel.core.services.scorer import TravelPlanScore, ActivitiesDiversityScorer
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
-COUNTRIES = [country.name.lower() for country in pycountry.countries]
-CITIES = [city.name.lower() for city in allcities.cities]
+COUNTRIES_NAMES = [country.name.lower() for country in pycountry.countries]
+CITIES_NAMES = [city.name.lower() for city in allcities.cities]
 
 
 def is_valid_location(location: str) -> bool:
@@ -27,8 +29,8 @@ def is_valid_location(location: str) -> bool:
     bool
         True if the location is a valid city or country, False otherwise.
     """
-    is_loc_a_city = location.lower() in CITIES
-    is_loc_a_country = location.lower() in COUNTRIES
+    is_loc_a_city = location.lower() in CITIES_NAMES
+    is_loc_a_country = location.lower() in COUNTRIES_NAMES
     return is_loc_a_city or is_loc_a_country
 
 
@@ -115,3 +117,28 @@ def get_score_map(travel_plan_json: TravelPlanJSON) -> Dict[str, Dict[str, Union
     )
 
     return score_container.score_map
+
+
+def get_cities_coordinates(cities: Union[List[str], Tuple[str]], destination: str) -> Dict[str, Tuple]:
+    cities_travel = list(city for city in allcities.cities if city.name.lower() in cities)
+    country_code = None
+    if is_a_country(destination):
+        try:
+            country_code = pycountry.countries.get(name=destination).alpha_2
+        except KeyError:
+            pass
+
+    if country_code is None:
+        most_common_country_code = collections.Counter(city.country_code for city in cities_travel).most_common(1)[0][0]
+        country_code = most_common_country_code
+
+    cities_travel = filter(lambda city: city.country_code==country_code, cities_travel)
+    cities_coordinates = {
+        city: (city.latitude, city.longitude)
+        for city in cities_travel
+    }
+    return cities_coordinates
+
+
+def is_a_country(place: str):
+    return place.lower() in COUNTRIES_NAMES
