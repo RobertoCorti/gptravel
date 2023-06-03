@@ -10,6 +10,36 @@ from gptravel.app import utils
 from gptravel.prototype import utils as prototype_utils
 
 
+def main(openai_key: str,
+         departure: str, destination: str,
+         departure_date: datetime.datetime, return_date: datetime.datetime,
+         travel_reason: str):
+    """
+     Main function for running travel plan in GPTravel.
+     It generates a travel page and display all functionalities of the page.
+
+    Parameters
+    ----------
+    openai_key : str
+        OpenAI API key.
+    departure : str
+        Departure place.
+    destination : str
+        Destination place.
+    departure_date : datetime.datetime
+        Departure date.
+    return_date : datetime.datetime
+        Return date.
+    travel_reason : str
+        Reason for travel.
+    """
+    travel_plan_dict, score_dict = _get_travel_plan(openai_key=openai_key,
+                                                    departure=departure, destination=destination,
+                                                    departure_date=departure_date, return_date=return_date,
+                                                    travel_reason=travel_reason)
+    _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict)
+
+
 @st.cache_data(show_spinner=False)
 def _get_travel_plan(openai_key: str,
                      departure: str, destination: str,
@@ -59,7 +89,7 @@ def _get_travel_plan(openai_key: str,
     return travel_plan_dict, score_dict
 
 
-def create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
+def _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
     """
     Create expanders for displaying the travel plan.
 
@@ -78,7 +108,7 @@ def create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
         for place, activities in places_dict.items():
             expander_day_num.markdown(f"**{place}**")
             for activity in activities:
-                activity_descr = f" - {activity}"
+                activity_descr = f" {activity}"
                 filtered_activities = filter(lambda x: x[1] > .5,
                                              score_dict['Activities Variety']['labeled_activities'][activity].items())
                 sorted_filtered_activities = sorted(filtered_activities, key=lambda x: x[1], reverse=True)
@@ -88,7 +118,7 @@ def create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
                 expander_day_num.markdown(f"- {activity_label} {activity_descr}\n", unsafe_allow_html=True)
 
 
-def get_score_pie_chart(score_dict: Dict[str, Any]) -> Figure:
+def _get_score_pie_chart(score_dict: Dict[str, Any]) -> Figure:
     """
     Generate a pie chart for the score distribution.
 
@@ -113,38 +143,7 @@ def get_score_pie_chart(score_dict: Dict[str, Any]) -> Figure:
             colors.append(prototype_style.COLOR_LABEL_ACTIVITY_DICT[key])
 
     fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.75,
-                                 marker={"colors":colors},
+                                 marker={"colors": colors},
                                  hovertemplate='<b>%{label}</b><br>%{percent:.2f}%<extra></extra>')])
 
     return fig
-
-
-def travel_plan(openai_key: str,
-                departure: str, destination: str,
-                departure_date: datetime.datetime, return_date: datetime.datetime,
-                travel_reason: str):
-    """
-    Generate a travel plan and display it.
-
-    Parameters
-    ----------
-    openai_key : str
-        OpenAI API key.
-    departure : str
-        Departure place.
-    destination : str
-        Destination place.
-    departure_date : datetime.datetime
-        Departure date.
-    return_date : datetime.datetime
-        Return date.
-    travel_reason : str
-        Reason for travel.
-    """
-    travel_plan_dict, score_dict = _get_travel_plan(openai_key=openai_key,
-                                                    departure=departure, destination=destination,
-                                                    departure_date=departure_date, return_date=return_date,
-                                                    travel_reason=travel_reason)
-    create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict)
-    fig = get_score_pie_chart(score_dict)
-    st.plotly_chart(fig)

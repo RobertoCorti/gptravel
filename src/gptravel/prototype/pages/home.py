@@ -69,7 +69,7 @@ def main():
                            departure_date=departure_date, return_date=return_date,
                            departure=departure, destination=destination):
             with st.spinner('Preparing your travel plan...'):
-                travel_page.travel_plan(**input_options)
+                travel_page.main(**input_options)
 
 
 def is_departure_before_return(departure_date: datetime.date,
