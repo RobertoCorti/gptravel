@@ -123,6 +123,20 @@ files = [
 frozenlist = ">=1.1.0"
 
 [[package]]
+name = "allcities"
+version = "1.0.3"
+description = "allcities - Python library to access all the cities of the world with a population of at least 1000 inhabitants."
+optional = false
+python-versions = "*"
+files = [
+    {file = "allcities-1.0.3-py3-none-any.whl", hash = "sha256:4f2628c00a0ad3d61980bafe7a6b682b341bdaae2945ba6a0749a676c5108b73"},
+    {file = "allcities-1.0.3.tar.gz", hash = "sha256:76240a091bca8e2ab505247eefa23b30ae1c19f023503d228921f03841a090a6"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "altair"
 version = "5.0.1"
 description = "Vega-Altair: A declarative statistical visualization library for Python."
@@ -3368,4 +3382,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9.7"
-content-hash = "54909d0fbef1cbb8b4074227b2d326ed5dbe3c7e6b694b114d06d7ae5a2e3c51"
+content-hash = "885f5155be8023d219b5bf160eab3adf11be5c28f8a7f7ae22068c0b91447590"
