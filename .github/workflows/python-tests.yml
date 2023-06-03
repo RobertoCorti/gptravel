@@ -3,6 +3,7 @@ name: test
 env:
   ENV: "TEST"
   OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
+  HUGGING_FACE_KEY: ${{secrets.HUGGING_FACE_KEY}}
 
 
 on:
