@@ -72,26 +72,6 @@ def main():
                 travel_page.main(**input_options)
 
 
-def is_departure_before_return(departure_date: datetime.date,
-                               return_date: datetime.date) -> bool:
-    """
-    Check if the departure date is before the return date.
-
-    Parameters
-    ----------
-    departure_date : datetime.date
-        Departure date.
-    return_date : datetime.date
-        Return date.
-
-    Returns
-    -------
-    bool
-        True if the departure date is before the return date, False otherwise.
-    """
-    return departure_date >= return_date
-
-
 def _is_valid_input(departure: str,
                     destination: str,
                     departure_date: datetime.datetime,

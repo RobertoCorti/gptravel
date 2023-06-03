@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pytest
 
@@ -189,3 +189,12 @@ def travel_properties() -> Dict[str, Any]:
 @pytest.fixture
 def prompt_factory() -> PromptFactory:
     return PromptFactory()
+
+
+@pytest.fixture()
+def labels_activities() -> List[str]:
+    return ['mountain', 'sea',
+            'museum', 'monument',
+            'food', 'relax',
+            'sport', 'culture',
+            'shopping', 'transport']
