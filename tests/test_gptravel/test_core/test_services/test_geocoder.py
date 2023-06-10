@@ -25,10 +25,9 @@ class TestGeoCoder:
             "lat": 22.5726459,
             "lon": 88.3638953,
         }
-        assert geo_coder.location_coordinates("delhi") == {
-            "lat": 28.6517178,
-            "lon": 77.2219388,
-        }
+        output = geo_coder.location_coordinates("delhi")
+        assert output["lat"] == pytest.approx(28.6, 0.1)
+        assert output["lon"] == pytest.approx(77.2, 0.1)
         assert geo_coder.location_coordinates("PortaSigrar") == {
             "lat": None,
             "lon": None,

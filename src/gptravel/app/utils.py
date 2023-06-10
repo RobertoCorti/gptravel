@@ -1,15 +1,17 @@
 import datetime
+from typing import Any, Dict, Tuple
+
 import pycountry
 from geopy.geocoders.base import Geocoder
-from typing import Tuple, Dict, Any
 
-from gptravel.core.services import geocoder, scorer, score_builder
+from gptravel.core.services import geocoder, score_builder, scorer
 from gptravel.core.services.engine import classifier
 from gptravel.core.travel_planner import openai_engine
 from gptravel.core.travel_planner.prompt import PromptFactory
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 MAX_TOKENS = 1024
+
 
 def get_score_description(score: float) -> str:
     """
@@ -55,8 +57,10 @@ def calculate_number_of_days(return_date, departure_date):
     Returns:
         int: Number of travel days.
     """
-    n_days = (datetime.datetime.strptime(return_date, '%Y-%m-%d') - datetime.datetime.strptime(departure_date,
-                                                                                               '%Y-%m-%d')).days
+    n_days = (
+        datetime.datetime.strptime(return_date, "%Y-%m-%d")
+        - datetime.datetime.strptime(departure_date, "%Y-%m-%d")
+    ).days
     return n_days
 
 
@@ -80,8 +84,9 @@ def get_country_names(departure, destination):
     return departure_country_name, destination_country_name
 
 
-def build_travel_parameters(departure: str, destination: str, n_days: int,
-                            travel_option: str) -> Dict[str, Any]:
+def build_travel_parameters(
+    departure: str, destination: str, n_days: int, travel_option: str
+) -> Dict[str, Any]:
     """
     Builds the travel parameters dictionary.
 
@@ -98,7 +103,7 @@ def build_travel_parameters(departure: str, destination: str, n_days: int,
         "departure_place": departure,
         "destination_place": destination,
         "n_travel_days": n_days,
-        "travel_theme": travel_option
+        "travel_theme": travel_option,
     }
     return travel_parameters
 
@@ -145,7 +150,11 @@ def calculate_travel_score(travel_plan_dict: Dict[str, Any]) -> float:
     zs_classifier = classifier.ZeroShotTextClassifier(True)
     geo_decoder = geocoder.GeoCoder()
     score_container = scorer.TravelPlanScore()
-    scorers_orchestrator = score_builder.ScorerOrchestrator(geocoder=geo_decoder, text_classifier=zs_classifier)
-    scorers_orchestrator.run(travel_plan_json=travel_plan_dict, scores_container=score_container)
+    scorers_orchestrator = score_builder.ScorerOrchestrator(
+        geocoder=geo_decoder, text_classifier=zs_classifier
+    )
+    scorers_orchestrator.run(
+        travel_plan_json=travel_plan_dict, scores_container=score_container
+    )
     score = round(score_container.weighted_score * 10, 1)
     return score
