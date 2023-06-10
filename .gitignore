@@ -128,12 +128,21 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# VSCode
-.vscode
+# Poetry
+poetry.lock
 
-# pytest
-coverage.xml
-pytest-xunit.xml
+# Pycharm
+.idea/
+*.iml
+*.ipr
+*.iws
+*.sublime-wo
 
-# output files
+# JSON
 *.json
+
+#XML
+*.xml
+
+## Notebooks
+notebooks/
