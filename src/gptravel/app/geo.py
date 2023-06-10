@@ -1,4 +1,5 @@
 import os
+
 from geopy.geocoders import Nominatim
 
 user_agent = os.environ.get("GEOPY_USER_AGENT", "GPTravel")

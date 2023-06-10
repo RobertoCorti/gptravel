@@ -193,8 +193,15 @@ def prompt_factory() -> PromptFactory:
 
 @pytest.fixture()
 def labels_activities() -> List[str]:
-    return ['mountain', 'sea',
-            'museum', 'monument',
-            'food', 'relax',
-            'sport', 'culture',
-            'shopping', 'transport']
+    return [
+        "mountain",
+        "sea",
+        "museum",
+        "monument",
+        "food",
+        "relax",
+        "sport",
+        "culture",
+        "shopping",
+        "transport",
+    ]
