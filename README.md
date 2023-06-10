@@ -1,5 +1,6 @@
 # GPTravel ✈️
 ![Tests](https://github.com/RobertoCorti/gptravel/actions/workflows/python-tests.yml/badge.svg)
+![GitHub Tags](https://img.shields.io/github/tag/RobertoCorti/gptravel.svg)
 
 GPTravel is a Web App that generates a travel plan based on Large-Language Models (LLMs). It helps users create personalized itineraries by analyzing historical travel data and predicting the best destinations, activities, and routes.
 
