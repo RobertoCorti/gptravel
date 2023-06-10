@@ -4,8 +4,6 @@ from typing import Any, Dict, Tuple, Union
 
 import numpy as np
 import streamlit as st
-import plotly.graph_objects as go
-from plotly.graph_objs import Figure
 
 from gptravel.prototype import style as prototype_style
 from gptravel.prototype import help as prototype_help
@@ -15,6 +13,7 @@ import folium
 from streamlit_folium import st_folium
 
 from openai.error import RateLimitError
+
 
 def main(openai_key: str,
          departure: str, destination: str,
@@ -41,16 +40,17 @@ def main(openai_key: str,
     """
     try:
         travel_plan_dict, score_dict = _get_travel_plan(openai_key=openai_key,
-                                                    departure=departure, destination=destination,
-                                                    departure_date=departure_date, return_date=return_date,
-                                                    travel_reason=travel_reason)
+                                                        departure=departure, destination=destination,
+                                                        departure_date=departure_date, return_date=return_date,
+                                                        travel_reason=travel_reason)
     except RateLimitError as openai_rate_limit_error:
         st.error(openai_rate_limit_error)
 
     _show_travel_itinerary(travel_plan_dict, destination)
 
     st.markdown(f"#### Overall Travel Score: \t\t\t\t"
-                f"{score_dict['Activities Variety']['score_weight']*100:.0f} / 100", help=prototype_help.TRAVEL_SCORE_HELP)
+                f"{score_dict['Activities Variety']['score_weight'] * 100:.0f} / 100",
+                help=prototype_help.TRAVEL_SCORE_HELP)
     _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict)
 
 
@@ -149,34 +149,3 @@ def _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
                     f'<span style="background-color:{prototype_style.COLOR_LABEL_ACTIVITY_DICT[label]}; {prototype_style.LABEL_BOX_STYLE}">\t\t<b>{label.upper()}</b></span>'
                     for label, _ in sorted_filtered_activities)
                 expander_day_num.markdown(f"- {activity_label} {activity_descr}\n", unsafe_allow_html=True)
-
-
-def _get_score_pie_chart(score_dict: Dict[str, Any]) -> Figure:
-    """
-    Generate a pie chart for the score distribution.
-
-    Parameters
-    ----------
-    score_dict : Dict[str, Any]
-        Score dictionary.
-
-    Returns
-    -------
-    Figure
-        The generated pie chart.
-    """
-    labels = []
-    values = []
-    colors = []
-
-    for key, value in score_dict['Activities Variety']['activities_distribution'].items():
-        if key in prototype_style.COLOR_LABEL_ACTIVITY_DICT:
-            labels.append(key)
-            values.append(value)
-            colors.append(prototype_style.COLOR_LABEL_ACTIVITY_DICT[key])
-
-    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.75,
-                                 marker={"colors": colors},
-                                 hovertemplate='<b>%{label}</b><br>%{percent:.2f}%<extra></extra>')])
-
-    return fig
