@@ -46,7 +46,7 @@ Here are some suggested next steps to enhance GPTravel:
 
 * Implement a user interface (different from Streamlit) for the web app to provide a seamless experience for users when generating travel plans.
 * Enhance the recommendation algorithm to consider user preferences, such as budget constraints, travel interests, and accommodation preferences.
-* Integrate with external APIs to fetch real-time data on weather conditions, tourist attractions, and transportation options.
+* Integrate with external APIs to fetch real-time data on flights options, weather conditions, tourist attractions tickets in order to give to the end user a broader idea on how much the travel will cost.
 * Implement user authentication and user profile management to allow users to save and revisit their travel plans.
 * Enable social sharing features to allow users to share their travel plans with friends and family.
 
