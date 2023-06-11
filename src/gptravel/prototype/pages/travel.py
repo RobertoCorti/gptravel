@@ -65,12 +65,12 @@ def main(
 
 def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
     travel_plan_cities_names = tuple(
-        city.lower()
+        city
         for day in travel_plan_dict.keys()
         for city in travel_plan_dict[day].keys()
     )
     cities_coordinates = prototype_utils.get_cities_coordinates(
-        travel_plan_cities_names, destination
+        cities=travel_plan_cities_names, destination=destination
     )
 
     coordinates_array = np.array(
@@ -81,7 +81,7 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
     m = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
 
     for city, coordinates in cities_coordinates.items():
-        folium.Marker(coordinates, popup=city.name, tooltip=city.name).add_to(m)
+        folium.Marker(coordinates, popup=city, tooltip=city).add_to(m)
 
     # call to render Folium map in Streamlit
     st_folium(m, height=400, width=1000, returned_objects=[])

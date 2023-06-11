@@ -125,27 +125,12 @@ def get_score_map(
 def get_cities_coordinates(
     cities: Union[List[str], Tuple[str]], destination: str
 ) -> Dict[str, Tuple]:
-    cities_travel = list(
-        city for city in allcities.cities if city.name.lower() in cities
-    )
-    country_code = None
-    if is_a_country(destination):
-        try:
-            country_code = pycountry.countries.get(name=destination).alpha_2
-        except KeyError:
-            pass
+    geo_coder = GeoCoder()
 
-    if country_code is None:
-        most_common_country_code = collections.Counter(
-            city.country_code for city in cities_travel
-        ).most_common(1)[0][0]
-        country_code = most_common_country_code
-
-    cities_travel = filter(
-        lambda city: city.country_code == country_code, cities_travel
-    )
     cities_coordinates = {
-        city: (city.latitude, city.longitude) for city in cities_travel
+        city: tuple(coord for coord in geo_coder.location_coordinates(city).values())
+        for city in cities
+        if geo_coder.country_from_location_name(city).lower() == destination.lower()
     }
     return cities_coordinates
 
