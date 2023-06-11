@@ -15,7 +15,7 @@ class TestGeoCoder:
         assert geo_coder.country_from_location_name("Paris, France") == "France"
         assert geo_coder.country_from_location_name("London, UK") == "United Kingdom"
         assert (
-            geo_coder.country_from_location_name("Los Angeles, US") == "United States"
+                geo_coder.country_from_location_name("Los Angeles, US") == "United States"
         )
         assert geo_coder.country_from_location_name("Mumbai, India") == "India"
         assert geo_coder.country_from_location_name("PortaSigrar") is None
@@ -40,3 +40,15 @@ class TestGeoCoder:
         assert geo_coder.location_distance("delhi", "delhi") == pytest.approx(
             0.0, 0.001
         )
+
+    @pytest.mark.parametrize(
+        "location_name, expected_result",
+        [
+            ("United States", True),
+            ("California", True),
+            ("New York", True),
+            ("Pippo", False),
+        ],
+    )
+    def test_is_location_country_city_state(self, geo_coder, location_name, expected_result):
+        assert geo_coder.is_location_country_city_state(location_name) == expected_result

@@ -1,6 +1,6 @@
 import datetime
 import os
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple
 
 import folium
 import numpy as np
@@ -8,19 +8,23 @@ import streamlit as st
 from openai.error import RateLimitError
 from streamlit_folium import st_folium
 
-from gptravel.app import utils
+from gptravel.core.travel_planner import openai_engine
+from gptravel.core.travel_planner.prompt import PromptFactory
+from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype import help as prototype_help
 from gptravel.prototype import style as prototype_style
 from gptravel.prototype import utils as prototype_utils
 
+MAX_TOKENS = 1024
+
 
 def main(
-    openai_key: str,
-    departure: str,
-    destination: str,
-    departure_date: datetime.datetime,
-    return_date: datetime.datetime,
-    travel_reason: str,
+        openai_key: str,
+        departure: str,
+        destination: str,
+        departure_date: datetime.datetime,
+        return_date: datetime.datetime,
+        travel_reason: str,
 ):
     """
      Main function for running travel plan in GPTravel.
@@ -89,12 +93,12 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
 
 @st.cache_data(show_spinner=False)
 def _get_travel_plan(
-    openai_key: str,
-    departure: str,
-    destination: str,
-    departure_date: datetime.datetime,
-    return_date: datetime.datetime,
-    travel_reason: str,
+        openai_key: str,
+        departure: str,
+        destination: str,
+        departure_date: datetime.datetime,
+        return_date: datetime.datetime,
+        travel_reason: str,
 ) -> Tuple[Dict[Any, Any], prototype_utils.TravelPlanScore]:
     """
     Get the travel plan and score dictionary.
@@ -129,13 +133,42 @@ def _get_travel_plan(
         "travel_theme": travel_reason,
     }
 
-    prompt = utils.build_prompt(travel_parameters)
-    travel_plan_json = utils.get_travel_plan_json(prompt)
+    prompt = _build_prompt(travel_parameters)
+    travel_plan_json = _get_travel_plan_json(prompt)
     travel_plan_dict = travel_plan_json.travel_plan
 
     score_dict = prototype_utils.get_score_map(travel_plan_json)
 
     return travel_plan_dict, score_dict
+
+
+def _get_travel_plan_json(prompt: str) -> TravelPlanJSON:
+    """
+    Retrieves the travel plan JSON based on the provided prompt.
+
+    Args:
+        prompt (str): Prompt for the travel plan.
+
+    Returns:
+        TravelPlanJSON: Travel plan JSON.
+    """
+    engine = openai_engine.ChatGPTravelEngine(max_tokens=MAX_TOKENS)
+    return engine.get_travel_plan_json(prompt)
+
+
+def _build_prompt(travel_parameters: Dict[str, Any]) -> str:
+    """
+    Builds the prompt for the travel plan based on the travel parameters.
+
+    Args:
+        travel_parameters (dict): Travel parameters.
+
+    Returns:
+        str: Prompt for the travel plan.
+    """
+    prompt_factory = PromptFactory()
+    prompt = prompt_factory.build_prompt(**travel_parameters)
+    return prompt
 
 
 def _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):

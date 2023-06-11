@@ -1,39 +1,14 @@
-import collections
 import datetime
 from typing import Dict, List, Tuple, Union
 
-import allcities
 import numpy as np
 import openai
-import pycountry
 
 from gptravel.core.services.engine import classifier
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.score_builder import ScorerOrchestrator
 from gptravel.core.services.scorer import TravelPlanScore
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
-
-COUNTRIES_NAMES = [country.name.lower() for country in pycountry.countries]
-CITIES_NAMES = [city.name.lower() for city in allcities.cities]
-
-
-def is_valid_location(location: str) -> bool:
-    """
-    Check if a location is valid.
-
-    Parameters
-    ----------
-    location : str
-        The location to be checked.
-
-    Returns
-    -------
-    bool
-        True if the location is a valid city or country, False otherwise.
-    """
-    is_loc_a_city = location.lower() in CITIES_NAMES
-    is_loc_a_country = location.lower() in COUNTRIES_NAMES
-    return is_loc_a_city or is_loc_a_country
 
 
 def is_valid_openai_key(openai_key: str) -> bool:

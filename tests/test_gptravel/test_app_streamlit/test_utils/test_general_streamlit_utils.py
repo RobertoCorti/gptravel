@@ -9,25 +9,8 @@ from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype.utils import (
     get_score_map,
     is_departure_before_return,
-    is_valid_location,
     is_valid_openai_key, get_cities_coordinates,
 )
-
-
-@pytest.mark.parametrize(
-    "location, expected_result",
-    [
-        ("city1", False),
-        ("paris", True),
-        ("pippo", False),
-        ("los angeles", True),
-        ("China", True),
-        ("ITALY", True),
-    ],
-)
-def test_is_valid_location(location, expected_result):
-    assert is_valid_location(location) == expected_result
-
 
 def test_is_valid_openai_key():
     from dotenv import load_dotenv
