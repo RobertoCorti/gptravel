@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Union
 
-import numpy as np
-
+from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.config import ACTIVITIES_LABELS
 from gptravel.core.services.engine.classifier import TextClassifier
 from gptravel.core.services.engine.tsp_solver import TSPSolver
@@ -90,6 +89,7 @@ class ActivitiesDiversityScorer(ScoreService):
     def score(
         self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
     ) -> None:
+        logger.debug("ActivitiesDiversityScorer: Start")
         activities_list = travel_plan.travel_activities
         labeled_activities = self._classifier.predict(
             input_text_list=activities_list, label_classes=self._activities_labels
@@ -114,6 +114,7 @@ class ActivitiesDiversityScorer(ScoreService):
                 "labeled_activities": labeled_activities,
             },
         )
+        logger.debug("ActivitiesDiversityScorer: Complete")
 
 
 class DayGenerationScorer(ScoreService):

@@ -1,0 +1,2 @@
+class HuggingFaceError(Exception):
+    pass

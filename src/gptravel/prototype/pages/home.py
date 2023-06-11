@@ -1,4 +1,5 @@
 import datetime
+
 import streamlit as st
 
 from gptravel.core.services.geocoder import GeoCoder
@@ -61,22 +62,22 @@ def main():
 
     if st.sidebar.button("Let's go!"):
         if _is_valid_input(
-                openai_key=openai_key,
-                departure_date=departure_date,
-                return_date=return_date,
-                departure=departure,
-                destination=destination,
+            openai_key=openai_key,
+            departure_date=departure_date,
+            return_date=return_date,
+            departure=departure,
+            destination=destination,
         ):
             with st.spinner("Preparing your travel plan..."):
                 travel_page.main(**input_options)
 
 
 def _is_valid_input(
-        departure: str,
-        destination: str,
-        departure_date: datetime.datetime,
-        return_date: datetime.datetime,
-        openai_key: str,
+    departure: str,
+    destination: str,
+    departure_date: datetime.datetime,
+    return_date: datetime.datetime,
+    openai_key: str,
 ) -> bool:
     """
     Check if the input parameters are valid.
@@ -101,12 +102,12 @@ def _is_valid_input(
     """
     geo_coder = GeoCoder()
     if (not geo_coder.is_location_country_city_state(departure)) or (
-            not geo_coder.is_location_country_city_state(destination)
+        not geo_coder.is_location_country_city_state(destination)
     ):
         st.sidebar.warning("Travel destination or/and departure is not valid.")
         return False
     if not prototype_utils.is_departure_before_return(
-            departure_date=departure_date, return_date=return_date
+        departure_date=departure_date, return_date=return_date
     ):
         st.sidebar.warning(
             "Travel dates are not correct. Departure should be before return."

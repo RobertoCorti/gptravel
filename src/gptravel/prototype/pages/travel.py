@@ -19,12 +19,12 @@ MAX_TOKENS = 1024
 
 
 def main(
-        openai_key: str,
-        departure: str,
-        destination: str,
-        departure_date: datetime.datetime,
-        return_date: datetime.datetime,
-        travel_reason: str,
+    openai_key: str,
+    departure: str,
+    destination: str,
+    departure_date: datetime.datetime,
+    return_date: datetime.datetime,
+    travel_reason: str,
 ):
     """
      Main function for running travel plan in GPTravel.
@@ -69,9 +69,7 @@ def main(
 
 def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
     travel_plan_cities_names = tuple(
-        city
-        for day in travel_plan_dict.keys()
-        for city in travel_plan_dict[day].keys()
+        city for day in travel_plan_dict.keys() for city in travel_plan_dict[day].keys()
     )
     cities_coordinates = prototype_utils.get_cities_coordinates(
         cities=travel_plan_cities_names, destination=destination
@@ -82,6 +80,7 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
     )
     mean_point_coordinates = np.median(coordinates_array, axis=0)
     zoom_start = 6 if prototype_utils.is_a_country(destination) else 8
+    breakpoint()
     m = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
 
     for city, coordinates in cities_coordinates.items():
@@ -93,12 +92,12 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
 
 @st.cache_data(show_spinner=False)
 def _get_travel_plan(
-        openai_key: str,
-        departure: str,
-        destination: str,
-        departure_date: datetime.datetime,
-        return_date: datetime.datetime,
-        travel_reason: str,
+    openai_key: str,
+    departure: str,
+    destination: str,
+    departure_date: datetime.datetime,
+    return_date: datetime.datetime,
+    travel_reason: str,
 ) -> Tuple[Dict[Any, Any], prototype_utils.TravelPlanScore]:
     """
     Get the travel plan and score dictionary.
