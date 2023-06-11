@@ -56,3 +56,8 @@ class GeoCoder:
         fetched_location_type = fetched_location.raw['properties']['type']
         return fetched_location_type in ['country', 'state', 'city']
 
+    def is_a_country(self, location_name: str) -> bool:
+        fetched_location = self._query(location_name)
+        fetched_location_type = fetched_location.raw['properties']['type']
+        return fetched_location_type in ['city']
+

@@ -111,4 +111,5 @@ def get_cities_coordinates(
 
 
 def is_a_country(place: str):
-    return place.lower() in COUNTRIES_NAMES
+    geo_coder = GeoCoder()
+    return geo_coder.is_a_country(place)
