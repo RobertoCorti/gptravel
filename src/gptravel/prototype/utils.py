@@ -8,7 +8,9 @@ import openai
 import pycountry
 
 from gptravel.core.services.engine import classifier
-from gptravel.core.services.scorer import ActivitiesDiversityScorer, TravelPlanScore
+from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.score_builder import ScorerOrchestrator
+from gptravel.core.services.scorer import TravelPlanScore
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 COUNTRIES_NAMES = [country.name.lower() for country in pycountry.countries]
@@ -94,7 +96,7 @@ def is_departure_before_return(
 
 def get_score_map(
     travel_plan_json: TravelPlanJSON,
-) -> Dict[str, Dict[str, Union[float, int]]]:
+) -> TravelPlanScore:
     """
     Calculates the score map for a given travel plan.
 
@@ -108,12 +110,16 @@ def get_score_map(
     Dict[str, Dict[str, Union[float, int]]]
         A dictionary containing the score map for the travel plan.
     """
+    geo_decoder = GeoCoder()
     zs_classifier = classifier.ZeroShotTextClassifier(True)
     score_container = TravelPlanScore()
-    scorer_obj = ActivitiesDiversityScorer(text_classifier=zs_classifier)
-    scorer_obj.score(travel_plan=travel_plan_json, travel_plan_scores=score_container)
-
-    return score_container.score_map
+    scorers_orchestrator = ScorerOrchestrator(
+        geocoder=geo_decoder, text_classifier=zs_classifier
+    )
+    scorers_orchestrator.run(
+        travel_plan_json=travel_plan_json, scores_container=score_container
+    )
+    return score_container
 
 
 def get_cities_coordinates(

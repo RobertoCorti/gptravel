@@ -57,7 +57,7 @@ def main(
 
     st.markdown(
         f"#### Overall Travel Score: \t\t\t\t"
-        f"{score_dict['Activities Variety']['score_weight'] * 100:.0f} / 100",
+        f"{score_dict.weighted_score * 100:.0f} / 100",
         help=prototype_help.TRAVEL_SCORE_HELP,
     )
     _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict)
@@ -95,7 +95,7 @@ def _get_travel_plan(
     departure_date: datetime.datetime,
     return_date: datetime.datetime,
     travel_reason: str,
-) -> Tuple[Dict[Any, Any], Dict[str, Dict[str, Union[float, int]]]]:
+) -> Tuple[Dict[Any, Any], prototype_utils.TravelPlanScore]:
     """
     Get the travel plan and score dictionary.
 
@@ -116,8 +116,8 @@ def _get_travel_plan(
 
     Returns
     -------
-    Tuple[Dict[Any, Any], Dict[str, Dict[str, Union[float, int]]]]
-        A tuple containing the travel plan dictionary and the score dictionary.
+    Tuple[Dict[Any, Any], TravelPlanScore]
+        A tuple containing the travel plan dictionary and the travel plan score.
     """
     os.environ["OPENAI_API_KEY"] = openai_key
     n_days = (return_date - departure_date).days
@@ -162,7 +162,7 @@ def _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
                 activity_descr = f" {activity}"
                 filtered_activities = filter(
                     lambda x: x[1] > 0.5,
-                    score_dict["Activities Variety"]["labeled_activities"][
+                    score_dict.score_map["Activities Variety"]["labeled_activities"][
                         activity
                     ].items(),
                 )

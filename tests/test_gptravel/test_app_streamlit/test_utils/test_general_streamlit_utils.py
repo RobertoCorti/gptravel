@@ -59,10 +59,10 @@ def test_is_departure_before_return(departure_date, return_date, expected_result
 def test_get_score_map_on_travel_plan(
     travel_plan_single_city_per_day: TravelPlanJSON, labels_activities: List[str]
 ):
-    score_map = get_score_map(travel_plan_single_city_per_day)
+    score_map = get_score_map(travel_plan_single_city_per_day).score_map
 
     assert isinstance(score_map, dict)
-    assert {"Activities Variety"} == set(score_map.keys())
+    assert "Activities Variety" in set(score_map.keys())
 
     assert set(score_map["Activities Variety"].keys()) == {
         "score_value",
