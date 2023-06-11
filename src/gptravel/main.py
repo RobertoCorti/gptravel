@@ -39,16 +39,16 @@ def main(
 
     engine = ChatGPTravelEngine(max_tokens=350)
 
-    travel_plan_in_json_format = engine.get_travel_plan_json(prompt)
+    # travel_plan_in_json_format = engine.get_travel_plan_json(prompt)
     print(
         "** Execution time for travel generation", time.time() - start_time, "seconds"
     )
-    with open(
+    """with open(
         "trave-l_plan_{}_{}.json".format(destination_place, n_days), "w"
     ) as jfile:
-        json.dump(travel_plan_in_json_format.travel_plan, jfile)
+        json.dump(travel_plan_in_json_format.travel_plan, jfile)"""
 
-    """travel_plan_in_json_format = TravelPlanJSON(
+    travel_plan_in_json_format = TravelPlanJSON(
         destination_place="Malaysia",
         departure_place="Rome",
         n_days=6,
@@ -58,47 +58,47 @@ def main(
                     "Visit Petronas Towers",
                     "Explore Batu Caves",
                     "Shop at Central Market",
-                    "Try local street food at Jalan Alor"
+                    "Try local street food at Jalan Alor",
                 ]
             },
             "Day 2": {
                 "Kuala Lumpur": [
                     "Visit Islamic Arts Museum",
                     "Explore Merdeka Square",
-                    "Enjoy panoramic views from KL Tower"
+                    "Enjoy panoramic views from KL Tower",
                 ]
             },
             "Day 3": {
                 "Penang": [
                     "Discover George Town's street art",
                     "Visit Kek Lok Si Temple",
-                    "Try local food at Gurney Drive Hawker Centre"
+                    "Try local food at Gurney Drive Hawker Centre",
                 ]
             },
             "Day 4": {
                 "Penang": [
                     "Relax at Batu Ferringhi Beach",
                     "Visit Penang Hill",
-                    "Explore Clan Jetties"
+                    "Explore Clan Jetties",
                 ]
             },
             "Day 5": {
                 "Langkawi": [
                     "Take a cable car ride to Mount Mat Cincang",
                     "Relax at Tanjung Rhu Beach",
-                    "Visit Langkawi Sky Bridge"
+                    "Visit Langkawi Sky Bridge",
                 ]
             },
             "Day 6": {
                 "Langkawi": [
                     "Explore Underwater World Langkawi",
                     "Visit Oriental Village",
-                    "Watch a sunset at Pantai Cenang Beach"
+                    "Watch a sunset at Pantai Cenang Beach",
                 ]
-            }
+            },
         },
         json_keys_depth_map={"city": 1, "day": 0},
-    )"""
+    )
 
     middle_time = time.time()
     zs_classifier = ZeroShotTextClassifier(True)
