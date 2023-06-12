@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python =  ">=3.8,<3.9.7"
 flask = "2.2.3"
-pycountry = "^22.3.5"
 wikipedia-api = "^0.5.8"
 geopy = "^2.3.0"
 poetry-dotenv-plugin = "^0.1.0"
@@ -21,7 +20,6 @@ python-tsp = "^0.3.1"
 streamlit = "^1.22.0"
 folium = "^0.14.0"
 streamlit-folium = "^0.11.1"
-allcities = "^1.0.3"
 
 
 [tool.poetry.group.dev.dependencies]
