@@ -1,8 +1,8 @@
+import datetime
 import os
 
-import pytest
-import datetime
 import dotenv
+import pytest
 
 from gptravel.prototype.pages import home
 
@@ -43,25 +43,28 @@ def destination_place():
     ],
 )
 def test_is_valid_input_correct(
-        departure, destination,
-        departure_date, return_date,
-        openai_key
+    departure, destination, departure_date, return_date, openai_key
 ):
-    assert home._is_valid_input(departure=departure, destination=destination,
-                                departure_date=departure_date, return_date=return_date,
-                                openai_key=openai_key)
+    assert home._is_valid_input(
+        departure=departure,
+        destination=destination,
+        departure_date=departure_date,
+        return_date=return_date,
+        openai_key=openai_key,
+    )
 
 
-def test_is_valid_input_wrong_dates(
-        departure_place, destination_place,
-        openai_key
-):
+def test_is_valid_input_wrong_dates(departure_place, destination_place, openai_key):
     departure_date = datetime.date(2023, 1, 1)
     return_date = datetime.date(2022, 11, 1)
 
-    assert not home._is_valid_input(departure=departure_place, destination=destination_place,
-                                    departure_date=departure_date, return_date=return_date,
-                                    openai_key=openai_key)
+    assert not home._is_valid_input(
+        departure=departure_place,
+        destination=destination_place,
+        departure_date=departure_date,
+        return_date=return_date,
+        openai_key=openai_key,
+    )
 
 
 @pytest.mark.parametrize(
@@ -72,20 +75,24 @@ def test_is_valid_input_wrong_dates(
     ],
 )
 def test_is_valid_input_wrong_places(
-        departure, destination,
-        departure_date, return_date,
-        openai_key
+    departure, destination, departure_date, return_date, openai_key
 ):
-    assert not home._is_valid_input(departure=departure, destination=destination,
-                                    departure_date=departure_date, return_date=return_date,
-                                    openai_key=openai_key)
+    assert not home._is_valid_input(
+        departure=departure,
+        destination=destination,
+        departure_date=departure_date,
+        return_date=return_date,
+        openai_key=openai_key,
+    )
 
 
 def test_is_valid_input_wrong_openai_key(
-        departure_place, destination_place,
-        departure_date, return_date,
-        openai_key
+    departure_place, destination_place, departure_date, return_date, openai_key
 ):
-    assert not home._is_valid_input(departure=departure_place, destination=destination_place,
-                                    departure_date=departure_date, return_date=return_date,
-                                    openai_key="a")
+    assert not home._is_valid_input(
+        departure=departure_place,
+        destination=destination_place,
+        departure_date=departure_date,
+        return_date=return_date,
+        openai_key="a",
+    )

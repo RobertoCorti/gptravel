@@ -105,6 +105,10 @@ class ActivitiesDiversityScorer(ScoreService):
         score = 1.0 - theil_diversity_entropy_index(
             list(aggregated_scores_normalized.values())
         )
+        logger.debug("ActivitiesDiversityScorer: score value = {}".format(score))
+        logger.debug(
+            "ActivitiesDiversityScorer: score weight = {}".format(self._score_weight)
+        )
         travel_plan_scores.add_score(
             score_type=self._service_name,
             score_dict={
@@ -126,6 +130,7 @@ class DayGenerationScorer(ScoreService):
     def score(
         self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
     ) -> None:
+        logger.debug("DayGenerationScorer: Start")
         required_days_by_the_user = travel_plan.n_days
         travel_plan_day_list = list(
             set(travel_plan.get_key_values_by_name(self._day_key.lower()))
@@ -140,8 +145,17 @@ class DayGenerationScorer(ScoreService):
             - abs(required_days_by_the_user - tot_planned_days)
             / required_days_by_the_user
         )
+        logger.debug("DayGenerationScorer: score value = {}".format(score))
+        logger.debug(
+            "DayGenerationScorer: score weight = {}".format(self._score_weight)
+        )
         if score < 1:
             self.score_weight = min(self.score_weight * 1.5, 1)
+            logger.debug(
+                "DayGenerationScorer: modified score weight = {}".format(
+                    self._score_weight
+                )
+            )
         expected_list = [min_day + item for item in range(required_days_by_the_user)]
         extra_days_in_travel = set(travel_plan_days) - set(expected_list).intersection(
             travel_plan_days
@@ -149,6 +163,12 @@ class DayGenerationScorer(ScoreService):
         missing_days_in_travel = set(expected_list) - set(expected_list).intersection(
             travel_plan_days
         )
+        if len(missing_days_in_travel):
+            logger.debug(
+                "DayGenerationScorer: missing days in travel plan = {}".format(
+                    missing_days_in_travel
+                )
+            )
         travel_plan_scores.add_score(
             score_type=self._service_name,
             score_dict={
@@ -160,6 +180,7 @@ class DayGenerationScorer(ScoreService):
                 },
             },
         )
+        logger.debug("DayGenerationScorer: End")
 
 
 class CitiesCountryScorer(ScoreService):
@@ -171,6 +192,7 @@ class CitiesCountryScorer(ScoreService):
     def score(
         self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
     ) -> None:
+        logger.debug("CitiesCountryScorer: Start")
         # remove departure place: check the consistence among the visiting cities
         unique_cities = list(
             set(travel_plan.travel_cities) - set(travel_plan.departure_place)
@@ -186,9 +208,18 @@ class CitiesCountryScorer(ScoreService):
         destination_country = self._geolocator.country_from_location_name(
             location_name=travel_plan.destination_place
         )
+        logger.debug(
+            "CitiesCountryScorer: computed destination country = {}".format(
+                destination_country
+            )
+        )
         city_countries = [
             self._geolocator.country_from_location_name(city) for city in unique_cities
         ]
+        logger.debug("CitiesCountryScorer: analyzed cities = {}".format(unique_cities))
+        logger.debug(
+            "CitiesCountryScorer: predicted countries = {}".format(city_countries)
+        )
         scores = [
             1 if city_country == destination_country else 0
             for city_country in city_countries
@@ -198,6 +229,10 @@ class CitiesCountryScorer(ScoreService):
         score = weighted_average(
             values=[latitude_score, country_score],
             weights=[weight_for_latitude, weight_for_country],
+        )
+        logger.debug("CitiesCountryScorer: score value = {}".format(score))
+        logger.debug(
+            "CitiesCountryScorer: score weight = {}".format(self._score_weight)
         )
         travel_plan_scores.add_score(
             score_type=self._service_name,
@@ -214,6 +249,7 @@ class CitiesCountryScorer(ScoreService):
                 "destination_country": destination_country,
             },
         )
+        logger.debug("CitiesCountryScorer: End")
 
 
 class OptimizedItineraryScorer(ScoreService):
@@ -229,9 +265,15 @@ class OptimizedItineraryScorer(ScoreService):
             [city.lower() for city in travel_plan.travel_cities]
         )
         if len(cities) > 2:
+            logger.debug("CitiesCountryScorer: Start")
             departure_place = travel_plan.departure_place
             cities = cities[1:] if cities[0] == departure_place.lower() else cities
             cities = cities[:-1] if cities[-1] == departure_place.lower() else cities
+            logger.debug(
+                "CitiesCountryScorer: cities eligible for optimiaztion computation =  {}".format(
+                    cities
+                )
+            )
             # the scorer evaluates the itinerary only if there are
             # more than two different visited city excluded the departure place
             if len(set(cities)) > 2:
@@ -245,6 +287,25 @@ class OptimizedItineraryScorer(ScoreService):
                 if not open_problem:
                     current_distance += solver.distance_matrix[0, -1]
                 score = optimal_distance / current_distance
+                logger.debug("CitiesCountryScorer: score value = {}".format(score))
+                logger.debug(
+                    "CitiesCountryScorer: score weight = {}".format(self._score_weight)
+                )
+                logger.debug(
+                    "CitiesCountryScorer: current distance = {}".format(
+                        current_distance
+                    )
+                )
+                logger.debug(
+                    "CitiesCountryScorer: optimal distance = {}".format(
+                        optimal_distance
+                    )
+                )
+                logger.debug(
+                    "CitiesCountryScorer: optimal solution = {}".format(
+                        optimal_solution
+                    )
+                )
                 travel_plan_scores.add_score(
                     score_type=self._service_name,
                     score_dict={
@@ -261,3 +322,6 @@ class OptimizedItineraryScorer(ScoreService):
                         },
                     },
                 )
+                logger.debug("CitiesCountryScorer: End")
+            else:
+                logger.debug("CitiesCountryScorer: End -- No Computation needed")

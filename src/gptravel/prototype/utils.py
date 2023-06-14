@@ -4,6 +4,7 @@ from typing import Dict, List, Tuple, Union
 import numpy as np
 import openai
 
+from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.engine import classifier
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.score_builder import ScorerOrchestrator
@@ -88,12 +89,14 @@ def get_score_map(
     geo_decoder = GeoCoder()
     zs_classifier = classifier.ZeroShotTextClassifier(True)
     score_container = TravelPlanScore()
+    logger.info("Score Engines: Start")
     scorers_orchestrator = ScorerOrchestrator(
         geocoder=geo_decoder, text_classifier=zs_classifier
     )
     scorers_orchestrator.run(
         travel_plan_json=travel_plan_json, scores_container=score_container
     )
+    logger.info("Score Engines: End")
     return score_container
 
 
@@ -101,12 +104,18 @@ def get_cities_coordinates(
     cities: Union[List[str], Tuple[str]], destination: str
 ) -> Dict[str, Tuple]:
     geo_coder = GeoCoder()
-
+    logger.info("Get Cities coordinates: Start")
+    logger.debug("Get Cities coordinates: cities to analyze = {}".format(cities))
+    logger.debug("Get Cities coordinates: destination = {}".format(destination))
+    destination_country = geo_coder.country_from_location_name(destination).lower()
+    logger.debug("Get Cities coordinates: destination country = {}".format(destination))
     cities_coordinates = {
         city: tuple(coord for coord in geo_coder.location_coordinates(city).values())
         for city in cities
-        if geo_coder.country_from_location_name(city).lower() == destination.lower()
+        if geo_coder.country_from_location_name(city).lower() == destination_country
     }
+    logger.debug("Computed cities coordinates = {}".format(cities_coordinates))
+    logger.info("Get Cities coordinates: End")
     return cities_coordinates
 
 

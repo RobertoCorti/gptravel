@@ -8,8 +8,9 @@ import streamlit as st
 from openai.error import RateLimitError
 from streamlit_folium import st_folium
 
+from gptravel.core.io.loggerconfig import logger
 from gptravel.core.travel_planner import openai_engine
-from gptravel.core.travel_planner.prompt import PromptFactory
+from gptravel.core.travel_planner.prompt import Prompt, PromptFactory
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype import help as prototype_help
 from gptravel.prototype import style as prototype_style
@@ -68,13 +69,14 @@ def main(
 
 
 def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
+    logger.info("Show travel itinerary map: Start")
     travel_plan_cities_names = tuple(
         city for day in travel_plan_dict.keys() for city in travel_plan_dict[day].keys()
     )
     cities_coordinates = prototype_utils.get_cities_coordinates(
         cities=travel_plan_cities_names, destination=destination
     )
-
+    logger.debug("Computed coordinates = {}".format(cities_coordinates))
     coordinates_array = np.array(
         [[coords[0], coords[1]] for coords in cities_coordinates.values()]
     )
@@ -88,6 +90,7 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
 
     # call to render Folium map in Streamlit
     st_folium(m, height=400, width=1000, returned_objects=[])
+    logger.info("Show travel itinerary map: Start")
 
 
 @st.cache_data(show_spinner=False)
@@ -124,16 +127,18 @@ def _get_travel_plan(
     """
     os.environ["OPENAI_API_KEY"] = openai_key
     n_days = (return_date - departure_date).days
-
     travel_parameters = {
         "departure_place": departure,
         "destination_place": destination,
         "n_travel_days": n_days,
         "travel_theme": travel_reason,
     }
-
+    logger.info("Building Prompt with travel parameters")
     prompt = _build_prompt(travel_parameters)
+    logger.info("Prompt Built successfully")
+    logger.info("Generating Travel Plan: Start")
     travel_plan_json = _get_travel_plan_json(prompt)
+    logger.info("Generating Travel Plan: End")
     travel_plan_dict = travel_plan_json.travel_plan
 
     score_dict = prototype_utils.get_score_map(travel_plan_json)
@@ -141,7 +146,7 @@ def _get_travel_plan(
     return travel_plan_dict, score_dict
 
 
-def _get_travel_plan_json(prompt: str) -> TravelPlanJSON:
+def _get_travel_plan_json(prompt: Prompt) -> TravelPlanJSON:
     """
     Retrieves the travel plan JSON based on the provided prompt.
 
@@ -155,7 +160,7 @@ def _get_travel_plan_json(prompt: str) -> TravelPlanJSON:
     return engine.get_travel_plan_json(prompt)
 
 
-def _build_prompt(travel_parameters: Dict[str, Any]) -> str:
+def _build_prompt(travel_parameters: Dict[str, Any]) -> Prompt:
     """
     Builds the prompt for the travel plan based on the travel parameters.
 
@@ -166,6 +171,7 @@ def _build_prompt(travel_parameters: Dict[str, Any]) -> str:
         str: Prompt for the travel plan.
     """
     prompt_factory = PromptFactory()
+    logger.debug("Building Prompt with parameters = {}".format(travel_parameters))
     prompt = prompt_factory.build_prompt(**travel_parameters)
     return prompt
 
