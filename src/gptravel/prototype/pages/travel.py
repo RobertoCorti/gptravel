@@ -12,7 +12,7 @@ from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.travel_planner import openai_engine
 from gptravel.core.travel_planner.prompt import Prompt, PromptFactory
-from gptravel.core.travel_planner.tokenizer import ChatGptTokenizer
+from gptravel.core.travel_planner.token_manager import ChatGptTokenManager
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype import help as prototype_help
 from gptravel.prototype import style as prototype_style
@@ -133,7 +133,7 @@ def _get_travel_plan(
         "n_travel_days": n_days,
         "travel_theme": travel_reason,
     }
-    tokenizer = ChatGptTokenizer()
+    tokenizer = ChatGptTokenManager()
     geocoder = GeoCoder()
     travel_distance = geocoder.location_distance(departure, destination)
     max_number_tokens = tokenizer.get_number_tokens(
