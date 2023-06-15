@@ -9,14 +9,14 @@ from openai.error import RateLimitError
 from streamlit_folium import st_folium
 
 from gptravel.core.io.loggerconfig import logger
+from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.travel_planner import openai_engine
 from gptravel.core.travel_planner.prompt import Prompt, PromptFactory
+from gptravel.core.travel_planner.tokenizer import ChatGptTokenizer
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype import help as prototype_help
 from gptravel.prototype import style as prototype_style
 from gptravel.prototype import utils as prototype_utils
-
-MAX_TOKENS = 1024
 
 
 def main(
@@ -133,11 +133,19 @@ def _get_travel_plan(
         "n_travel_days": n_days,
         "travel_theme": travel_reason,
     }
+    tokenizer = ChatGptTokenizer()
+    geocoder = GeoCoder()
+    travel_distance = geocoder.location_distance(departure, destination)
+    max_number_tokens = tokenizer.get_number_tokens(
+        n_days=n_days, distance=travel_distance
+    )
     logger.info("Building Prompt with travel parameters")
     prompt = _build_prompt(travel_parameters)
     logger.info("Prompt Built successfully")
     logger.info("Generating Travel Plan: Start")
-    travel_plan_json = _get_travel_plan_json(prompt)
+    travel_plan_json = _get_travel_plan_json(
+        prompt=prompt, max_tokens=max_number_tokens
+    )
     logger.info("Generating Travel Plan: End")
     travel_plan_dict = travel_plan_json.travel_plan
 
@@ -146,7 +154,7 @@ def _get_travel_plan(
     return travel_plan_dict, score_dict
 
 
-def _get_travel_plan_json(prompt: Prompt) -> TravelPlanJSON:
+def _get_travel_plan_json(prompt: Prompt, max_tokens: int) -> TravelPlanJSON:
     """
     Retrieves the travel plan JSON based on the provided prompt.
 
@@ -156,7 +164,7 @@ def _get_travel_plan_json(prompt: Prompt) -> TravelPlanJSON:
     Returns:
         TravelPlanJSON: Travel plan JSON.
     """
-    engine = openai_engine.ChatGPTravelEngine(max_tokens=MAX_TOKENS)
+    engine = openai_engine.ChatGPTravelEngine(max_tokens=max_tokens)
     return engine.get_travel_plan_json(prompt)
 
 
