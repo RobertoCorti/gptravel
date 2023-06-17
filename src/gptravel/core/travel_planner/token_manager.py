@@ -20,7 +20,7 @@ class ChatGptTokenManager(TokenManager):
     def get_number_tokens(self, **kwargs) -> int:
         logger.debug("Computing max number of tokens for chatgpt engine")
         logger.debug(
-            "Tokenizer inputs: n_days = {}, travel_distance = {}".format(
+            "Token Manager inputs: n_days = {}, travel_distance = {}".format(
                 kwargs["n_days"], kwargs["distance"]
             )
         )

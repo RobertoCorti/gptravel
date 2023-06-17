@@ -134,10 +134,10 @@ def _get_travel_plan(
         "n_travel_days": n_days,
         "travel_theme": travel_reason,
     }
-    tokenizer = ChatGptTokenManager()
+    token_manager = ChatGptTokenManager()
     geocoder = GeoCoder()
     travel_distance = geocoder.location_distance(departure, destination)
-    max_number_tokens = tokenizer.get_number_tokens(
+    max_number_tokens = token_manager.get_number_tokens(
         n_days=n_days, distance=travel_distance
     )
     logger.info("Building Prompt with travel parameters")
