@@ -1,5 +1,5 @@
-import datetime
 import os
+from datetime import datetime, timedelta
 from typing import Any, Dict, Tuple
 
 import folium
@@ -23,8 +23,8 @@ def main(
     openai_key: str,
     departure: str,
     destination: str,
-    departure_date: datetime.datetime,
-    return_date: datetime.datetime,
+    departure_date: datetime,
+    return_date: datetime,
     travel_reason: str,
 ):
     """
@@ -39,9 +39,9 @@ def main(
         Departure place.
     destination : str
         Destination place.
-    departure_date : datetime.datetime
+    departure_date : datetime
         Departure date.
-    return_date : datetime.datetime
+    return_date : datetime
         Return date.
     travel_reason : str
         Reason for travel.
@@ -73,8 +73,10 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
     travel_plan_cities_names = tuple(
         city for day in travel_plan_dict.keys() for city in travel_plan_dict[day].keys()
     )
-    cities_coordinates = prototype_utils.get_cities_coordinates(
-        cities=travel_plan_cities_names, destination=destination
+    cities_coordinates = (
+        prototype_utils.get_cities_coordinates_of_same_country_destionation(
+            cities=travel_plan_cities_names, destination=destination
+        )
     )
     logger.debug("Computed coordinates = {}".format(cities_coordinates))
     coordinates_array = np.array(
@@ -82,7 +84,6 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
     )
     mean_point_coordinates = np.median(coordinates_array, axis=0)
     zoom_start = 6 if prototype_utils.is_a_country(destination) else 8
-    breakpoint()
     m = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
 
     for city, coordinates in cities_coordinates.items():
@@ -98,8 +99,8 @@ def _get_travel_plan(
     openai_key: str,
     departure: str,
     destination: str,
-    departure_date: datetime.datetime,
-    return_date: datetime.datetime,
+    departure_date: datetime,
+    return_date: datetime,
     travel_reason: str,
 ) -> Tuple[Dict[Any, Any], prototype_utils.TravelPlanScore]:
     """
@@ -113,9 +114,9 @@ def _get_travel_plan(
         Departure place.
     destination : str
         Destination place.
-    departure_date : datetime.datetime
+    departure_date : datetime
         Departure date.
-    return_date : datetime.datetime
+    return_date : datetime
         Return date.
     travel_reason : str
         Reason for travel.
@@ -126,7 +127,7 @@ def _get_travel_plan(
         A tuple containing the travel plan dictionary and the travel plan score.
     """
     os.environ["OPENAI_API_KEY"] = openai_key
-    n_days = (return_date - departure_date).days
+    n_days = (return_date - departure_date).days + 1
     travel_parameters = {
         "departure_place": departure,
         "destination_place": destination,
@@ -159,7 +160,7 @@ def _get_travel_plan_json(prompt: Prompt, max_tokens: int) -> TravelPlanJSON:
     Retrieves the travel plan JSON based on the provided prompt.
 
     Args:
-        prompt (str): Prompt for the travel plan.
+        prompt (Prompt): Prompt for the travel plan.
 
     Returns:
         TravelPlanJSON: Travel plan JSON.
@@ -173,10 +174,10 @@ def _build_prompt(travel_parameters: Dict[str, Any]) -> Prompt:
     Builds the prompt for the travel plan based on the travel parameters.
 
     Args:
-        travel_parameters (dict): Travel parameters.
+        travel_parameters (Dict[str, Any]): Travel parameters.
 
     Returns:
-        str: Prompt for the travel plan.
+        Prompt: Prompt for the travel plan.
     """
     prompt_factory = PromptFactory()
     logger.debug("Building Prompt with parameters = {}".format(travel_parameters))
@@ -184,23 +185,25 @@ def _build_prompt(travel_parameters: Dict[str, Any]) -> Prompt:
     return prompt
 
 
-def _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
+def _create_expanders_travel_plan(
+    departure_date: datetime,
+    score_dict: prototype_utils.TravelPlanScore,
+    travel_plan_dict: Dict[Any, Any],
+) -> None:
     """
     Create expanders for displaying the travel plan.
 
     Parameters
     ----------
-    departure_date : datetime.datetime
+    departure_date : datetime
         Departure date.
-    score_dict : Dict[str, Any]
-        Score dictionary.
+    score_dict : prototype_utils.TravelPlanScore
+        Score container object.
     travel_plan_dict : Dict[Any, Any]
         Travel plan dictionary.
     """
     for day_num, (day_key, places_dict) in enumerate(travel_plan_dict.items()):
-        date_str = (departure_date + datetime.timedelta(days=int(day_num))).strftime(
-            "%d-%m-%Y"
-        )
+        date_str = (departure_date + timedelta(days=int(day_num))).strftime("%d-%m-%Y")
         expander_day_num = st.expander(f"{day_key} ({date_str})", expanded=True)
         for place, activities in places_dict.items():
             expander_day_num.markdown(f"**{place}**")

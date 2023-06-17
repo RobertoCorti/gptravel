@@ -7,7 +7,7 @@ import pytest
 
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype.utils import (
-    get_cities_coordinates,
+    get_cities_coordinates_of_same_country_destionation,
     get_score_map,
     is_departure_before_return,
     is_valid_openai_key,
@@ -53,6 +53,13 @@ def test_is_departure_before_return(departure_date, return_date, expected_result
             },
         ),
         (
+            ["London"],
+            "London",
+            {
+                "London": (51.5073359, -0.12765),
+            },
+        ),
+        (
             ["London", "Manchester"],
             "United Kingdom",
             {"London": (51.5073359, -0.12765), "Manchester": (53.4794892, -2.2451148)},
@@ -61,7 +68,9 @@ def test_is_departure_before_return(departure_date, return_date, expected_result
     ],
 )
 def test_get_cities_coordinates(cities, destination, expected_coordinates):
-    coordinates_cities_dict = get_cities_coordinates(cities, destination)
+    coordinates_cities_dict = get_cities_coordinates_of_same_country_destionation(
+        cities, destination
+    )
     for city, coordinates in coordinates_cities_dict.items():
         assert coordinates[0] == pytest.approx(expected_coordinates[city][0], abs=0.1)
         assert coordinates[1] == pytest.approx(expected_coordinates[city][1], abs=0.1)
