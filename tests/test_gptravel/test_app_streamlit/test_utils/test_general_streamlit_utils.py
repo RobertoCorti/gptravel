@@ -7,10 +7,12 @@ import pytest
 
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype.utils import (
+    get_cities_coordinates_of_same_country_destionation,
     get_score_map,
     is_departure_before_return,
-    is_valid_openai_key, get_cities_coordinates,
+    is_valid_openai_key,
 )
+
 
 def test_is_valid_openai_key():
     from dotenv import load_dotenv
@@ -42,22 +44,40 @@ def test_is_departure_before_return(departure_date, return_date, expected_result
 @pytest.mark.parametrize(
     "cities, destination, expected_coordinates",
     [
-        (["New York", "Los Angeles"], "United States",
-         {"New York": (40.7127281, -74.0060152), "Los Angeles": (34.0536909, -118.242766)}),
-        (["London", "Manchester"], "United Kingdom",
-         {"London": (51.5073359, -0.12765), "Manchester": (53.4794892, -2.2451148)}),
+        (
+            ["New York", "Los Angeles"],
+            "United States",
+            {
+                "New York": (40.7127281, -74.0060152),
+                "Los Angeles": (34.0536909, -118.242766),
+            },
+        ),
+        (
+            ["London"],
+            "London",
+            {
+                "London": (51.5073359, -0.12765),
+            },
+        ),
+        (
+            ["London", "Manchester"],
+            "United Kingdom",
+            {"London": (51.5073359, -0.12765), "Manchester": (53.4794892, -2.2451148)},
+        ),
         (["Paris", "Rome"], "France", {"Paris": (48.8588897, 2.3200410217200766)}),
     ],
 )
 def test_get_cities_coordinates(cities, destination, expected_coordinates):
-    coordinates_cities_dict = get_cities_coordinates(cities, destination)
+    coordinates_cities_dict = get_cities_coordinates_of_same_country_destionation(
+        cities, destination
+    )
     for city, coordinates in coordinates_cities_dict.items():
         assert coordinates[0] == pytest.approx(expected_coordinates[city][0], abs=0.1)
         assert coordinates[1] == pytest.approx(expected_coordinates[city][1], abs=0.1)
 
 
 def test_get_score_map_on_travel_plan(
-        travel_plan_single_city_per_day: TravelPlanJSON, labels_activities: List[str]
+    travel_plan_single_city_per_day: TravelPlanJSON, labels_activities: List[str]
 ):
     score_map = get_score_map(travel_plan_single_city_per_day).score_map
 

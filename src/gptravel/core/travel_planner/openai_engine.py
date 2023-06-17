@@ -1,10 +1,10 @@
 import json
-import warnings
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
 import openai
 
+from gptravel.core.io.loggerconfig import logger
 from gptravel.core.travel_planner.prompt import Prompt
 from gptravel.core.travel_planner.travel_engine import TravelEngine, TravelPlanJSON
 
@@ -38,9 +38,11 @@ class OpenAITravelEngine(TravelEngine, ABC):
     def get_travel_plan_json(self, prompt: Prompt) -> TravelPlanJSON:
         response = self._openai_call(prompt)
         message_response = response["choices"][0]["message"]["content"]
+        logger.debug("Applying regex on OpenAI GPT response")
         json_parsed_list = self._regex(message_response)
         if len(json_parsed_list) > 1:
-            warnings.warn("Found multiple json in travel planner response")
+            logger.warning("Found multiple json in travel planner response")
+        logger.debug("Regex complete successfully")
         return TravelPlanJSON(
             departure_place=prompt.departure_place,
             destination_place=prompt.destination_place,
@@ -72,9 +74,11 @@ class ChatGPTravelEngine(OpenAITravelEngine):
         super().__init__(
             model, max_tokens, temperature, top_p, frequency_penalty, presence_penalty
         )
+        self._max_tokens = min(self._max_tokens, 4096)  # max token for this engine
         self._n = number_chat_completions
 
     def _openai_call(self, prompt: Prompt) -> Dict[Any, Any]:
+        logger.debug("Fetching travel plan with ChatGpt engine API: Start")
         api_output = openai.ChatCompletion.create(
             model=self._model,
             messages=[
@@ -88,8 +92,11 @@ class ChatGPTravelEngine(OpenAITravelEngine):
             frequency_penalty=self._frequency_penalty,
             n=self._n,
         )
+        logger.debug("Fetching travel plan with ChatGpt engine API: Complete")
         self._finish_reason = api_output["choices"][0]["finish_reason"]
         self._total_tokens = api_output["usage"]["total_tokens"]
+        logger.debug("OpenAI API: finish reason= {}".format(self._finish_reason))
+        logger.debug("OpenAI API: total tokens = {}".format(self._total_tokens))
         return api_output
 
 
@@ -108,6 +115,7 @@ class CompletionGPTravelEngine(OpenAITravelEngine):
         )
 
     def _openai_call(self, prompt: Prompt) -> Dict[Any, Any]:
+        logger.debug("Fetching travel plan with ChatGpt engine API: Start")
         api_output = openai.Completion.create(
             model=self._model,
             prompt=prompt.prompt,
@@ -117,6 +125,9 @@ class CompletionGPTravelEngine(OpenAITravelEngine):
             presence_penalty=self._presence_penalty,
             frequency_penalty=self._frequency_penalty,
         )
+        logger.debug("Fetching travel plan with ChatGpt engine API: Complete")
         self._finish_reason = api_output["choices"][0]["finish_reason"]
         self._total_tokens = api_output["usage"]["total_tokens"]
+        logger.debug("OpenAI API: finish reason= {}".format(self._finish_reason))
+        logger.debug("OpenAI API: total tokens = {}".format(self._total_tokens))
         return api_output

@@ -7,7 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python =  ">=3.8,<3.9.7"
-flask = "2.2.3"
 wikipedia-api = "^0.5.8"
 geopy = "^2.3.0"
 poetry-dotenv-plugin = "^0.1.0"

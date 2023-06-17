@@ -1,13 +1,6 @@
-import os
-
 import pytest
 
 from gptravel.core.services.geocoder import GeoCoder
-
-uat_test = pytest.mark.skipif(
-    os.getenv("ENV", "UAT") == "PROD",
-    reason="Only run in UAT environment",
-)
 
 
 class TestGeoCoder:
@@ -15,7 +8,7 @@ class TestGeoCoder:
         assert geo_coder.country_from_location_name("Paris, France") == "France"
         assert geo_coder.country_from_location_name("London, UK") == "United Kingdom"
         assert (
-                geo_coder.country_from_location_name("Los Angeles, US") == "United States"
+            geo_coder.country_from_location_name("Los Angeles, US") == "United States"
         )
         assert geo_coder.country_from_location_name("Mumbai, India") == "India"
         assert geo_coder.country_from_location_name("PortaSigrar") is None
@@ -47,8 +40,32 @@ class TestGeoCoder:
             ("United States", True),
             ("California", True),
             ("New York", True),
+            ("Italy", True),
+            ("Rome", True),
+            ("Berlin", True),
+            ("Milan", True),
             ("Pippo", False),
         ],
     )
-    def test_is_location_country_city_state(self, geo_coder, location_name, expected_result):
-        assert geo_coder.is_location_country_city_state(location_name) == expected_result
+    def test_is_location_country_city_state(
+        self, geo_coder, location_name, expected_result
+    ):
+        assert (
+            geo_coder.is_location_country_city_state(location_name) == expected_result
+        )
+
+    @pytest.mark.parametrize(
+        "location_name, expected_result",
+        [
+            ("United States", True),
+            ("California", True),
+            ("New York", False),
+            ("Italy", True),
+            ("Rome", False),
+            ("Berlin", False),
+            ("Milan", False),
+            ("Pippo", False),
+        ],
+    )
+    def test_is_location_country(self, geo_coder, location_name, expected_result):
+        assert geo_coder.is_a_country(location_name) == expected_result

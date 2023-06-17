@@ -1,5 +1,5 @@
-import datetime
 import os
+from datetime import datetime, timedelta
 from typing import Any, Dict, Tuple
 
 import folium
@@ -8,23 +8,24 @@ import streamlit as st
 from openai.error import RateLimitError
 from streamlit_folium import st_folium
 
+from gptravel.core.io.loggerconfig import logger
+from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.travel_planner import openai_engine
-from gptravel.core.travel_planner.prompt import PromptFactory
+from gptravel.core.travel_planner.prompt import Prompt, PromptFactory
+from gptravel.core.travel_planner.token_manager import ChatGptTokenManager
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype import help as prototype_help
 from gptravel.prototype import style as prototype_style
 from gptravel.prototype import utils as prototype_utils
 
-MAX_TOKENS = 1024
-
 
 def main(
-        openai_key: str,
-        departure: str,
-        destination: str,
-        departure_date: datetime.datetime,
-        return_date: datetime.datetime,
-        travel_reason: str,
+    openai_key: str,
+    departure: str,
+    destination: str,
+    departure_date: datetime,
+    return_date: datetime,
+    travel_reason: str,
 ):
     """
      Main function for running travel plan in GPTravel.
@@ -38,9 +39,9 @@ def main(
         Departure place.
     destination : str
         Destination place.
-    departure_date : datetime.datetime
+    departure_date : datetime
         Departure date.
-    return_date : datetime.datetime
+    return_date : datetime
         Return date.
     travel_reason : str
         Reason for travel.
@@ -68,15 +69,16 @@ def main(
 
 
 def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
+    logger.info("Show travel itinerary map: Start")
     travel_plan_cities_names = tuple(
-        city
-        for day in travel_plan_dict.keys()
-        for city in travel_plan_dict[day].keys()
+        city for day in travel_plan_dict.keys() for city in travel_plan_dict[day].keys()
     )
-    cities_coordinates = prototype_utils.get_cities_coordinates(
-        cities=travel_plan_cities_names, destination=destination
+    cities_coordinates = (
+        prototype_utils.get_cities_coordinates_of_same_country_destionation(
+            cities=travel_plan_cities_names, destination=destination
+        )
     )
-
+    logger.debug("Computed coordinates = {}".format(cities_coordinates))
     coordinates_array = np.array(
         [[coords[0], coords[1]] for coords in cities_coordinates.values()]
     )
@@ -89,16 +91,17 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
 
     # call to render Folium map in Streamlit
     st_folium(m, height=400, width=1000, returned_objects=[])
+    logger.info("Show travel itinerary map: Start")
 
 
 @st.cache_data(show_spinner=False)
 def _get_travel_plan(
-        openai_key: str,
-        departure: str,
-        destination: str,
-        departure_date: datetime.datetime,
-        return_date: datetime.datetime,
-        travel_reason: str,
+    openai_key: str,
+    departure: str,
+    destination: str,
+    departure_date: datetime,
+    return_date: datetime,
+    travel_reason: str,
 ) -> Tuple[Dict[Any, Any], prototype_utils.TravelPlanScore]:
     """
     Get the travel plan and score dictionary.
@@ -111,9 +114,9 @@ def _get_travel_plan(
         Departure place.
     destination : str
         Destination place.
-    departure_date : datetime.datetime
+    departure_date : datetime
         Departure date.
-    return_date : datetime.datetime
+    return_date : datetime
         Return date.
     travel_reason : str
         Reason for travel.
@@ -124,17 +127,27 @@ def _get_travel_plan(
         A tuple containing the travel plan dictionary and the travel plan score.
     """
     os.environ["OPENAI_API_KEY"] = openai_key
-    n_days = (return_date - departure_date).days
-
+    n_days = (return_date - departure_date).days + 1
     travel_parameters = {
         "departure_place": departure,
         "destination_place": destination,
         "n_travel_days": n_days,
         "travel_theme": travel_reason,
     }
-
+    token_manager = ChatGptTokenManager()
+    geocoder = GeoCoder()
+    travel_distance = geocoder.location_distance(departure, destination)
+    max_number_tokens = token_manager.get_number_tokens(
+        n_days=n_days, distance=travel_distance
+    )
+    logger.info("Building Prompt with travel parameters")
     prompt = _build_prompt(travel_parameters)
-    travel_plan_json = _get_travel_plan_json(prompt)
+    logger.info("Prompt Built successfully")
+    logger.info("Generating Travel Plan: Start")
+    travel_plan_json = _get_travel_plan_json(
+        prompt=prompt, max_tokens=max_number_tokens
+    )
+    logger.info("Generating Travel Plan: End")
     travel_plan_dict = travel_plan_json.travel_plan
 
     score_dict = prototype_utils.get_score_map(travel_plan_json)
@@ -142,52 +155,55 @@ def _get_travel_plan(
     return travel_plan_dict, score_dict
 
 
-def _get_travel_plan_json(prompt: str) -> TravelPlanJSON:
+def _get_travel_plan_json(prompt: Prompt, max_tokens: int) -> TravelPlanJSON:
     """
     Retrieves the travel plan JSON based on the provided prompt.
 
     Args:
-        prompt (str): Prompt for the travel plan.
+        prompt (Prompt): Prompt for the travel plan.
 
     Returns:
         TravelPlanJSON: Travel plan JSON.
     """
-    engine = openai_engine.ChatGPTravelEngine(max_tokens=MAX_TOKENS)
+    engine = openai_engine.ChatGPTravelEngine(max_tokens=max_tokens)
     return engine.get_travel_plan_json(prompt)
 
 
-def _build_prompt(travel_parameters: Dict[str, Any]) -> str:
+def _build_prompt(travel_parameters: Dict[str, Any]) -> Prompt:
     """
     Builds the prompt for the travel plan based on the travel parameters.
 
     Args:
-        travel_parameters (dict): Travel parameters.
+        travel_parameters (Dict[str, Any]): Travel parameters.
 
     Returns:
-        str: Prompt for the travel plan.
+        Prompt: Prompt for the travel plan.
     """
     prompt_factory = PromptFactory()
+    logger.debug("Building Prompt with parameters = {}".format(travel_parameters))
     prompt = prompt_factory.build_prompt(**travel_parameters)
     return prompt
 
 
-def _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict):
+def _create_expanders_travel_plan(
+    departure_date: datetime,
+    score_dict: prototype_utils.TravelPlanScore,
+    travel_plan_dict: Dict[Any, Any],
+) -> None:
     """
     Create expanders for displaying the travel plan.
 
     Parameters
     ----------
-    departure_date : datetime.datetime
+    departure_date : datetime
         Departure date.
-    score_dict : Dict[str, Any]
-        Score dictionary.
+    score_dict : prototype_utils.TravelPlanScore
+        Score container object.
     travel_plan_dict : Dict[Any, Any]
         Travel plan dictionary.
     """
     for day_num, (day_key, places_dict) in enumerate(travel_plan_dict.items()):
-        date_str = (departure_date + datetime.timedelta(days=int(day_num))).strftime(
-            "%d-%m-%Y"
-        )
+        date_str = (departure_date + timedelta(days=int(day_num))).strftime("%d-%m-%Y")
         expander_day_num = st.expander(f"{day_key} ({date_str})", expanded=True)
         for place, activities in places_dict.items():
             expander_day_num.markdown(f"**{place}**")

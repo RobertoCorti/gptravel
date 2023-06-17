@@ -4,6 +4,7 @@ import numpy as np
 from python_tsp.exact import solve_tsp_dynamic_programming
 from python_tsp.heuristics import solve_tsp_simulated_annealing
 
+from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.geocoder import GeoCoder
 
 
@@ -20,11 +21,15 @@ class TSPSolver:
         self, cities: List[str], open_problem: bool = False
     ) -> Tuple[List[str], float]:
         if len(cities) > 1:
-            solver = (
-                solve_tsp_dynamic_programming
-                if len(cities) < 10
-                else solve_tsp_simulated_annealing
-            )
+            logger.debug("TSP solver: start")
+            logger.debug("TSP solver: solve the problem for cities = {}".format(cities))
+            logger.debug("TSP solver: open problem = {}".format(open_problem))
+            if len(cities) < 10:
+                solver = solve_tsp_dynamic_programming
+                logger.debug("TSP solver: use dynamic programming")
+            else:
+                solver = solve_tsp_simulated_annealing
+                logger.debug("TSP solver: use simulated annealing")
             self._distance_matrix = np.array(
                 [
                     [
@@ -41,4 +46,5 @@ class TSPSolver:
                 dist_mat[:, 0] = 0.0
             solution_indexes, solution_distance = solver(distance_matrix=dist_mat)
             return [cities[index] for index in solution_indexes], solution_distance
+        logger.debug("TSP solver: only one city provided -- no computation needed")
         return cities, 0.0

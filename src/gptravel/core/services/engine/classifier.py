@@ -5,6 +5,9 @@ from typing import Any, Dict, List
 import requests
 from dotenv import load_dotenv
 
+from gptravel.core.io.loggerconfig import logger
+from gptravel.core.services.engine.exception import HuggingFaceError
+
 load_dotenv()
 
 
@@ -37,7 +40,10 @@ class ZeroShotTextClassifier(TextClassifier):
 
     def _query(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         headers = {"Authorization": f"Bearer {self._api_token}"}
-        return requests.post(self._api_url, headers=headers, json=payload).json()
+        logger.debug("HuggingFace API fetching response: start")
+        response = requests.post(self._api_url, headers=headers, json=payload).json()
+        logger.debug("HuggingFace API fetching response: complete")
+        return response
 
     def predict(
         self,
@@ -51,11 +57,15 @@ class ZeroShotTextClassifier(TextClassifier):
                 "multi_label": self._multi_label,
             },
         }
-        response = self._query(payload=payload)
-        return {
-            item["sequence"]: {
-                label: float(value)
-                for label, value in zip(item["labels"], item["scores"])
+        try:
+            response = self._query(payload=payload)
+            return {
+                item["sequence"]: {
+                    label: float(value)
+                    for label, value in zip(item["labels"], item["scores"])
+                }
+                for item in response
             }
-            for item in response
-        }
+        except:
+            logger.error("Hugging Face classifier: error in retrieving API response")
+            raise HuggingFaceError
