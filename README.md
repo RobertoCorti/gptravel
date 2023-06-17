@@ -34,7 +34,7 @@ poetry shell
 ```
 
 ## Usage 🚀
-(Deployment on Streamlit Cloud is coming)
+Our prototype application is available on [Streamlit Cloud](https://robertocorti-gptravel-prototype-fho56u.streamlit.app/); you will only need an OpenAI API key and a willingness to travel.
 
 To run the GPTravel web app on your local machine, use the following command:
 ```
