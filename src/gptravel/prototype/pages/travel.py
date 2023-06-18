@@ -209,6 +209,7 @@ def _create_expanders_travel_plan(
             expander_day_num.markdown(f"**{place}**")
             for activity in activities:
                 activity_descr = f" {activity}"
+                ### TODO (RC): add an if when filtered activities is empty; take the argmax
                 filtered_activities = filter(
                     lambda x: x[1] > 0.5,
                     score_dict.score_map["Activities Variety"]["labeled_activities"][
