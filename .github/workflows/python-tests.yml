@@ -48,4 +48,6 @@ jobs:
         run: echo "Running Tests"
       - run: |
           source $VENV
+          autoflake --in-place --remove-all-unused-imports --remove-unused-variables --recursive ./src
+          autoflake --in-place --remove-all-unused-imports --remove-unused-variables --recursive ./tests
           pytest tests
