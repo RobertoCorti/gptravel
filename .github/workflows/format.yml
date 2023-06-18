@@ -1,10 +1,8 @@
 name: format
 
 on:
-  workflow_run:
-    workflows: [test]
-    types:
-      - completed
+  check_run:
+    types: [completed]
 
 jobs:
     format:
