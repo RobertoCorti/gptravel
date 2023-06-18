@@ -14,7 +14,7 @@ The AI travel assistant that we aim to build would provide recommendations for d
 
 At this moment we prepared a prototype on a Streamlit app with few of these functionalities. The future work will be focused on adding to the app a more strong and reliable travel assistant.
 
-## Installation
+## Installation ⚙️
 
 This project uses the package manager poetry. To install poetry then run
 ```
@@ -34,11 +34,11 @@ poetry shell
 ```
 
 ## Usage 🚀
-Our prototype application is available on [Streamlit Cloud](https://robertocorti-gptravel-prototype-fho56u.streamlit.app/); you will only need an OpenAI API key and a willingness to travel.
+Our prototype application is available on [Streamlit Cloud](https://gptravel-prototype.streamlit.app/); you will only need an OpenAI API key and a willingness to travel.
 
 To run the GPTravel web app on your local machine, use the following command:
 ```
-streamlit run prototype.py
+streamlit run Home.py
 ```
 This will start the GPTravel app using Streamlit. You can then access the web app through your browser.
 
