@@ -1,8 +1,8 @@
-name: Format code
+name: format
 
 on:
   workflow_run:
-    workflows: ["test"]
+    workflows: [test]
     types:
       - completed
 
