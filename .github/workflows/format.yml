@@ -1,8 +1,11 @@
-name: format
+name: Format and Commit Code
 
 on:
-  check_run:
-    types: [completed]
+  workflow_run:
+    workflows:
+      - "Run Tests"
+    types:
+      - completed
 
 jobs:
     format:
