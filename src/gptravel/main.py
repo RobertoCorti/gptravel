@@ -12,7 +12,7 @@ from gptravel.core.services.score_builder import ScorerOrchestrator
 from gptravel.core.services.scorer import TravelPlanScore
 from gptravel.core.travel_planner.openai_engine import ChatGPTravelEngine
 from gptravel.core.travel_planner.prompt import PromptFactory
-from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
+#from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 load_dotenv()
 
@@ -39,16 +39,16 @@ def main(
 
     engine = ChatGPTravelEngine(max_tokens=350)
 
-    # travel_plan_in_json_format = engine.get_travel_plan_json(prompt)
+    travel_plan_in_json_format = engine.get_travel_plan_json(prompt)
     print(
         "** Execution time for travel generation", time.time() - start_time, "seconds"
     )
-    """with open(
+    with open(
         "trave-l_plan_{}_{}.json".format(destination_place, n_days), "w"
     ) as jfile:
-        json.dump(travel_plan_in_json_format.travel_plan, jfile)"""
+        json.dump(travel_plan_in_json_format.travel_plan, jfile)
 
-    travel_plan_in_json_format = TravelPlanJSON(
+    """travel_plan_in_json_format = TravelPlanJSON(
         destination_place="Malaysia",
         departure_place="Rome",
         n_days=6,
@@ -98,7 +98,7 @@ def main(
             },
         },
         json_keys_depth_map={"city": 1, "day": 0},
-    )
+    )"""
 
     middle_time = time.time()
     zs_classifier = ZeroShotTextClassifier(True)
