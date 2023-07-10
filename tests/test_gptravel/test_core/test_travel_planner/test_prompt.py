@@ -1,7 +1,5 @@
 from typing import Any, Dict
 
-import pytest
-
 from gptravel.core.travel_planner.prompt import (
     PlainTravelPrompt,
     PromptFactory,

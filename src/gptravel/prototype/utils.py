@@ -1,7 +1,6 @@
 from datetime import date
 from typing import Dict, List, Tuple, Union
 
-import numpy as np
 import openai
 
 from gptravel.core.io.loggerconfig import logger

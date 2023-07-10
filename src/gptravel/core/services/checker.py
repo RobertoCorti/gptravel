@@ -29,5 +29,5 @@ class ExistingDestinationsChecker(Checker):
         if all_exists:
             logger.debug("Check passed")
         else:
-            logger.debug("Check not passed")
+            logger.warning("Check not passed")
         return all_exists
