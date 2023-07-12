@@ -9,6 +9,8 @@ from openai.error import RateLimitError
 from streamlit_folium import st_folium
 
 from gptravel.core.io.loggerconfig import logger
+from gptravel.core.services.checker import ExistingDestinationsChecker
+from gptravel.core.services.filters import DeparturePlaceFilter
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.travel_planner import openai_engine
 from gptravel.core.travel_planner.prompt import Prompt, PromptFactory
@@ -148,6 +150,10 @@ def _get_travel_plan(
         prompt=prompt, max_tokens=max_number_tokens
     )
     logger.info("Generating Travel Plan: End")
+    travel_filter = DeparturePlaceFilter()
+    travel_filter.filter(travel_plan_json)
+    checker = ExistingDestinationsChecker(geocoder)
+    checker.check(travel_plan_json)
     travel_plan_dict = travel_plan_json.travel_plan
 
     score_dict = prototype_utils.get_score_map(travel_plan_json)

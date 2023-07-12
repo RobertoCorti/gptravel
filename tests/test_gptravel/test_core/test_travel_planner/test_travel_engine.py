@@ -1,5 +1,3 @@
-import pytest
-
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 

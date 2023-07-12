@@ -1,8 +1,6 @@
 import json
 from inspect import cleandoc
 
-import pytest
-
 from gptravel.core.utils.regex_tool import JsonExtractor
 
 

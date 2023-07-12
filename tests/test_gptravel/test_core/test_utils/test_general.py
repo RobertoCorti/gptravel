@@ -1,7 +1,5 @@
 import json
 
-import pytest
-
 from gptravel.core.utils.general import (
     extract_inner_lists_from_json,
     extract_keys_by_depth_from_json,
