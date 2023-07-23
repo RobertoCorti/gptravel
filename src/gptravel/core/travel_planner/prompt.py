@@ -1,7 +1,8 @@
+import json
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from inspect import cleandoc
-from typing import Dict
+from typing import Any, Dict
 
 
 class Prompt(ABC):
@@ -79,6 +80,26 @@ class ThematicTravelPrompt(Prompt):
         return {"day": 0, "city": 1}
 
 
+class CompletionTravelPrompt(Prompt):
+    def __init__(
+        self,
+        departure_place: str,
+        destination_place: str,
+        n_travel_days: int,
+        n_days_to_add: int,
+        travel_plan: Dict[Any, Any],
+        **kwargs,
+    ) -> None:
+        dumped_json = json.dumps(travel_plan)
+        prompt = f"""Rewrite the following travel plan where the destination is {destination_place} by adding {n_days_to_add} days:
+                     {dumped_json}"""
+        super().__init__(prompt, departure_place, destination_place, n_travel_days)
+
+    @property
+    def json_keys(self) -> Dict[str, int]:
+        return {"day": 0, "city": 1}
+
+
 class PromptFactory:
     def __init__(self) -> None:
         pass
@@ -86,6 +107,8 @@ class PromptFactory:
     @staticmethod
     def build_prompt(**kwargs) -> Prompt:
         kwargs = defaultdict(str, kwargs)
+        if kwargs["complention_travel_plan"]:
+            return CompletionTravelPrompt(**kwargs)
         if kwargs["travel_theme"]:
             return ThematicTravelPrompt(**kwargs)
         return PlainTravelPrompt(**kwargs)
