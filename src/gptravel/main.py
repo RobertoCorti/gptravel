@@ -98,7 +98,7 @@ def main(
     geo_decoder = GeoCoder()
     score_container = TravelPlanScore()
     city_checker = ExistingDestinationsChecker(geo_decoder)
-    good = city_checker.check(travel_plan_in_json_format)
+    city_checker.check(travel_plan_in_json_format)
     scorers_orchestrator = ScorerOrchestrator(
         geocoder=geo_decoder, text_classifier=zs_classifier
     )
