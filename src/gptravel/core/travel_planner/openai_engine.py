@@ -43,11 +43,17 @@ class OpenAITravelEngine(TravelEngine, ABC):
         if len(json_parsed_list) > 1:
             logger.warning("Found multiple json in travel planner response")
         logger.debug("Regex complete successfully")
+        try:
+            json_object = json.loads(json_parsed_list[0])
+        except json.decoder.JSONDecodeError:
+            json_object = json.loads(
+                r"{}".format(json_parsed_list[0].replace("'", '"'))
+            )
         return TravelPlanJSON(
             departure_place=prompt.departure_place,
             destination_place=prompt.destination_place,
             n_days=prompt.n_travel_days,
-            travel_plan_json=json.loads(json_parsed_list[0]),
+            travel_plan_json=json_object,
             json_keys_depth_map=prompt.json_keys,
         )
 

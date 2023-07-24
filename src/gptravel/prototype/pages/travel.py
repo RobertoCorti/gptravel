@@ -9,7 +9,7 @@ from openai.error import RateLimitError
 from streamlit_folium import st_folium
 
 from gptravel.core.io.loggerconfig import logger
-from gptravel.core.services.checker import ExistingDestinationsChecker
+from gptravel.core.services.checker import DaysChecker, ExistingDestinationsChecker
 from gptravel.core.services.filters import DeparturePlaceFilter
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.travel_planner import openai_engine
@@ -142,16 +142,9 @@ def _get_travel_plan(
     max_number_tokens = token_manager.get_number_tokens(
         n_days=n_days, distance=travel_distance
     )
-    logger.info("Building Prompt with travel parameters")
-    prompt = _build_prompt(travel_parameters)
-    logger.info("Prompt Built successfully")
-    logger.info("Generating Travel Plan: Start")
     travel_plan_json = _get_travel_plan_json(
-        prompt=prompt, max_tokens=max_number_tokens
+        travel_parameters=travel_parameters, max_tokens=max_number_tokens
     )
-    logger.info("Generating Travel Plan: End")
-    travel_filter = DeparturePlaceFilter()
-    travel_filter.filter(travel_plan_json)
     checker = ExistingDestinationsChecker(geocoder)
     checker.check(travel_plan_json)
     travel_plan_dict = travel_plan_json.travel_plan
@@ -161,18 +154,38 @@ def _get_travel_plan(
     return travel_plan_dict, score_dict
 
 
-def _get_travel_plan_json(prompt: Prompt, max_tokens: int) -> TravelPlanJSON:
+def _get_travel_plan_json(
+    travel_parameters: Dict[str, Any], max_tokens: int
+) -> TravelPlanJSON:
     """
     Retrieves the travel plan JSON based on the provided prompt.
 
     Args:
-        prompt (Prompt): Prompt for the travel plan.
+        travel_parameters (Dict[str, Any]): travel parameters for plan generation.
 
     Returns:
         TravelPlanJSON: Travel plan JSON.
     """
+    logger.info("Building Prompt with travel parameters")
+    prompt = _build_prompt(travel_parameters)
+    logger.info("Prompt Built successfully")
+    logger.info("Generating Travel Plan: Start")
     engine = openai_engine.ChatGPTravelEngine(max_tokens=max_tokens)
-    return engine.get_travel_plan_json(prompt)
+    generated_travel_plan = engine.get_travel_plan_json(prompt)
+    logger.info("Generating Travel Plan: End")
+    travel_filter = DeparturePlaceFilter()
+    travel_filter.filter(generated_travel_plan)
+    days_checker = DaysChecker()
+    if not days_checker.check(generated_travel_plan):
+        logger.warning("Completing Travel Plan due to missing days")
+        travel_parameters["complention_travel_plan"] = True
+        travel_parameters["n_days_to_add"] = (
+            generated_travel_plan.n_days - days_checker.travel_days
+        )
+        travel_parameters["travel_plan"] = generated_travel_plan.travel_plan
+        completion_prompt = _build_prompt(travel_parameters)
+        generated_travel_plan = engine.get_travel_plan_json(completion_prompt)
+    return generated_travel_plan
 
 
 def _build_prompt(travel_parameters: Dict[str, Any]) -> Prompt:

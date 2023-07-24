@@ -31,3 +31,27 @@ class ExistingDestinationsChecker(Checker):
         else:
             logger.warning("Check not passed")
         return all_exists
+
+
+class DaysChecker(Checker):
+    def __init__(self, day_key: str = "Day") -> None:
+        self._travel_days = 0
+        self._day_key = day_key
+
+    @property
+    def travel_days(self) -> int:
+        return self._travel_days
+
+    def check(self, travel_plan: TravelPlanJSON) -> bool:
+        user_n_days = travel_plan.n_days
+        logger.debug("Check the number of days generated in the travel plan")
+        self._travel_days = len(
+            set(travel_plan.get_key_values_by_name(self._day_key.lower()))
+        )
+        check = user_n_days == self._travel_days
+        if check:
+            logger.debug("Check passed")
+        else:
+            missing_days = user_n_days - self._travel_days
+            logger.warning("Found missing {} days".format(missing_days))
+        return check
