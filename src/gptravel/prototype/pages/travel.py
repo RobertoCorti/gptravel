@@ -22,12 +22,12 @@ from gptravel.prototype import utils as prototype_utils
 
 
 def main(
-    openai_key: str,
-    departure: str,
-    destination: str,
-    departure_date: datetime,
-    return_date: datetime,
-    travel_reason: str,
+        openai_key: str,
+        departure: str,
+        destination: str,
+        departure_date: datetime,
+        return_date: datetime,
+        travel_reason: str,
 ):
     """
      Main function for running travel plan in GPTravel.
@@ -98,12 +98,12 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
 
 @st.cache_data(show_spinner=False)
 def _get_travel_plan(
-    openai_key: str,
-    departure: str,
-    destination: str,
-    departure_date: datetime,
-    return_date: datetime,
-    travel_reason: str,
+        openai_key: str,
+        departure: str,
+        destination: str,
+        departure_date: datetime,
+        return_date: datetime,
+        travel_reason: str,
 ) -> Tuple[Dict[Any, Any], prototype_utils.TravelPlanScore]:
     """
     Get the travel plan and score dictionary.
@@ -155,7 +155,7 @@ def _get_travel_plan(
 
 
 def _get_travel_plan_json(
-    travel_parameters: Dict[str, Any], max_tokens: int
+        travel_parameters: Dict[str, Any], max_tokens: int
 ) -> TravelPlanJSON:
     """
     Retrieves the travel plan JSON based on the provided prompt.
@@ -180,7 +180,7 @@ def _get_travel_plan_json(
         logger.warning("Completing Travel Plan due to missing days")
         travel_parameters["complention_travel_plan"] = True
         travel_parameters["n_days_to_add"] = (
-            generated_travel_plan.n_days - days_checker.travel_days
+                generated_travel_plan.n_days - days_checker.travel_days
         )
         travel_parameters["travel_plan"] = generated_travel_plan.travel_plan
         completion_prompt = _build_prompt(travel_parameters)
@@ -205,9 +205,9 @@ def _build_prompt(travel_parameters: Dict[str, Any]) -> Prompt:
 
 
 def _create_expanders_travel_plan(
-    departure_date: datetime,
-    score_dict: prototype_utils.TravelPlanScore,
-    travel_plan_dict: Dict[Any, Any],
+        departure_date: datetime,
+        score_dict: prototype_utils.TravelPlanScore,
+        travel_plan_dict: Dict[Any, Any],
 ) -> None:
     """
     Create expanders for displaying the travel plan.
@@ -228,13 +228,20 @@ def _create_expanders_travel_plan(
             expander_day_num.markdown(f"**{place}**")
             for activity in activities:
                 activity_descr = f" {activity}"
-                ### TODO (RC): add an if when filtered activities is empty; take the argmax
-                filtered_activities = filter(
-                    lambda x: x[1] > 0.5,
-                    score_dict.score_map["Activities Variety"]["labeled_activities"][
-                        activity
-                    ].items(),
-                )
+
+                filtered_activities = [
+                    items
+                    for items in score_dict.score_map["Activities Variety"]["labeled_activities"][activity].items()
+                    if items[1] > 0.5
+                ]
+
+                if len(filtered_activities) == 0:
+                    max_activity = max(
+                        score_dict.score_map["Activities Variety"]["labeled_activities"][activity].items(),
+                        key=lambda x: x[1]
+                    )
+                    filtered_activities = [max_activity]
+
                 sorted_filtered_activities = sorted(
                     filtered_activities, key=lambda x: x[1], reverse=True
                 )
