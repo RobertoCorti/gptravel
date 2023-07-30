@@ -7,6 +7,7 @@ import numpy as np
 import streamlit as st
 from openai.error import RateLimitError
 from streamlit_folium import st_folium
+import streamlit.components.v1 as components
 
 from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.checker import DaysChecker, ExistingDestinationsChecker
@@ -60,7 +61,10 @@ def main(
     except RateLimitError as openai_rate_limit_error:
         st.error(openai_rate_limit_error)
 
+    st.markdown("### Travel Map 🗺️")
     _show_travel_itinerary(travel_plan_dict, destination)
+
+    st.markdown("### Travel Plan 📅")
 
     st.markdown(
         f"#### Overall Travel Score: \t\t\t\t"
@@ -69,6 +73,22 @@ def main(
     )
     _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict)
 
+    st.markdown("### Organize Your Trip! 📝")
+
+    st.markdown("#### Flights ✈️")
+    components.html(
+        f"""
+        <div data-skyscanner-widget="SearchWidget"
+         data-origin-name={departure}
+         data-destination-name={destination}
+         data-flight-outbound-date="{departure_date.strftime('%Y-%m-%d')}"
+         data-flight-inbound-date="{return_date.strftime('%Y-%m-%d')}"
+         data-currency="EUR"
+         ></div>
+        <script src="https://widgets.skyscanner.net/widget-server/js/loader.js" ssl=true async></script>
+        """,
+        height=1600
+    )
 
 def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
     logger.info("Show travel itinerary map: Start")
