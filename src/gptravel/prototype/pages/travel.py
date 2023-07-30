@@ -83,6 +83,7 @@ def main(
          data-destination-name={destination}
          data-flight-outbound-date="{departure_date.strftime('%Y-%m-%d')}"
          data-flight-inbound-date="{return_date.strftime('%Y-%m-%d')}"
+         data-currency="EUR"
          ></div>
         <script src="https://widgets.skyscanner.net/widget-server/js/loader.js" ssl=true async></script>
         """,
