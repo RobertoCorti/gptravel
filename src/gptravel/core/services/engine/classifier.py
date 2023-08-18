@@ -34,15 +34,25 @@ class ZeroShotTextClassifier(TextClassifier):
     def __init__(self, multi_label: bool = True) -> None:
         super().__init__(multi_label)
         self._api_token = os.getenv("HUGGING_FACE_KEY")
-        self._api_url = (
-            "https://api-inference.huggingface.co/models/facebook/bart-large-mnli"
-        )
 
-    def _query(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _query(self, payload: Dict[str, Any], api_url: str) -> Dict[str, Any]:
         headers = {"Authorization": f"Bearer {self._api_token}"}
         logger.debug("HuggingFace API fetching response: start")
-        response = requests.post(self._api_url, headers=headers, json=payload).json()
+        response = requests.post(api_url, headers=headers, json=payload).json()
         logger.debug("HuggingFace API fetching response: complete")
+        return response
+
+    def _query_on_different_apis(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        api_urls = [
+            "https://api-inference.huggingface.co/models/facebook/bart-large-mnli",
+            "https://api-inference.huggingface.co/models/MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+            "https://api-inference.huggingface.co/models/joeddav/xlm-roberta-large-xnli",
+        ]
+        for api_url in api_urls:
+            response = self._query(payload=payload, api_url=api_url)
+            if isinstance(response, list):
+                logger.debug(f"Using response from API url: {api_url}")
+                return response
         return response
 
     def predict(
@@ -58,7 +68,7 @@ class ZeroShotTextClassifier(TextClassifier):
             },
         }
         try:
-            response = self._query(payload=payload)
+            response = self._query_on_different_apis(payload=payload)
             return {
                 item["sequence"]: {
                     label: float(value)
