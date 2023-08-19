@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Union
 from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.config import ACTIVITIES_LABELS
 from gptravel.core.services.engine.classifier import TextClassifier
+from gptravel.core.services.engine.exception import HuggingFaceError
 from gptravel.core.services.engine.tsp_solver import TSPSolver
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.utils import (
@@ -91,22 +92,29 @@ class ActivitiesDiversityScorer(ScoreService):
     ) -> None:
         logger.debug("ActivitiesDiversityScorer: Start")
         activities_list = travel_plan.travel_activities
-        labeled_activities = self._classifier.predict(
-            input_text_list=activities_list, label_classes=self._activities_labels
-        )
-        aggregated_scores = {
-            key: sum(item[key] for item in labeled_activities.values())
-            for key in self._activities_labels
-        }
-        sum_scores = sum(aggregated_scores.values())
-        aggregated_scores_normalized = {
-            key: item / sum_scores for key, item in aggregated_scores.items()
-        }
-        score = 1.0 - theil_diversity_entropy_index(
-            list(aggregated_scores_normalized.values())
-        )
+        try:
+            labeled_activities = self._classifier.predict(
+                input_text_list=activities_list, label_classes=self._activities_labels
+            )
+            aggregated_scores = {
+                key: sum(item[key] for item in labeled_activities.values())
+                for key in self._activities_labels
+            }
+            sum_scores = sum(aggregated_scores.values())
+            aggregated_scores_normalized = {
+                key: item / sum_scores for key, item in aggregated_scores.items()
+            }
+            score = 1.0 - theil_diversity_entropy_index(
+                list(aggregated_scores_normalized.values())
+            )
+            modified_weight = self._score_weight
+        except HuggingFaceError:
+            modified_weight = 0.0
+            score = 1.0
+            aggregated_scores_normalized = None
+            labeled_activities = None
         logger.debug("ActivitiesDiversityScorer: score value = %f", score)
-        logger.debug("ActivitiesDiversityScorer: score weight = %f", self._score_weight)
+        logger.debug("ActivitiesDiversityScorer: score weight = %f", modified_weight)
         travel_plan_scores.add_score(
             score_type=self._service_name,
             score_dict={

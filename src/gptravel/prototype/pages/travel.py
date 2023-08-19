@@ -242,6 +242,7 @@ def _create_expanders_travel_plan(
     travel_plan_dict : Dict[Any, Any]
         Travel plan dictionary.
     """
+    scorer_name = "Activities Variety"
     for day_num, (day_key, places_dict) in enumerate(travel_plan_dict.items()):
         date_str = (departure_date + timedelta(days=int(day_num))).strftime("%d-%m-%Y")
         expander_day_num = st.expander(f"{day_key} ({date_str})", expanded=True)
@@ -249,31 +250,35 @@ def _create_expanders_travel_plan(
             expander_day_num.markdown(f"**{place}**")
             for activity in activities:
                 activity_descr = f" {activity}"
-
-                filtered_activities = [
-                    items
-                    for items in score_dict.score_map["Activities Variety"][
-                        "labeled_activities"
-                    ][activity].items()
-                    if items[1] > 0.5
-                ]
-
-                if len(filtered_activities) == 0:
-                    max_activity = max(
-                        score_dict.score_map["Activities Variety"][
+                if score_dict.score_map[scorer_name]["labeled_activities"] is not None:
+                    filtered_activities = [
+                        items
+                        for items in score_dict.score_map[scorer_name][
                             "labeled_activities"
-                        ][activity].items(),
-                        key=lambda x: x[1],
-                    )
-                    filtered_activities = [max_activity]
+                        ][activity].items()
+                        if items[1] > 0.6
+                    ]
 
-                sorted_filtered_activities = sorted(
-                    filtered_activities, key=lambda x: x[1], reverse=True
-                )
-                activity_label = " ".join(
-                    f'<span style="background-color:{prototype_style.COLOR_LABEL_ACTIVITY_DICT[label]}; {prototype_style.LABEL_BOX_STYLE}">\t\t<b>{label.upper()}</b></span>'
-                    for label, _ in sorted_filtered_activities
-                )
-                expander_day_num.markdown(
-                    f"- {activity_label} {activity_descr}\n", unsafe_allow_html=True
-                )
+                    if len(filtered_activities) == 0:
+                        max_activity = max(
+                            score_dict.score_map[scorer_name]["labeled_activities"][
+                                activity
+                            ].items(),
+                            key=lambda x: x[1],
+                        )
+                        filtered_activities = [max_activity]
+
+                    sorted_filtered_activities = sorted(
+                        filtered_activities, key=lambda x: x[1], reverse=True
+                    )
+                    activity_label = " ".join(
+                        f'<span style="background-color:{prototype_style.COLOR_LABEL_ACTIVITY_DICT[label]}; {prototype_style.LABEL_BOX_STYLE}">\t\t<b>{label.upper()}</b></span>'
+                        for label, _ in sorted_filtered_activities
+                    )
+                    expander_day_num.markdown(
+                        f"- {activity_label} {activity_descr}\n", unsafe_allow_html=True
+                    )
+                else:
+                    expander_day_num.markdown(
+                        f"- {activity_descr}\n", unsafe_allow_html=True
+                    )
