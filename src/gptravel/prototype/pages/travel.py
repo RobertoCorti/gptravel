@@ -101,19 +101,19 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
             cities=travel_plan_cities_names, destination=destination
         )
     )
-    logger.debug("Computed coordinates = {}".format(cities_coordinates))
+    logger.debug("Computed coordinates = %s", cities_coordinates)
     coordinates_array = np.array(
         [[coords[0], coords[1]] for coords in cities_coordinates.values()]
     )
     mean_point_coordinates = np.median(coordinates_array, axis=0)
     zoom_start = 6 if prototype_utils.is_a_country(destination) else 8
-    m = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
+    folium_map = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
 
     for city, coordinates in cities_coordinates.items():
-        folium.Marker(coordinates, popup=city, tooltip=city).add_to(m)
+        folium.Marker(coordinates, popup=city, tooltip=city).add_to(folium_map)
 
     # call to render Folium map in Streamlit
-    st_folium(m, height=400, width=1000, returned_objects=[])
+    st_folium(folium_map, height=400, width=1000, returned_objects=[])
     logger.info("Show travel itinerary map: Start")
 
 
@@ -220,7 +220,7 @@ def _build_prompt(travel_parameters: Dict[str, Any]) -> Prompt:
         Prompt: Prompt for the travel plan.
     """
     prompt_factory = PromptFactory()
-    logger.debug("Building Prompt with parameters = {}".format(travel_parameters))
+    logger.debug("Building Prompt with parameters = %s", travel_parameters)
     prompt = prompt_factory.build_prompt(**travel_parameters)
     return prompt
 

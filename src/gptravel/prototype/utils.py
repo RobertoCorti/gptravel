@@ -102,22 +102,20 @@ def get_cities_coordinates_of_same_country_destionation(
 ) -> Dict[str, Tuple]:
     geo_coder = GeoCoder()
     logger.info("Get Cities coordinates: Start")
-    logger.debug("Get Cities coordinates: cities to analyze = {}".format(cities))
-    logger.debug("Get Cities coordinates: destination = {}".format(destination))
+    logger.debug("Get Cities coordinates: cities to analyze = %s", cities)
+    logger.debug("Get Cities coordinates: destination = %s", destination)
     destination_country = destination.lower()
     if not is_a_country(destination):
         destination_country = geo_coder.country_from_location_name(destination).lower()
         logger.debug(
-            "Get Cities coordinates: destination country = {}".format(
-                destination_country
-            )
+            "Get Cities coordinates: destination country = %s", destination_country
         )
     cities_coordinates = {
         city: tuple(coord for coord in geo_coder.location_coordinates(city).values())
         for city in cities
         if geo_coder.country_from_location_name(city).lower() == destination_country
     }
-    logger.debug("Computed cities coordinates = {}".format(cities_coordinates))
+    logger.debug("Computed cities coordinates = %s", cities_coordinates)
     logger.info("Get Cities coordinates: End")
     return cities_coordinates
 

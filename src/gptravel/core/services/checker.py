@@ -18,11 +18,9 @@ class ExistingDestinationsChecker(Checker):
     def check(self, travel_plan: TravelPlanJSON) -> bool:
         city_list = list(set(travel_plan.travel_cities))
         logger.debug("Check the existence of cities in the generated travel")
-        logger.debug("Check performed on cities: {}".format(city_list))
+        logger.debug("Check performed on cities: %s", city_list)
         existing_cities = [
-            True
-            if self._geolocator.location_coordinates(city)["lat"] is not None
-            else False
+            self._geolocator.location_coordinates(city)["lat"] is not None
             for city in city_list
         ]
         all_exists = all(existing_cities)
@@ -53,5 +51,5 @@ class DaysChecker(Checker):
             logger.debug("Check passed")
         else:
             missing_days = user_n_days - self._travel_days
-            logger.warning("Found missing {} days".format(missing_days))
+            logger.warning("Found missing %d days", missing_days)
         return check

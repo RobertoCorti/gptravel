@@ -38,7 +38,9 @@ class ZeroShotTextClassifier(TextClassifier):
     def _query(self, payload: Dict[str, Any], api_url: str) -> Dict[str, Any]:
         headers = {"Authorization": f"Bearer {self._api_token}"}
         logger.debug("HuggingFace API fetching response: start")
-        response = requests.post(api_url, headers=headers, json=payload).json()
+        response = requests.post(
+            api_url, headers=headers, json=payload, timeout=20
+        ).json()
         logger.debug("HuggingFace API fetching response: complete")
         return response
 
@@ -51,7 +53,7 @@ class ZeroShotTextClassifier(TextClassifier):
         for api_url in api_urls:
             response = self._query(payload=payload, api_url=api_url)
             if isinstance(response, list):
-                logger.debug(f"Using response from API url: {api_url}")
+                logger.debug("Using response from API url: %s", api_url)
                 return response
         return response
 
@@ -76,6 +78,6 @@ class ZeroShotTextClassifier(TextClassifier):
                 }
                 for item in response
             }
-        except:
+        except Exception as exc:
             logger.error("Hugging Face classifier: error in retrieving API response")
-            raise HuggingFaceError
+            raise HuggingFaceError from exc

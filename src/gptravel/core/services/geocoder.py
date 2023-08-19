@@ -25,13 +25,13 @@ class GeoCoder:
 
     def _query(self, location_name: str) -> Optional[Location]:
         loc_name = location_name.lower()
-        logger.debug("Querying coordinates for {}".format(loc_name))
+        logger.debug("Querying coordinates for %s", loc_name)
         if loc_name in LOCATION_CACHE:
             logger.debug("Using cached coordinates")
             return LOCATION_CACHE[loc_name]
-        logger.debug("Downloading new Location for {}: Start".format(loc_name))
+        logger.debug("Downloading new Location for %s: Start", loc_name)
         qry_obj = self._geocoder(location_name)
-        logger.debug("Downloading new Location for {}: Complete".format(loc_name))
+        logger.debug("Downloading new Location for %s: Complete", loc_name)
         LOCATION_CACHE[loc_name] = qry_obj
         return qry_obj
 
@@ -40,9 +40,7 @@ class GeoCoder:
         location_type = None
         if fetched_location is not None:
             location_type = fetched_location.raw["properties"]["type"]
-        logger.debug(
-            "GeoCoder: type for {} is: {}".format(location_name, location_type)
-        )
+        logger.debug("GeoCoder: type for %s is: %s", location_name, location_type)
         return location_type
 
     def country_from_location_name(self, location_name: str) -> Optional[str]:
