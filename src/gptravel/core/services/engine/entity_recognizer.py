@@ -7,12 +7,22 @@ from gptravel.core.io.loggerconfig import logger
 
 
 class EntityRecognizer:
-    def __init__(self) -> None:
+    def __init__(self, trained_pipeline: str = "en_core_web_sm") -> None:
         self._nlp = None
         try:
-            self._nlp = spacy.load("en_core_web_sm")
+            self._nlp = spacy.load(trained_pipeline)
         except OSError:
-            logger.warning("en_core_web_sm trained pipeline is not available")
+            logger.warning(
+                "%s trained pipeline is not available -- installing it",
+                trained_pipeline,
+            )
+            import subprocess
+            import sys
+
+            subprocess.check_call(
+                [sys.executable, "-m", "spacy", "download", trained_pipeline]
+            )
+            self._nlp = spacy.load(trained_pipeline)
 
     @property
     def nlp(self) -> Optional[Language]:

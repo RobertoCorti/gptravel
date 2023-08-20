@@ -4,8 +4,8 @@ from typing import Any, Dict, Optional, Union
 from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.config import ACTIVITIES_LABELS
 from gptravel.core.services.engine.classifier import TextClassifier
-from gptravel.core.services.engine.exception import HuggingFaceError
 from gptravel.core.services.engine.entity_recognizer import EntityRecognizer
+from gptravel.core.services.engine.exception import HuggingFaceError
 from gptravel.core.services.engine.tsp_solver import TSPSolver
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.utils import (
@@ -97,6 +97,8 @@ class ActivitiesDiversityScorer(ScoreService):
             labeled_activities = self._classifier.predict(
                 input_text_list=activities_list, label_classes=self._activities_labels
             )
+            if labeled_activities is None:
+                raise HuggingFaceError
             aggregated_scores = {
                 key: sum(item[key] for item in labeled_activities.values())
                 for key in self._activities_labels
