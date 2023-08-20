@@ -5,6 +5,7 @@ from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.config import ACTIVITIES_LABELS
 from gptravel.core.services.engine.classifier import TextClassifier
 from gptravel.core.services.engine.exception import HuggingFaceError
+from gptravel.core.services.engine.entity_recognizer import EntityRecognizer
 from gptravel.core.services.engine.tsp_solver import TSPSolver
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.utils import (
@@ -314,3 +315,23 @@ class OptimizedItineraryScorer(ScoreService):
                 logger.debug("CitiesCountryScorer: End")
             else:
                 logger.debug("CitiesCountryScorer: End -- No Computation needed")
+
+
+class ActivityPlacesScorer(ScoreService):
+    def __init__(
+        self,
+        geolocator: GeoCoder,
+        entity_recognizer: EntityRecognizer,
+        score_weight: float = 1.0,
+    ) -> None:
+        service_name = "Activity Places"
+        super().__init__(service_name, score_weight)
+        self._geolocator = geolocator
+        self._er = entity_recognizer
+
+    def score(
+        self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
+    ) -> None:
+        logger.debug("ActivityPlacesScorer: Start")
+
+        logger.debug("ActivityPlacesScorer: End")

@@ -7,7 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python =  ">=3.8,<3.9.7"
-wikipedia-api = "^0.5.8"
 geopy = "^2.3.0"
 poetry-dotenv-plugin = "^0.1.0"
 openai = "^0.27.2"
@@ -19,6 +18,7 @@ python-tsp = "^0.3.1"
 streamlit = "^1.22.0"
 folium = "^0.14.0"
 streamlit-folium = "^0.11.1"
+spacy = "^3.5.3"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -31,6 +31,7 @@ pytest-coverage = "^0.0"
 types-requests = "^2.28.11.16"
 autoflake = "^2.1.1"
 bandit = "^1.7.5"
+notebook = "^6.5.4"
 
 [build-system]
 requires = ["poetry-core"]

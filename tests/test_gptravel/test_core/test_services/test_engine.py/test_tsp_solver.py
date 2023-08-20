@@ -49,3 +49,37 @@ class TestTSPSolver:
         solution, distance = tsp_solver.solve(cities=cities, open_problem=True)
         assert solution == ["Milan", "Verona", "Venice", "Bologna", "Rome", "New York"]
         assert distance == pytest.approx(7587.457, 0.001)
+
+    def test_simulated_annealing_tsp(self, tsp_solver: TSPSolver) -> None:
+        cities = [
+            "Milan",
+            "Rome",
+            "Venice",
+            "New York",
+            "Verona",
+            "Bologna",
+            "Paris",
+            "Amsterdam",
+            "Florence",
+            "Bangkok",
+            "Tokyo",
+        ]
+        from gptravel.core.io.loggerconfig import logger
+
+        solution, distance = tsp_solver.solve(cities=cities, open_problem=True)
+        logger.debug("SOLUTION {}".format(solution))
+        logger.debug("DISTANCE {}".format(distance))
+        assert solution == [
+            "Milan",
+            "Bologna",
+            "Florence",
+            "Rome",
+            "Venice",
+            "Verona",
+            "Paris",
+            "Amsterdam",
+            "New York",
+            "Tokyo",
+            "Bangkok",
+        ]
+        assert distance == pytest.approx(23553.416, 0.001)

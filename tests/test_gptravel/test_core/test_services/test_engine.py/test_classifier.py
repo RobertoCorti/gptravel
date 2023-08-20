@@ -13,7 +13,7 @@ def classifier() -> ZeroShotTextClassifier:
 @pytest.mark.skipif(
     os.getenv("HUGGING_FACE_KEY", "") == "", reason="no api key available"
 )
-class TestZeroShotClassified:
+class TestZeroShotClassifier:
     def test_property(self, classifier: ZeroShotTextClassifier):
         assert classifier.multi_label
         classifier.multi_label = False

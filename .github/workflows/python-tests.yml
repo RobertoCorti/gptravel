@@ -50,4 +50,5 @@ jobs:
           source $VENV
           autoflake --in-place --remove-all-unused-imports --remove-unused-variables --recursive ./src
           autoflake --in-place --remove-all-unused-imports --remove-unused-variables --recursive ./tests
+          python -m spacy download en_core_web_sm
           pytest tests
