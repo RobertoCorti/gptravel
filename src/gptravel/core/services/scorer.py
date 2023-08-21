@@ -335,5 +335,13 @@ class ActivityPlacesScorer(ScoreService):
         self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
     ) -> None:
         logger.debug("ActivityPlacesScorer: Start")
+        recognized_places = {
+            city: [
+                self._er.recognize(activity)
+                for activity in travel_plan.get_travel_activities_from_city(city)
+                if self._er.recognize(activity) is not None
+            ]
+            for city in travel_plan.travel_cities
+        }
 
         logger.debug("ActivityPlacesScorer: End")

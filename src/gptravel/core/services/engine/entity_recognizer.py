@@ -5,6 +5,8 @@ from spacy.language import Language
 
 from gptravel.core.io.loggerconfig import logger
 
+RECOGNIZED_ENTITIES_CACHE = {}
+
 
 class EntityRecognizer:
     def __init__(self, trained_pipeline: str = "en_core_web_sm") -> None:
@@ -12,17 +14,7 @@ class EntityRecognizer:
         try:
             self._nlp = spacy.load(trained_pipeline)
         except OSError:
-            logger.warning(
-                "%s trained pipeline is not available -- installing it",
-                trained_pipeline,
-            )
-            import subprocess
-            import sys
-
-            subprocess.check_call(
-                [sys.executable, "-m", "spacy", "download", trained_pipeline]
-            )
-            self._nlp = spacy.load(trained_pipeline)
+            logger.warning("%s trained pipeline is not available", trained_pipeline)
 
     @property
     def nlp(self) -> Optional[Language]:
@@ -33,7 +25,11 @@ class EntityRecognizer:
 
     def recognize(self, input_string: str) -> Optional[Dict[str, str]]:
         if self._nlp is not None:
-            doc = self._nlp(input_string)
-            if doc.ents:
-                return {ent.text: ent.label_ for ent in doc.ents}
+            if input_string not in RECOGNIZED_ENTITIES_CACHE:
+                RECOGNIZED_ENTITIES_CACHE[input_string] = self._nlp(input_string).ents
+            if RECOGNIZED_ENTITIES_CACHE[input_string]:
+                return {
+                    ent.text: ent.label_
+                    for ent in RECOGNIZED_ENTITIES_CACHE[input_string]
+                }
         return None
