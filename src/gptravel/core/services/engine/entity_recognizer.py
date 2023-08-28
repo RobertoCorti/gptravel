@@ -9,10 +9,19 @@ RECOGNIZED_ENTITIES_CACHE = {}
 
 
 class EntityRecognizer:
-    def __init__(self, trained_pipeline: str = "en_core_web_sm") -> None:
+    def __init__(self, trained_pipeline: str = "en_core_web_md") -> None:
         self._nlp = None
         try:
-            self._nlp = spacy.load(trained_pipeline)
+            self._nlp = spacy.load(
+                trained_pipeline,
+                disable=[
+                    "tok2vec",
+                    "tagger",
+                    "parser",
+                    "attribute_ruler",
+                    "lemmatizer",
+                ],
+            )
         except OSError:
             logger.warning("%s trained pipeline is not available", trained_pipeline)
 

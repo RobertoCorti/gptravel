@@ -335,6 +335,7 @@ class ActivityPlacesScorer(ScoreService):
         self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
     ) -> None:
         logger.debug("ActivityPlacesScorer: Start")
+        logger.debug("Start recognizing entities in travel activities")
         recognized_places = {
             city: [
                 self._er.recognize(activity)
@@ -343,5 +344,33 @@ class ActivityPlacesScorer(ScoreService):
             ]
             for city in travel_plan.travel_cities
         }
-
+        # check if those places exists in the corresponding city
+        logger.debug("Start geolocalization of founded entities")
+        existing_places = 0.0
+        total_entities = 0.0
+        for city in recognized_places.keys():
+            for entity in recognized_places[city]:
+                if entity is not None:
+                    total_entities += 1
+                    entity_name = list(entity.keys())[0] + ", " + city
+                    entity_country = self._geolocator.country_from_location_name(
+                        entity_name
+                    )
+                    if entity_country:
+                        if (
+                            entity_country
+                            == self._geolocator.country_from_location_name(city)
+                        ):
+                            existing_places += 1
+                    else:
+                        logger.warn("The entity %s does not exist", entity_name)
+        entity_scores = existing_places / total_entities
+        travel_plan_scores.add_score(
+            score_type=self._service_name,
+            score_dict={
+                travel_plan_scores.score_value_key: entity_scores,
+                travel_plan_scores.score_weight_key: self._score_weight,
+                "recognized_entities": recognized_places,
+            },
+        )
         logger.debug("ActivityPlacesScorer: End")
