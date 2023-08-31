@@ -101,8 +101,8 @@ class ChatGPTravelEngine(OpenAITravelEngine):
         logger.debug("Fetching travel plan with ChatGpt engine API: Complete")
         self._finish_reason = api_output["choices"][0]["finish_reason"]
         self._total_tokens = api_output["usage"]["total_tokens"]
-        logger.debug("OpenAI API: finish reason= {}".format(self._finish_reason))
-        logger.debug("OpenAI API: total tokens = {}".format(self._total_tokens))
+        logger.debug("OpenAI API: finish reason= %s", self._finish_reason)
+        logger.debug("OpenAI API: total tokens = %d", self._total_tokens)
         return api_output
 
 
@@ -134,6 +134,6 @@ class CompletionGPTravelEngine(OpenAITravelEngine):
         logger.debug("Fetching travel plan with ChatGpt engine API: Complete")
         self._finish_reason = api_output["choices"][0]["finish_reason"]
         self._total_tokens = api_output["usage"]["total_tokens"]
-        logger.debug("OpenAI API: finish reason= {}".format(self._finish_reason))
-        logger.debug("OpenAI API: total tokens = {}".format(self._total_tokens))
+        logger.debug("OpenAI API: finish reason= %s", self._finish_reason)
+        logger.debug("OpenAI API: total tokens = %d", self._total_tokens)
         return api_output

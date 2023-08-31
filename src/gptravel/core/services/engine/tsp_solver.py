@@ -22,8 +22,8 @@ class TSPSolver:
     ) -> Tuple[List[str], float]:
         if len(cities) > 1:
             logger.debug("TSP solver: start")
-            logger.debug("TSP solver: solve the problem for cities = {}".format(cities))
-            logger.debug("TSP solver: open problem = {}".format(open_problem))
+            logger.debug("TSP solver: solve the problem for cities = %s", cities)
+            logger.debug("TSP solver: open problem = %s", open_problem)
             if len(cities) < 10:
                 solver = solve_tsp_dynamic_programming
                 logger.debug("TSP solver: use dynamic programming")

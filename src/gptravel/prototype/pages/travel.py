@@ -5,9 +5,9 @@ from typing import Any, Dict, Tuple
 import folium
 import numpy as np
 import streamlit as st
+import streamlit.components.v1 as components
 from openai.error import RateLimitError
 from streamlit_folium import st_folium
-import streamlit.components.v1 as components
 
 from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.checker import DaysChecker, ExistingDestinationsChecker
@@ -23,12 +23,12 @@ from gptravel.prototype import utils as prototype_utils
 
 
 def main(
-        openai_key: str,
-        departure: str,
-        destination: str,
-        departure_date: datetime,
-        return_date: datetime,
-        travel_reason: str,
+    openai_key: str,
+    departure: str,
+    destination: str,
+    departure_date: datetime,
+    return_date: datetime,
+    travel_reason: str,
 ):
     """
      Main function for running travel plan in GPTravel.
@@ -87,8 +87,9 @@ def main(
          ></div>
         <script src="https://widgets.skyscanner.net/widget-server/js/loader.js" ssl=true async></script>
         """,
-        height=1600
+        height=1600,
     )
+
 
 def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
     logger.info("Show travel itinerary map: Start")
@@ -100,30 +101,30 @@ def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -
             cities=travel_plan_cities_names, destination=destination
         )
     )
-    logger.debug("Computed coordinates = {}".format(cities_coordinates))
+    logger.debug("Computed coordinates = %s", cities_coordinates)
     coordinates_array = np.array(
         [[coords[0], coords[1]] for coords in cities_coordinates.values()]
     )
     mean_point_coordinates = np.median(coordinates_array, axis=0)
     zoom_start = 6 if prototype_utils.is_a_country(destination) else 8
-    m = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
+    folium_map = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
 
     for city, coordinates in cities_coordinates.items():
-        folium.Marker(coordinates, popup=city, tooltip=city).add_to(m)
+        folium.Marker(coordinates, popup=city, tooltip=city).add_to(folium_map)
 
     # call to render Folium map in Streamlit
-    st_folium(m, height=400, width=1000, returned_objects=[])
+    st_folium(folium_map, height=400, width=1000, returned_objects=[])
     logger.info("Show travel itinerary map: Start")
 
 
 @st.cache_data(show_spinner=False)
 def _get_travel_plan(
-        openai_key: str,
-        departure: str,
-        destination: str,
-        departure_date: datetime,
-        return_date: datetime,
-        travel_reason: str,
+    openai_key: str,
+    departure: str,
+    destination: str,
+    departure_date: datetime,
+    return_date: datetime,
+    travel_reason: str,
 ) -> Tuple[Dict[Any, Any], prototype_utils.TravelPlanScore]:
     """
     Get the travel plan and score dictionary.
@@ -175,7 +176,7 @@ def _get_travel_plan(
 
 
 def _get_travel_plan_json(
-        travel_parameters: Dict[str, Any], max_tokens: int
+    travel_parameters: Dict[str, Any], max_tokens: int
 ) -> TravelPlanJSON:
     """
     Retrieves the travel plan JSON based on the provided prompt.
@@ -200,7 +201,7 @@ def _get_travel_plan_json(
         logger.warning("Completing Travel Plan due to missing days")
         travel_parameters["complention_travel_plan"] = True
         travel_parameters["n_days_to_add"] = (
-                generated_travel_plan.n_days - days_checker.travel_days
+            generated_travel_plan.n_days - days_checker.travel_days
         )
         travel_parameters["travel_plan"] = generated_travel_plan.travel_plan
         completion_prompt = _build_prompt(travel_parameters)
@@ -219,15 +220,15 @@ def _build_prompt(travel_parameters: Dict[str, Any]) -> Prompt:
         Prompt: Prompt for the travel plan.
     """
     prompt_factory = PromptFactory()
-    logger.debug("Building Prompt with parameters = {}".format(travel_parameters))
+    logger.debug("Building Prompt with parameters = %s", travel_parameters)
     prompt = prompt_factory.build_prompt(**travel_parameters)
     return prompt
 
 
 def _create_expanders_travel_plan(
-        departure_date: datetime,
-        score_dict: prototype_utils.TravelPlanScore,
-        travel_plan_dict: Dict[Any, Any],
+    departure_date: datetime,
+    score_dict: prototype_utils.TravelPlanScore,
+    travel_plan_dict: Dict[Any, Any],
 ) -> None:
     """
     Create expanders for displaying the travel plan.
@@ -241,6 +242,7 @@ def _create_expanders_travel_plan(
     travel_plan_dict : Dict[Any, Any]
         Travel plan dictionary.
     """
+    scorer_name = "Activities Variety"
     for day_num, (day_key, places_dict) in enumerate(travel_plan_dict.items()):
         date_str = (departure_date + timedelta(days=int(day_num))).strftime("%d-%m-%Y")
         expander_day_num = st.expander(f"{day_key} ({date_str})", expanded=True)
@@ -248,27 +250,35 @@ def _create_expanders_travel_plan(
             expander_day_num.markdown(f"**{place}**")
             for activity in activities:
                 activity_descr = f" {activity}"
+                if score_dict.score_map[scorer_name]["labeled_activities"] is not None:
+                    filtered_activities = [
+                        items
+                        for items in score_dict.score_map[scorer_name][
+                            "labeled_activities"
+                        ][activity].items()
+                        if items[1] > 0.6
+                    ]
 
-                filtered_activities = [
-                    items
-                    for items in score_dict.score_map["Activities Variety"]["labeled_activities"][activity].items()
-                    if items[1] > 0.5
-                ]
+                    if len(filtered_activities) == 0:
+                        max_activity = max(
+                            score_dict.score_map[scorer_name]["labeled_activities"][
+                                activity
+                            ].items(),
+                            key=lambda x: x[1],
+                        )
+                        filtered_activities = [max_activity]
 
-                if len(filtered_activities) == 0:
-                    max_activity = max(
-                        score_dict.score_map["Activities Variety"]["labeled_activities"][activity].items(),
-                        key=lambda x: x[1]
+                    sorted_filtered_activities = sorted(
+                        filtered_activities, key=lambda x: x[1], reverse=True
                     )
-                    filtered_activities = [max_activity]
-
-                sorted_filtered_activities = sorted(
-                    filtered_activities, key=lambda x: x[1], reverse=True
-                )
-                activity_label = " ".join(
-                    f'<span style="background-color:{prototype_style.COLOR_LABEL_ACTIVITY_DICT[label]}; {prototype_style.LABEL_BOX_STYLE}">\t\t<b>{label.upper()}</b></span>'
-                    for label, _ in sorted_filtered_activities
-                )
-                expander_day_num.markdown(
-                    f"- {activity_label} {activity_descr}\n", unsafe_allow_html=True
-                )
+                    activity_label = " ".join(
+                        f'<span style="background-color:{prototype_style.COLOR_LABEL_ACTIVITY_DICT[label]}; {prototype_style.LABEL_BOX_STYLE}">\t\t<b>{label.upper()}</b></span>'
+                        for label, _ in sorted_filtered_activities
+                    )
+                    expander_day_num.markdown(
+                        f"- {activity_label} {activity_descr}\n", unsafe_allow_html=True
+                    )
+                else:
+                    expander_day_num.markdown(
+                        f"- {activity_descr}\n", unsafe_allow_html=True
+                    )

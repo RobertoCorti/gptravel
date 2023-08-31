@@ -20,9 +20,9 @@ class ChatGptTokenManager(TokenManager):
     def get_number_tokens(self, **kwargs) -> int:
         logger.debug("Computing max number of tokens for chatgpt engine")
         logger.debug(
-            "Token Manager inputs: n_days = {}, travel_distance = {}".format(
-                kwargs["n_days"], kwargs["distance"]
-            )
+            "Token Manager inputs: n_days = %d, travel_distance = %f",
+            kwargs["n_days"],
+            kwargs["distance"],
         )
         n_tokens = int(
             np.ceil(
@@ -34,5 +34,5 @@ class ChatGptTokenManager(TokenManager):
                 )
             )
         )
-        logger.debug("Max number of tokens computed = {}".format(n_tokens))
+        logger.debug("Max number of tokens computed %d", n_tokens)
         return n_tokens
