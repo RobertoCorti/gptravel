@@ -39,7 +39,7 @@ class ZeroShotTextClassifier(TextClassifier):
         headers = {"Authorization": f"Bearer {self._api_token}"}
         logger.debug("HuggingFace API fetching response: start")
         response = requests.post(
-            api_url, headers=headers, json=payload, timeout=20
+            api_url, headers=headers, json=payload, timeout=50
         ).json()
         logger.debug("HuggingFace API fetching response: complete")
         if isinstance(response, dict):
@@ -91,5 +91,7 @@ class ZeroShotTextClassifier(TextClassifier):
                 logger.debug("Using response from API url: %s", api_url)
                 return output
             except HuggingFaceError:
+                pass
+            except requests.exceptions.ReadTimeout:
                 pass
         return None

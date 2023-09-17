@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from typing import Dict, List, Tuple, Union
 
@@ -5,10 +6,12 @@ import openai
 
 from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.engine import classifier
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.engine.wikipedia import WikipediaEngine
 from gptravel.core.services.score_builder import ScorerOrchestrator
 from gptravel.core.services.scorer import TravelPlanScore
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
+from gptravel.core.utils.regex_tool import JsonExtractor
+from gptravel.prototype.objects import geo_decoder
 
 
 def is_valid_openai_key(openai_key: str) -> bool:
@@ -83,7 +86,6 @@ def get_score_map(
     Dict[str, Dict[str, Union[float, int]]]
         A dictionary containing the score map for the travel plan.
     """
-    geo_decoder = GeoCoder()
     zs_classifier = classifier.ZeroShotTextClassifier(True)
     score_container = TravelPlanScore()
     logger.info("Score Engines: Start")
@@ -100,20 +102,21 @@ def get_score_map(
 def get_cities_coordinates_of_same_country_destionation(
     cities: Union[List[str], Tuple[str]], destination: str
 ) -> Dict[str, Tuple]:
-    geo_coder = GeoCoder()
     logger.info("Get Cities coordinates: Start")
     logger.debug("Get Cities coordinates: cities to analyze = %s", cities)
     logger.debug("Get Cities coordinates: destination = %s", destination)
     destination_country = destination.lower()
     if not is_a_country(destination):
-        destination_country = geo_coder.country_from_location_name(destination).lower()
+        destination_country = geo_decoder.country_from_location_name(
+            destination
+        ).lower()
         logger.debug(
             "Get Cities coordinates: destination country = %s", destination_country
         )
     cities_coordinates = {
-        city: tuple(coord for coord in geo_coder.location_coordinates(city).values())
+        city: tuple(coord for coord in geo_decoder.location_coordinates(city).values())
         for city in cities
-        if geo_coder.country_from_location_name(city).lower() == destination_country
+        if geo_decoder.country_from_location_name(city).lower() == destination_country
     }
     logger.debug("Computed cities coordinates = %s", cities_coordinates)
     logger.info("Get Cities coordinates: End")
@@ -121,5 +124,63 @@ def get_cities_coordinates_of_same_country_destionation(
 
 
 def is_a_country(place: str):
-    geo_coder = GeoCoder()
-    return geo_coder.is_a_country(place)
+    return geo_decoder.is_a_country(place)
+
+
+def get_wiki_urls_from_city_entities(
+    city_with_entity_map: Dict[str, List[Dict[str, str]]]
+) -> Dict[str, List[Dict[str, str]]]:
+    wiki = WikipediaEngine()
+    output_map: Dict[str, List[Dict[str, str]]] = dict()
+    for city in city_with_entity_map.keys():
+        list_of_entities = city_with_entity_map[city]
+        entities_list_with_url: List[Dict[str, str]] = []
+        for entity in list_of_entities:
+            entity_name = list(entity.keys())[0]
+            trials = [
+                entity_name + ", " + city,
+                entity_name + " of " + city,
+                entity_name,
+            ]
+            found_url = False
+            for trial in trials:
+                page_url = wiki.url(trial)
+                if page_url:
+                    logger.debug("Wikipedia-page url for entity %s found", entity_name)
+                    entities_list_with_url.append({entity_name: page_url})
+                    found_url = True
+                    break
+            if not found_url:
+                logger.warning(
+                    "Wikipedia-page url for entity %s not found", entity_name
+                )
+        if len(entities_list_with_url) > 0:
+            output_map[city] = entities_list_with_url
+    return output_map
+
+
+def modify_travel_plan_with_entity_urls_using_mkd(
+    entities_with_urls: Dict[str, List[Dict[str, str]]], travel_plan: TravelPlanJSON
+) -> TravelPlanJSON:
+    if len(entities_with_urls) > 0:
+        travel_plan_string = "{}".format(json.dumps(travel_plan.travel_plan))
+        for city in entities_with_urls.keys():
+            entities_in_city = entities_with_urls[city]
+            for entity_dict in entities_in_city:
+                for entity_name in entity_dict.keys():
+                    if entity_name.lower() != city.lower():
+                        entity_with_url_in_mkd = "[{}]({})".format(
+                            entity_name, entity_dict[entity_name]
+                        )
+                        travel_plan_string = travel_plan_string.replace(
+                            entity_name, entity_with_url_in_mkd
+                        )
+        regex = JsonExtractor()
+        return TravelPlanJSON(
+            departure_place=travel_plan.departure_place,
+            destination_place=travel_plan.destination_place,
+            n_days=travel_plan.n_days,
+            json_keys_depth_map=travel_plan.keys_map,
+            travel_plan_json=json.loads(regex(travel_plan_string)[0]),
+        )
+    return travel_plan

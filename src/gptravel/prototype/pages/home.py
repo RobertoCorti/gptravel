@@ -3,9 +3,9 @@ from datetime import datetime
 import streamlit as st
 
 from gptravel.core.io.loggerconfig import logger
-from gptravel.core.services.geocoder import GeoCoder
 from gptravel.prototype import help as prototype_help
 from gptravel.prototype import utils as prototype_utils
+from gptravel.prototype.objects import geo_decoder
 from gptravel.prototype.pages import travel as travel_page
 
 
@@ -101,9 +101,8 @@ def _is_valid_input(
     bool
         True if the input parameters are valid, False otherwise.
     """
-    geo_coder = GeoCoder()
-    if (not geo_coder.is_location_country_city_state(departure)) or (
-        not geo_coder.is_location_country_city_state(destination)
+    if (not geo_decoder.is_location_country_city_state(departure)) or (
+        not geo_decoder.is_location_country_city_state(destination)
     ):
         warn_message = "Travel destination or/and departure is not valid."
         st.sidebar.warning(warn_message)
