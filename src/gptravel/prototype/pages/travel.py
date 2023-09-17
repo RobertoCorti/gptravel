@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import folium
 import numpy as np
@@ -62,7 +62,16 @@ def main(
         st.error(openai_rate_limit_error)
 
     st.markdown("### Travel Map 🗺️")
-    _show_travel_itinerary(travel_plan_json.travel_plan, destination)
+
+    recognized_entities = score_dict.score_map["Activity Places"]["recognized_entities"]
+
+    if recognized_entities:
+        if len(recognized_entities) == 0:
+            recognized_entities = None
+
+    _show_travel_itinerary(
+        travel_plan_json.travel_plan, destination, entities_dict=recognized_entities
+    )
 
     st.markdown("### Travel Plan 📅")
 
@@ -71,8 +80,6 @@ def main(
         f"{score_dict.weighted_score * 100:.0f} / 100",
         help=prototype_help.TRAVEL_SCORE_HELP,
     )
-
-    recognized_entities = score_dict.score_map["Activity Places"]["recognized_entities"]
 
     if recognized_entities:
         if len(recognized_entities) > 0:
@@ -110,25 +117,36 @@ def main(
     )
 
 
-def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
+def _show_travel_itinerary(
+    travel_plan_dict: Dict[str, Any],
+    destination: str,
+    entities_dict: Optional[Dict[str, List[Dict[str, str]]]] = None,
+) -> None:
     logger.info("Show travel itinerary map: Start")
     travel_plan_cities_names = tuple(
         city for day in travel_plan_dict.keys() for city in travel_plan_dict[day].keys()
     )
-    cities_coordinates = (
-        prototype_utils.get_cities_coordinates_of_same_country_destionation(
-            cities=travel_plan_cities_names, destination=destination
+    if entities_dict:
+        coordinates = prototype_utils.get_entities_coordinates_of_same_country(
+            entities_dict=entities_dict,
+            cities=travel_plan_cities_names,
+            destination=destination,
         )
-    )
-    logger.debug("Computed coordinates = %s", cities_coordinates)
+    else:
+        coordinates = (
+            prototype_utils.get_cities_coordinates_of_same_country_destionation(
+                cities=travel_plan_cities_names, destination=destination
+            )
+        )
+    logger.debug("Computed coordinates = %s", coordinates)
     coordinates_array = np.array(
-        [[coords[0], coords[1]] for coords in cities_coordinates.values()]
+        [[coords[0], coords[1]] for coords in coordinates.values()]
     )
     mean_point_coordinates = np.median(coordinates_array, axis=0)
-    zoom_start = 6 if prototype_utils.is_a_country(destination) else 8
+    zoom_start = 6 if prototype_utils.is_a_country(destination) else 10
     folium_map = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
 
-    for city, coordinates in cities_coordinates.items():
+    for city, coordinates in coordinates.items():
         folium.Marker(coordinates, popup=city, tooltip=city).add_to(folium_map)
 
     # call to render Folium map in Streamlit

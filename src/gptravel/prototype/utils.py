@@ -118,9 +118,53 @@ def get_cities_coordinates_of_same_country_destionation(
         for city in cities
         if geo_decoder.country_from_location_name(city).lower() == destination_country
     }
-    logger.debug("Computed cities coordinates = %s", cities_coordinates)
     logger.info("Get Cities coordinates: End")
     return cities_coordinates
+
+
+def get_entities_coordinates_of_same_country(
+    entities_dict: Dict[str, List[Dict[str, str]]],
+    cities: Union[List[str], Tuple[str]],
+    destination: str,
+) -> Dict[str, Tuple]:
+    logger.info("Get Entities coordinates: Start")
+    destination_country = destination.lower()
+    coordinates: Dict[str, Tuple] = dict()
+    if not is_a_country(destination):
+        destination_country = geo_decoder.country_from_location_name(destination)
+        if destination_country:
+            destination_country = destination_country.lower()
+    for city in cities:
+        if geo_decoder.country_from_location_name(city).lower() == destination_country:
+            if city in entities_dict.keys():
+                for entity_dict in entities_dict[city]:
+                    for entity_name in entity_dict.keys():
+                        if (entity_name.lower() != city.lower()) and (
+                            len(entities_dict[city]) > 1
+                        ):
+                            name_to_query = entity_name + ", " + city
+                            coordinates[entity_name] = tuple(
+                                coord
+                                for coord in geo_decoder.location_coordinates(
+                                    name_to_query
+                                ).values()
+                            )
+                        elif (entity_name.lower() == city.lower()) and (
+                            len(entities_dict[city]) == 1
+                        ):
+                            name_to_query = entity_name
+                            coordinates[entity_name] = tuple(
+                                coord
+                                for coord in geo_decoder.location_coordinates(
+                                    name_to_query
+                                ).values()
+                            )
+            else:
+                coordinates[city] = tuple(
+                    coord for coord in geo_decoder.location_coordinates(city).values()
+                )
+    logger.info("Get Entities coordinates: End")
+    return coordinates
 
 
 def is_a_country(place: str):
