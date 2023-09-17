@@ -43,7 +43,10 @@ class ZeroShotTextClassifier(TextClassifier):
         ).json()
         logger.debug("HuggingFace API fetching response: complete")
         if isinstance(response, dict):
-            logger.error("Hugging Face classifier: error in retrieving API response")
+            logger.error(
+                "Hugging Face classifier: error in retrieving API response from %s",
+                api_url,
+            )
             logger.error("API respone: %s", response)
             raise HuggingFaceError
         return response

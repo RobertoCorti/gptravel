@@ -1,14 +1,16 @@
 import json
 import os
 import time
-from typing import Optional
+from typing import Dict, List, Optional
 
 import openai
 from dotenv import load_dotenv
 
+from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.checker import DaysChecker, ExistingDestinationsChecker
 from gptravel.core.services.engine.classifier import ZeroShotTextClassifier
 from gptravel.core.services.engine.entity_recognizer import EntityRecognizer
+from gptravel.core.services.engine.wikipedia import WikipediaEngine
 from gptravel.core.services.filters import DeparturePlaceFilter
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.score_builder import ScorerOrchestrator
@@ -20,6 +22,35 @@ from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 load_dotenv()
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
+def get_wiki_urls_from_city_entities(
+    city_with_entity_map: Dict[str, List[Dict[str, str]]]
+) -> Dict[str, List[Dict[str, str]]]:
+    wiki = WikipediaEngine()
+    output_map: Dict[str, List[Dict[str, str]]] = dict()
+    for city in city_with_entity_map.keys():
+        list_of_entities = city_with_entity_map[city]
+        entities_list_with_url: List[Dict[str, str]] = []
+        for entity in list_of_entities:
+            entity_name = list(entity.keys())[0]
+            trials = [entity_name, entity_name + ", " + city]
+            found_url = False
+            for trial in trials:
+                page_url = wiki.url(trial)
+                if page_url:
+                    logger.debug(
+                        "Wikipedia-page url for entity %s founded", entity_name
+                    )
+                    entities_list_with_url.append({entity_name: page_url})
+                    found_url = True
+                    break
+            if not found_url:
+                logger.warning(
+                    "Wikipedia-page url for entity %s not founded", entity_name
+                )
+        output_map[city] = entities_list_with_url
+    return output_map
 
 
 def main(
@@ -104,6 +135,9 @@ def main(
     scorer_activities.score(
         travel_plan=travel_plan_in_json_format, travel_plan_scores=score_container
     )
+    places = score_container.score_map["Activity Places"]["recognized_entities"]
+    output = get_wiki_urls_from_city_entities(places)
+    print(output)
     scorers_orchestrator = ScorerOrchestrator(
         geocoder=geo_decoder, text_classifier=zs_classifier
     )

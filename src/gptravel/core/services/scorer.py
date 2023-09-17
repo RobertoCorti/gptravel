@@ -38,7 +38,7 @@ class TravelPlanScore:
         return self._score_weight_key
 
     @property
-    def score_map(self) -> Dict[str, Dict[str, Union[float, int]]]:
+    def score_map(self) -> Dict[str, Dict[str, Any]]:
         return self._score_map
 
     @property
