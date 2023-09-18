@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Union
 from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.config import ACTIVITIES_LABELS
 from gptravel.core.services.engine.classifier import TextClassifier
+from gptravel.core.services.engine.entity_recognizer import EntityRecognizer
 from gptravel.core.services.engine.exception import HuggingFaceError
 from gptravel.core.services.engine.tsp_solver import TSPSolver
 from gptravel.core.services.geocoder import GeoCoder
@@ -37,7 +38,7 @@ class TravelPlanScore:
         return self._score_weight_key
 
     @property
-    def score_map(self) -> Dict[str, Dict[str, Union[float, int]]]:
+    def score_map(self) -> Dict[str, Dict[str, Any]]:
         return self._score_map
 
     @property
@@ -96,6 +97,8 @@ class ActivitiesDiversityScorer(ScoreService):
             labeled_activities = self._classifier.predict(
                 input_text_list=activities_list, label_classes=self._activities_labels
             )
+            if labeled_activities is None:
+                raise HuggingFaceError
             aggregated_scores = {
                 key: sum(item[key] for item in labeled_activities.values())
                 for key in self._activities_labels
@@ -314,3 +317,64 @@ class OptimizedItineraryScorer(ScoreService):
                 logger.debug("CitiesCountryScorer: End")
             else:
                 logger.debug("CitiesCountryScorer: End -- No Computation needed")
+
+
+class ActivityPlacesScorer(ScoreService):
+    def __init__(
+        self,
+        geolocator: GeoCoder,
+        entity_recognizer: EntityRecognizer,
+        score_weight: float = 1.0,
+    ) -> None:
+        service_name = "Activity Places"
+        super().__init__(service_name, score_weight)
+        self._geolocator = geolocator
+        self._er = entity_recognizer
+
+    def score(
+        self, travel_plan: TravelPlanJSON, travel_plan_scores: TravelPlanScore
+    ) -> None:
+        logger.debug("ActivityPlacesScorer: Start")
+        logger.debug("Start recognizing entities in travel activities")
+        recognized_places = {
+            city: [
+                self._er.recognize(activity)
+                for activity in travel_plan.get_travel_activities_from_city(city)
+                if self._er.recognize(activity) is not None
+            ]
+            for city in travel_plan.travel_cities
+        }
+        logger.debug("Recognized entities: %s", recognized_places)
+        # check if those places exists in the corresponding city
+        logger.debug("Start geolocalization of founded entities")
+        existing_places = 0.0
+        total_entities = 0.0
+        for city in recognized_places.keys():
+            for entity in recognized_places[city]:
+                if entity is not None:
+                    total_entities += 1
+                    entity_name = list(entity.keys())[0] + ", " + city
+                    entity_country = self._geolocator.country_from_location_name(
+                        entity_name
+                    )
+                    if entity_country:
+                        if (
+                            entity_country
+                            == self._geolocator.country_from_location_name(city)
+                        ):
+                            logger.debug("Teh entity %s exists", entity_name)
+                            existing_places += 1
+                    else:
+                        logger.warn("The entity %s does not exist", entity_name)
+        entity_scores = existing_places / total_entities
+        logger.debug("ActivityPlacesScorer: score value = %f", entity_scores)
+        logger.debug("ActivityPlacesScorer: weight value = %f", self._score_weight)
+        travel_plan_scores.add_score(
+            score_type=self._service_name,
+            score_dict={
+                travel_plan_scores.score_value_key: entity_scores,
+                travel_plan_scores.score_weight_key: self._score_weight,
+                "recognized_entities": recognized_places,
+            },
+        )
+        logger.debug("ActivityPlacesScorer: End")

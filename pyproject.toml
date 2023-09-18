@@ -7,7 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python =  ">=3.8,<3.9.7"
-wikipedia-api = "^0.5.8"
 geopy = "^2.3.0"
 poetry-dotenv-plugin = "^0.1.0"
 openai = "^0.27.2"
@@ -19,7 +18,11 @@ python-tsp = "^0.3.1"
 streamlit = "^1.22.0"
 folium = "^0.14.0"
 streamlit-folium = "^0.11.1"
+spacy = "^3.5.3"
+wikipedia-api = "^0.6.0"
 
+[tool.poetry.dependencies.en_core_web_md]
+url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.6.0/en_core_web_md-3.6.0.tar.gz"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"

@@ -9,6 +9,7 @@ from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype.utils import (
     get_cities_coordinates_of_same_country_destionation,
     get_score_map,
+    get_wiki_urls_from_city_entities,
     is_departure_before_return,
     is_valid_openai_key,
 )
@@ -130,3 +131,19 @@ def test_get_score_map_on_travel_plan(
             0 <= score_map["Activities Variety"]["labeled_activities"][key][label] <= 1
             for label in labels_activities
         )
+
+
+def test_get_wiki_urls_from_city_entities():
+    # Test the function with multiple entities and known results
+    city_with_entity_map = {
+        "Paris": [{"Eiffel Tower": "TOWER"}, {"Louvre Museum": "MUSEUM"}]
+    }
+    expected_result = {
+        "Paris": [
+            {"Eiffel Tower": "https://en.wikipedia.org/wiki/Eiffel_Tower"},
+            {"Louvre Museum": "https://en.wikipedia.org/wiki/Louvre"},
+        ]
+    }
+    result = get_wiki_urls_from_city_entities(city_with_entity_map)
+    assert list(result.keys()) == list(expected_result.keys())
+    assert result == expected_result

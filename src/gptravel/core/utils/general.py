@@ -16,10 +16,34 @@ def extract_keys_by_depth_from_json(json_obj: Dict[Any, Any], ndepth: int) -> Li
 
 
 def extract_inner_lists_from_json(json_obj: Dict[Any, Any]) -> List[Any]:
-    activities = []
+    inner_list = []
     if isinstance(json_obj, dict):
         for value in json_obj.values():
-            activities.extend(extract_inner_lists_from_json(value))
+            inner_list.extend(extract_inner_lists_from_json(value))
     elif isinstance(json_obj, list):
-        activities.extend(json_obj)
-    return activities
+        inner_list.extend(json_obj)
+    return inner_list
+
+
+def extract_inner_list_for_given_key(json_obj: Dict[Any, Any], key: Any) -> List[Any]:
+    """
+    Extracts all lists associated with the given key from a dictionary of undefined depth.
+
+    Args:
+        dictionary (dict): The input dictionary.
+        key: The key to search for.
+
+    Returns:
+        list: The extracted lists if the key is found, otherwise an empty list.
+    """
+    lists = (
+        [json_obj[key]] if key in json_obj and isinstance(json_obj[key], list) else []
+    )
+
+    nested_lists = [
+        extract_inner_list_for_given_key(value, key)
+        for value in json_obj.values()
+        if isinstance(value, (dict))
+    ]
+
+    return [item for sublist in lists + nested_lists for item in sublist]

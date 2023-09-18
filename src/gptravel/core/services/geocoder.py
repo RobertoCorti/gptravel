@@ -55,15 +55,21 @@ class GeoCoder:
             return {"lat": fetched_location.latitude, "lon": fetched_location.longitude}
         return {"lat": None, "lon": None}
 
-    def location_distance(self, location_name_1: str, location_name_2: str) -> float:
+    def location_distance(
+        self, location_name_1: str, location_name_2: str
+    ) -> Optional[float]:
         if location_name_1.lower() == location_name_2.lower():
             return 0.0
         location1_coords = self.location_coordinates(location_name_1)
         location2_coords = self.location_coordinates(location_name_2)
-        return GRC(
-            (location1_coords["lat"], location1_coords["lon"]),
-            (location2_coords["lat"], location2_coords["lon"]),
-        ).km
+        if (location1_coords["lat"] is not None) & (
+            location2_coords["lat"] is not None
+        ):
+            return GRC(
+                (location1_coords["lat"], location1_coords["lon"]),
+                (location2_coords["lat"], location2_coords["lon"]),
+            ).km
+        return None
 
     def is_location_country_city_state(self, location_name: str) -> bool:
         location_type = self._location_type(location_name)

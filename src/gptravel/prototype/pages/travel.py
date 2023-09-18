@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import folium
 import numpy as np
@@ -12,7 +12,6 @@ from streamlit_folium import st_folium
 from gptravel.core.io.loggerconfig import logger
 from gptravel.core.services.checker import DaysChecker, ExistingDestinationsChecker
 from gptravel.core.services.filters import DeparturePlaceFilter
-from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.travel_planner import openai_engine
 from gptravel.core.travel_planner.prompt import Prompt, PromptFactory
 from gptravel.core.travel_planner.token_manager import ChatGptTokenManager
@@ -20,6 +19,7 @@ from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 from gptravel.prototype import help as prototype_help
 from gptravel.prototype import style as prototype_style
 from gptravel.prototype import utils as prototype_utils
+from gptravel.prototype.objects import geo_decoder
 
 
 def main(
@@ -50,7 +50,7 @@ def main(
         Reason for travel.
     """
     try:
-        travel_plan_dict, score_dict = _get_travel_plan(
+        travel_plan_json, score_dict = _get_travel_plan(
             openai_key=openai_key,
             departure=departure,
             destination=destination,
@@ -62,7 +62,16 @@ def main(
         st.error(openai_rate_limit_error)
 
     st.markdown("### Travel Map 🗺️")
-    _show_travel_itinerary(travel_plan_dict, destination)
+
+    recognized_entities = score_dict.score_map["Activity Places"]["recognized_entities"]
+
+    if recognized_entities:
+        if len(recognized_entities) == 0:
+            recognized_entities = None
+
+    _show_travel_itinerary(
+        travel_plan_json.travel_plan, destination, entities_dict=recognized_entities
+    )
 
     st.markdown("### Travel Plan 📅")
 
@@ -71,7 +80,24 @@ def main(
         f"{score_dict.weighted_score * 100:.0f} / 100",
         help=prototype_help.TRAVEL_SCORE_HELP,
     )
-    _create_expanders_travel_plan(departure_date, score_dict, travel_plan_dict)
+
+    if recognized_entities:
+        if len(recognized_entities) > 0:
+            entities_with_urls = prototype_utils.get_wiki_urls_from_city_entities(
+                city_with_entity_map=recognized_entities
+            )
+            travel_plan_json_with_urls = (
+                prototype_utils.modify_travel_plan_with_entity_urls_using_mkd(
+                    entities_with_urls=entities_with_urls, travel_plan=travel_plan_json
+                )
+            )
+
+    _create_expanders_travel_plan(
+        departure_date,
+        score_dict,
+        travel_plan_json.travel_plan,
+        travel_plan_json_with_urls.travel_plan,
+    )
 
     st.markdown("### Organize Your Trip! 📝")
 
@@ -91,25 +117,36 @@ def main(
     )
 
 
-def _show_travel_itinerary(travel_plan_dict: Dict[str, Any], destination: str) -> None:
+def _show_travel_itinerary(
+    travel_plan_dict: Dict[str, Any],
+    destination: str,
+    entities_dict: Optional[Dict[str, List[Dict[str, str]]]] = None,
+) -> None:
     logger.info("Show travel itinerary map: Start")
     travel_plan_cities_names = tuple(
         city for day in travel_plan_dict.keys() for city in travel_plan_dict[day].keys()
     )
-    cities_coordinates = (
-        prototype_utils.get_cities_coordinates_of_same_country_destionation(
-            cities=travel_plan_cities_names, destination=destination
+    if entities_dict:
+        coordinates = prototype_utils.get_entities_coordinates_of_same_country(
+            entities_dict=entities_dict,
+            cities=travel_plan_cities_names,
+            destination=destination,
         )
-    )
-    logger.debug("Computed coordinates = %s", cities_coordinates)
+    else:
+        coordinates = (
+            prototype_utils.get_cities_coordinates_of_same_country_destionation(
+                cities=travel_plan_cities_names, destination=destination
+            )
+        )
+    logger.debug("Computed coordinates = %s", coordinates)
     coordinates_array = np.array(
-        [[coords[0], coords[1]] for coords in cities_coordinates.values()]
+        [[coords[0], coords[1]] for coords in coordinates.values()]
     )
     mean_point_coordinates = np.median(coordinates_array, axis=0)
-    zoom_start = 6 if prototype_utils.is_a_country(destination) else 8
+    zoom_start = 6 if prototype_utils.is_a_country(destination) else 10
     folium_map = folium.Map(location=mean_point_coordinates, zoom_start=zoom_start)
 
-    for city, coordinates in cities_coordinates.items():
+    for city, coordinates in coordinates.items():
         folium.Marker(coordinates, popup=city, tooltip=city).add_to(folium_map)
 
     # call to render Folium map in Streamlit
@@ -125,7 +162,7 @@ def _get_travel_plan(
     departure_date: datetime,
     return_date: datetime,
     travel_reason: str,
-) -> Tuple[Dict[Any, Any], prototype_utils.TravelPlanScore]:
+) -> Tuple[TravelPlanJSON, prototype_utils.TravelPlanScore]:
     """
     Get the travel plan and score dictionary.
 
@@ -146,8 +183,8 @@ def _get_travel_plan(
 
     Returns
     -------
-    Tuple[Dict[Any, Any], TravelPlanScore]
-        A tuple containing the travel plan dictionary and the travel plan score.
+    Tuple[TravelPlanJSON, TravelPlanScore]
+        A tuple containing the travel plan TravelPlanJSON and the travel plan score.
     """
     os.environ["OPENAI_API_KEY"] = openai_key
     n_days = (return_date - departure_date).days + 1
@@ -158,21 +195,19 @@ def _get_travel_plan(
         "travel_theme": travel_reason,
     }
     token_manager = ChatGptTokenManager()
-    geocoder = GeoCoder()
-    travel_distance = geocoder.location_distance(departure, destination)
+    travel_distance = geo_decoder.location_distance(departure, destination)
     max_number_tokens = token_manager.get_number_tokens(
         n_days=n_days, distance=travel_distance
     )
     travel_plan_json = _get_travel_plan_json(
         travel_parameters=travel_parameters, max_tokens=max_number_tokens
     )
-    checker = ExistingDestinationsChecker(geocoder)
+    checker = ExistingDestinationsChecker(geo_decoder)
     checker.check(travel_plan_json)
-    travel_plan_dict = travel_plan_json.travel_plan
 
     score_dict = prototype_utils.get_score_map(travel_plan_json)
 
-    return travel_plan_dict, score_dict
+    return travel_plan_json, score_dict
 
 
 def _get_travel_plan_json(
@@ -229,6 +264,7 @@ def _create_expanders_travel_plan(
     departure_date: datetime,
     score_dict: prototype_utils.TravelPlanScore,
     travel_plan_dict: Dict[Any, Any],
+    travel_plan_dict_with_urls_to_display: Dict[Any, Any],
 ) -> None:
     """
     Create expanders for displaying the travel plan.
@@ -246,10 +282,12 @@ def _create_expanders_travel_plan(
     for day_num, (day_key, places_dict) in enumerate(travel_plan_dict.items()):
         date_str = (departure_date + timedelta(days=int(day_num))).strftime("%d-%m-%Y")
         expander_day_num = st.expander(f"{day_key} ({date_str})", expanded=True)
+        travel_day_with_url = travel_plan_dict_with_urls_to_display[day_key]
         for place, activities in places_dict.items():
             expander_day_num.markdown(f"**{place}**")
-            for activity in activities:
-                activity_descr = f" {activity}"
+            activities_in_that_city_with_url = travel_day_with_url[place]
+            for index, activity in enumerate(activities):
+                activity_descr = f" {activities_in_that_city_with_url[index]}"
                 if score_dict.score_map[scorer_name]["labeled_activities"] is not None:
                     filtered_activities = [
                         items

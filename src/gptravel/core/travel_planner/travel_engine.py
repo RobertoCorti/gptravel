@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 
 from gptravel.core.travel_planner.prompt import Prompt
 from gptravel.core.utils.general import (
+    extract_inner_list_for_given_key,
     extract_inner_lists_from_json,
     extract_keys_by_depth_from_json,
 )
@@ -57,6 +58,9 @@ class TravelPlanJSON:
             return self.get_key_values_by_depth(self._keys_map[key_name])
         except KeyError:
             return []
+
+    def get_travel_activities_from_city(self, city_name: str) -> List[Any]:
+        return extract_inner_list_for_given_key(self._travel_plan, key=city_name)
 
     @property
     def travel_cities(self) -> List[str]:

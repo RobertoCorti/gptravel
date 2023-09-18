@@ -1,7 +1,9 @@
 from gptravel.core.services.engine.classifier import TextClassifier
+from gptravel.core.services.engine.entity_recognizer import EntityRecognizer
 from gptravel.core.services.geocoder import GeoCoder
 from gptravel.core.services.scorer import (
     ActivitiesDiversityScorer,
+    ActivityPlacesScorer,
     CitiesCountryScorer,
     DayGenerationScorer,
     OptimizedItineraryScorer,
@@ -14,6 +16,9 @@ class ScorerOrchestrator:
     def __init__(self, geocoder: GeoCoder, text_classifier: TextClassifier) -> None:
         self._scorers = [
             ActivitiesDiversityScorer(text_classifier),
+            ActivityPlacesScorer(
+                geolocator=geocoder, entity_recognizer=EntityRecognizer()
+            ),
             DayGenerationScorer(),
             CitiesCountryScorer(geolocator=geocoder),
             OptimizedItineraryScorer(geolocator=geocoder),
