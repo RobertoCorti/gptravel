@@ -44,7 +44,7 @@ def is_valid_openai_key(openai_key: str) -> bool:
     openai.api_key = openai_key
 
     try:
-        openai.Completion.create(engine="ada", prompt="Hello, World!", max_tokens=5)
+        openai.Completion.create(engine="gpt-3.5-turbo-instruct", prompt="Hello, World!", max_tokens=5)
     except openai.error.InvalidRequestError:
         return False
     except openai.error.AuthenticationError:
