@@ -6,10 +6,10 @@ authors = ["Stefano Polo <sp.stefano.polo@gmail.com>, Roberto Corti <robertocort
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python =  ">=3.8,<3.9.7"
+python =  ">=3.8.1,<3.9.7"
 geopy = "^2.3.0"
 poetry-dotenv-plugin = "^0.1.0"
-openai = "^0.27.2"
+openai = ">=1.40.0,<2.0.0"
 python-dotenv = "^1.0.0"
 regex = "^2022.10.31"
 requests = "^2.28.2"
@@ -20,6 +20,9 @@ folium = "^0.14.0"
 streamlit-folium = "^0.11.1"
 spacy = "^3.5.3"
 wikipedia-api = "^0.6.0"
+pyarrow = "16.0.0"
+langchain = "^0.2.14"
+langchain-openai = "^0.1.22"
 
 [tool.poetry.dependencies.en_core_web_md]
 url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.6.0/en_core_web_md-3.6.0.tar.gz"
@@ -34,6 +37,7 @@ pytest-coverage = "^0.0"
 types-requests = "^2.28.11.16"
 autoflake = "^2.1.1"
 bandit = "^1.7.5"
+notebook = "^7.2.1"
 
 [build-system]
 requires = ["poetry-core"]
