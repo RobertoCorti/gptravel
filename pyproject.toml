@@ -23,6 +23,8 @@ wikipedia-api = "^0.6.0"
 pyarrow = "16.0.0"
 langchain = "^0.2.14"
 langchain-openai = "^0.1.22"
+serpapi = "^0.1.5"
+google-search-results = "^2.4.2"
 
 [tool.poetry.dependencies.en_core_web_md]
 url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.6.0/en_core_web_md-3.6.0.tar.gz"
