@@ -107,7 +107,7 @@ def get_score_map(
 
 def get_cities_coordinates_of_same_country_destionation(
     cities: Union[List[str], Tuple[str]], destination: str
-) -> Dict[str, Tuple[float | None, ...]]:
+) -> Dict[str, Tuple[Union[float, None], ...]]:
     logger.info("Get Cities coordinates: Start")
     logger.debug("Get Cities coordinates: cities to analyze = %s", cities)
     logger.debug("Get Cities coordinates: destination = %s", destination)
