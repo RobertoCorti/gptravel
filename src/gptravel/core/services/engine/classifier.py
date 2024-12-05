@@ -35,14 +35,14 @@ class ZeroShotTextClassifier(TextClassifier):
         super().__init__(multi_label)
         self._api_token = os.getenv("HUGGING_FACE_KEY")
 
-    def _query(self, payload: Dict[str, Any], api_url: str) -> Dict[str, Any]:
+    def _query(self, payload: Dict[str, Any], api_url: str) -> List[Dict[str, Any]]:
         headers = {"Authorization": f"Bearer {self._api_token}"}
         logger.debug("HuggingFace API fetching response: start")
         response = requests.post(
             api_url, headers=headers, json=payload, timeout=50
         ).json()
         logger.debug("HuggingFace API fetching response: complete")
-        if isinstance(response, dict):
+        if not isinstance(response, list):
             logger.error(
                 "Hugging Face classifier: error in retrieving API response from %s",
                 api_url,

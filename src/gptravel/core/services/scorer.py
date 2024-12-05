@@ -7,7 +7,7 @@ from gptravel.core.services.engine.classifier import TextClassifier
 from gptravel.core.services.engine.entity_recognizer import EntityRecognizer
 from gptravel.core.services.engine.exception import HuggingFaceError
 from gptravel.core.services.engine.tsp_solver import TSPSolver
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.geocoder import Geocoder
 from gptravel.core.services.utils import (
     remove_consecutive_duplicates,
     theil_diversity_entropy_index,
@@ -24,9 +24,10 @@ class TravelPlanScore:
         self._required_keys = set([self._score_value_key, self._score_weight_key])
 
     def add_score(self, score_type: str, score_dict: Dict[str, Any]) -> None:
-        assert set(score_dict.keys()).intersection(self._required_keys) == set(
+        if set(score_dict.keys()).intersection(self._required_keys) != set(
             self._required_keys
-        )
+        ):
+            raise ValueError("score_dict must contain all required keys.")
         self._score_map.update({score_type: score_dict})
 
     @property
@@ -71,7 +72,8 @@ class ScoreService(ABC):
 
     @score_weight.setter
     def score_weight(self, score_weight: float) -> None:
-        assert (score_weight >= 0.0) & (score_weight <= 1.0)
+        if (score_weight < 0) | (score_weight > 1):
+            raise ValueError("score_weight must be a float in [0, 1].")
         self._score_weight = score_weight
 
     @property
@@ -188,7 +190,7 @@ class DayGenerationScorer(ScoreService):
 
 
 class CitiesCountryScorer(ScoreService):
-    def __init__(self, geolocator: GeoCoder, score_weight: float = 1.0) -> None:
+    def __init__(self, geolocator: Geocoder, score_weight: float = 1.0) -> None:
         service_name = "City Countries"
         super().__init__(service_name, score_weight)
         self._geolocator = geolocator
@@ -203,10 +205,14 @@ class CitiesCountryScorer(ScoreService):
         )
         # Check that all the cities are in the same emisphere as first start element
         weight_for_latitude = 0.4
-        latitude_signs = [
-            1 if self._geolocator.location_coordinates(city)["lat"] > 0 else -1
-            for city in unique_cities
-        ]
+
+        def get_latitude_sign(city: str) -> int:
+            coords = self._geolocator.location_coordinates(city)
+            if coords is None or coords.get("lat") is None:
+                return -1
+            return 1 if coords["lat"] > 0 else -1
+
+        latitude_signs = [get_latitude_sign(city) for city in unique_cities]
         latitude_score = abs(sum(latitude_signs)) / len(unique_cities)
         # Check cities are in the same country of the destination place
         destination_country = self._geolocator.country_from_location_name(
@@ -252,7 +258,7 @@ class CitiesCountryScorer(ScoreService):
 
 
 class OptimizedItineraryScorer(ScoreService):
-    def __init__(self, geolocator: GeoCoder, score_weight: float = 1.0) -> None:
+    def __init__(self, geolocator: Geocoder, score_weight: float = 1.0) -> None:
         service_name = "City Countries"
         super().__init__(service_name, score_weight)
         self._geolocator = geolocator
@@ -322,7 +328,7 @@ class OptimizedItineraryScorer(ScoreService):
 class ActivityPlacesScorer(ScoreService):
     def __init__(
         self,
-        geolocator: GeoCoder,
+        geolocator: Geocoder,
         entity_recognizer: EntityRecognizer,
         score_weight: float = 1.0,
     ) -> None:
@@ -365,7 +371,7 @@ class ActivityPlacesScorer(ScoreService):
                             logger.debug("Teh entity %s exists", entity_name)
                             existing_places += 1
                     else:
-                        logger.warn("The entity %s does not exist", entity_name)
+                        logger.warning("The entity %s does not exist", entity_name)
         entity_scores = existing_places / total_entities
         logger.debug("ActivityPlacesScorer: score value = %f", entity_scores)
         logger.debug("ActivityPlacesScorer: weight value = %f", self._score_weight)

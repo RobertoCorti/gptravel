@@ -5,7 +5,7 @@ from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 
 class Filter(ABC):
-    def __init__(self, **kwargs):
+    def __init__(self):
         pass
 
     @abstractmethod

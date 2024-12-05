@@ -19,7 +19,8 @@ def theil_diversity_entropy_index(groups: List[Union[float, int]]) -> float:
 def weighted_average(
     values: List[Union[int, float]], weights: List[Union[int, float]]
 ) -> float:
-    assert len(values) == len(weights)
+    if len(values) != len(weights):
+        raise ValueError("values and weights must have the same length.")
     return sum(values[i] * weights[i] for i in range(len(values))) / sum(weights)
 
 
@@ -32,9 +33,11 @@ def is_location_a_country(location: str) -> bool:
         prediction = classifier.predict(
             input_text_list=[location], label_classes=labels
         )
-        key_with_max_value = max(
-            prediction[location], key=lambda key: prediction[location][key]
-        )
+        # ensure the prediction is not None before proceeding
+        if prediction and location in prediction:
+            key_with_max_value = max(
+                prediction[location], key=lambda key: prediction[location][key]
+            )
     return key_with_max_value == country_value
 
 

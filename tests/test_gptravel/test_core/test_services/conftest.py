@@ -1,6 +1,6 @@
 import pytest
 
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.geocoder import Geocoder
 from gptravel.core.services.scorer import (
     CitiesCountryScorer,
     DayGenerationScorer,
@@ -10,8 +10,13 @@ from gptravel.core.services.scorer import (
 
 
 @pytest.fixture(autouse=True)
-def geo_coder() -> GeoCoder:
-    return GeoCoder()
+def geo_coder() -> Geocoder:
+    return Geocoder(
+        language="en",
+        min_delay_seconds=3,
+        error_wait_seconds=10,
+        max_retries=4,
+    )
 
 
 @pytest.fixture
@@ -20,7 +25,7 @@ def score_container() -> TravelPlanScore:
 
 
 @pytest.fixture
-def cities_country_scorer(geo_coder: GeoCoder) -> CitiesCountryScorer:
+def cities_country_scorer(geo_coder: Geocoder) -> CitiesCountryScorer:
     return CitiesCountryScorer(geo_coder)
 
 
@@ -30,5 +35,5 @@ def day_generation_scorer() -> DayGenerationScorer:
 
 
 @pytest.fixture
-def itinerary_scorer(geo_coder: GeoCoder) -> OptimizedItineraryScorer:
+def itinerary_scorer(geo_coder: Geocoder) -> OptimizedItineraryScorer:
     return OptimizedItineraryScorer(geo_coder)

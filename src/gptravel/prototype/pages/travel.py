@@ -6,7 +6,7 @@ import folium
 import numpy as np
 import streamlit as st
 import streamlit.components.v1 as components
-from openai.error import RateLimitError
+from openai import RateLimitError
 from streamlit_folium import st_folium
 
 from gptravel.core.io.loggerconfig import logger
@@ -75,11 +75,12 @@ def main(
 
     st.markdown("### Travel Plan 📅")
 
-    st.markdown(
-        f"#### Overall Travel Score: \t\t\t\t"
-        f"{score_dict.weighted_score * 100:.0f} / 100",
-        help=prototype_help.TRAVEL_SCORE_HELP,
-    )
+    if score_dict.weighted_score:
+        st.markdown(
+            f"#### Overall Travel Score: \t\t\t\t"
+            f"{score_dict.weighted_score * 100:.0f} / 100",
+            help=prototype_help.TRAVEL_SCORE_HELP,
+        )
 
     if recognized_entities:
         if len(recognized_entities) > 0:

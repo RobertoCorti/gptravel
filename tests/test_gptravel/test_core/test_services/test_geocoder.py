@@ -2,7 +2,7 @@ from typing import Dict, Optional
 
 import pytest
 
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.geocoder import Geocoder
 
 
 class TestGeoCoder:
@@ -17,7 +17,7 @@ class TestGeoCoder:
         ],
     )
     def test_country_from_location_name(
-        self, geo_coder: GeoCoder, location_name: str, expected_country: Optional[str]
+        self, geo_coder: Geocoder, location_name: str, expected_country: Optional[str]
     ):
         assert geo_coder.country_from_location_name(location_name) == expected_country
 
@@ -31,7 +31,7 @@ class TestGeoCoder:
     )
     def test_location_coordinates(
         self,
-        geo_coder: GeoCoder,
+        geo_coder: Geocoder,
         location_name: str,
         expected_coordinates: Dict[str, Optional[float]],
     ):
@@ -50,7 +50,7 @@ class TestGeoCoder:
     )
     def test_location_distance(
         self,
-        geo_coder: GeoCoder,
+        geo_coder: Geocoder,
         location1: str,
         location2: str,
         expected_distance: float,
@@ -73,7 +73,7 @@ class TestGeoCoder:
         ],
     )
     def test_is_location_country_city_state(
-        self, geo_coder: GeoCoder, location_name: str, expected_result: bool
+        self, geo_coder: Geocoder, location_name: str, expected_result: bool
     ):
         assert (
             geo_coder.is_location_country_city_state(location_name) == expected_result
@@ -93,6 +93,6 @@ class TestGeoCoder:
         ],
     )
     def test_is_location_country(
-        self, geo_coder: GeoCoder, location_name: str, expected_result: bool
+        self, geo_coder: Geocoder, location_name: str, expected_result: bool
     ):
         assert geo_coder.is_a_country(location_name) == expected_result

@@ -44,10 +44,16 @@ def is_valid_openai_key(openai_key: str) -> bool:
     openai.api_key = openai_key
 
     try:
-        openai.Completion.create(engine="gpt-3.5-turbo-instruct", prompt="Hello, World!", max_tokens=5)
-    except openai.error.InvalidRequestError:
+        openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "user", "content": "Hello, World!"},
+            ],
+            max_tokens=3,
+        )
+    except openai.BadRequestError:
         return False
-    except openai.error.AuthenticationError:
+    except openai.AuthenticationError:
         return False
 
     return True
@@ -101,22 +107,23 @@ def get_score_map(
 
 def get_cities_coordinates_of_same_country_destionation(
     cities: Union[List[str], Tuple[str]], destination: str
-) -> Dict[str, Tuple]:
+) -> Dict[str, Tuple[float | None, ...]]:
     logger.info("Get Cities coordinates: Start")
     logger.debug("Get Cities coordinates: cities to analyze = %s", cities)
     logger.debug("Get Cities coordinates: destination = %s", destination)
     destination_country = destination.lower()
     if not is_a_country(destination):
-        destination_country = geo_decoder.country_from_location_name(
-            destination
-        ).lower()
+        destination_country = geo_decoder.country_from_location_name(destination)
+        if destination_country:
+            destination_country = destination_country.lower()
         logger.debug(
             "Get Cities coordinates: destination country = %s", destination_country
         )
     cities_coordinates = {
         city: tuple(coord for coord in geo_decoder.location_coordinates(city).values())
         for city in cities
-        if geo_decoder.country_from_location_name(city).lower() == destination_country
+        if geo_decoder.country_from_location_name(city)
+        and geo_decoder.country_from_location_name(city).lower() == destination_country
     }
     logger.info("Get Cities coordinates: End")
     return cities_coordinates
@@ -126,16 +133,17 @@ def get_entities_coordinates_of_same_country(
     entities_dict: Dict[str, List[Dict[str, str]]],
     cities: Union[List[str], Tuple[str]],
     destination: str,
-) -> Dict[str, Tuple]:
+) -> Dict[str, Tuple[float, float]]:
     logger.info("Get Entities coordinates: Start")
     destination_country = destination.lower()
-    coordinates: Dict[str, Tuple] = dict()
+    coordinates: Dict[str, Tuple[float, float]] = {}
     if not is_a_country(destination):
         destination_country = geo_decoder.country_from_location_name(destination)
         if destination_country:
             destination_country = destination_country.lower()
     for city in cities:
-        if geo_decoder.country_from_location_name(city).lower() == destination_country:
+        country = geo_decoder.country_from_location_name(city)
+        if country is not None and country.lower() == destination_country:
             if city in entities_dict.keys():
                 for entity_dict in entities_dict[city]:
                     for entity_name in entity_dict.keys():
@@ -175,7 +183,7 @@ def get_wiki_urls_from_city_entities(
     city_with_entity_map: Dict[str, List[Dict[str, str]]]
 ) -> Dict[str, List[Dict[str, str]]]:
     wiki = WikipediaEngine()
-    output_map: Dict[str, List[Dict[str, str]]] = dict()
+    output_map: Dict[str, List[Dict[str, str]]] = {}
     for city in city_with_entity_map.keys():
         list_of_entities = city_with_entity_map[city]
         entities_list_with_url: List[Dict[str, str]] = []
@@ -207,15 +215,14 @@ def modify_travel_plan_with_entity_urls_using_mkd(
     entities_with_urls: Dict[str, List[Dict[str, str]]], travel_plan: TravelPlanJSON
 ) -> TravelPlanJSON:
     if len(entities_with_urls) > 0:
-        travel_plan_string = "{}".format(json.dumps(travel_plan.travel_plan))
+        json_dmp = json.dumps(travel_plan.travel_plan)
+        travel_plan_string = f"{json_dmp}"
         for city in entities_with_urls.keys():
             entities_in_city = entities_with_urls[city]
             for entity_dict in entities_in_city:
-                for entity_name in entity_dict.keys():
+                for entity_name, value in entity_dict.items():
                     if entity_name.lower() != city.lower():
-                        entity_with_url_in_mkd = "[{}]({})".format(
-                            entity_name, entity_dict[entity_name]
-                        )
+                        entity_with_url_in_mkd = f"[{entity_name}]({value})"
                         travel_plan_string = travel_plan_string.replace(
                             entity_name, entity_with_url_in_mkd
                         )

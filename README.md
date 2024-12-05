@@ -1,9 +1,8 @@
 # GPTravel ✈️
-[![python](https://img.shields.io/badge/Python-3.8-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
+[![python](https://img.shields.io/badge/python-3.9_%7C_3.10_%7C_3.11-blue?link=https%3A%2F%2Fwww.python.org%2F)](https://www.python.org)
 ![Tests](https://github.com/RobertoCorti/gptravel/actions/workflows/python-tests.yml/badge.svg)
 ![GitHub Tags](https://img.shields.io/github/tag/RobertoCorti/gptravel.svg)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.22.0-FF4B4B.svg?style=flat&logo=Streamlit&logoColor=white)](https://streamlit.io)
+[![Streamlit](https://img.shields.io/pypi/v/streamlit?logo=streamlit&logoColor=white&label=Streamlit&color=magenta)](https://streamlit.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 GPTravel is a Web App that generates a travel plan based on Large-Language Models (LLMs). It helps users create personalized itineraries giving the best destinations, activities, and routes.
@@ -21,17 +20,17 @@ At this moment we prepared a prototype on a Streamlit app with few of these func
 
 This project uses the package manager poetry. To install poetry then run
 ```
-pip install poetry 
+pip install poetry
 ```
 After installing poetry then you must config the following flag
 ```
 poetry config virtualenvs.in-project true
 ```
-To intall the dependendencies then run the command
+To install the dependendencies then run the command
 ```
 poetry install
 ```
-To activate the virtual environment then run 
+To activate the virtual environment then run
 ```
 poetry shell
 ```
@@ -63,4 +62,3 @@ This project is licensed under the MIT License.
 GPTravel is developed and maintained by:
 - [Roberto Corti](https://github.com/RobertoCorti)
 - [Stefano Polo](https://github.com/stefano-polo)
-

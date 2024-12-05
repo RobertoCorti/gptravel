@@ -77,6 +77,9 @@ def test_get_cities_coordinates(cities, destination, expected_coordinates):
         assert coordinates[1] == pytest.approx(expected_coordinates[city][1], abs=0.1)
 
 
+@pytest.mark.skipif(
+    os.getenv("HUGGING_FACE_KEY", "") == "", reason="no api key available"
+)
 def test_get_score_map_on_travel_plan(
     travel_plan_single_city_per_day: TravelPlanJSON, labels_activities: List[str]
 ):
