@@ -6,7 +6,7 @@ authors = ["Stefano Polo <sp.stefano.polo@gmail.com>, Roberto Corti <robertocort
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python =  ">=3.9,<3.9.7 || >3.9.7,<=3.11"
+python =  ">=3.9,<3.9.7 || >3.9.7,<3.12"
 geopy = "^2.3.0"
 poetry-dotenv-plugin = "^0.1.0"
 openai = ">=1.40.0,<2.0.0"
