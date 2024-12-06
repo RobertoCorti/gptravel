@@ -1,6 +1,6 @@
 from gptravel.core.services.engine.classifier import TextClassifier
 from gptravel.core.services.engine.entity_recognizer import EntityRecognizer
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.geocoder import Geocoder
 from gptravel.core.services.scorer import (
     ActivitiesDiversityScorer,
     ActivityPlacesScorer,
@@ -13,7 +13,7 @@ from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 
 class ScorerOrchestrator:
-    def __init__(self, geocoder: GeoCoder, text_classifier: TextClassifier) -> None:
+    def __init__(self, geocoder: Geocoder, text_classifier: TextClassifier) -> None:
         self._scorers = [
             ActivitiesDiversityScorer(text_classifier),
             ActivityPlacesScorer(

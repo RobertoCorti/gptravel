@@ -18,7 +18,6 @@ class TravelPlanJSON:
         n_days: int,
         travel_plan_json: Dict[Any, Any],
         json_keys_depth_map: Dict[str, int],
-        **kwargs
     ) -> None:
         self._n_days = n_days
         self._departure_place = departure_place

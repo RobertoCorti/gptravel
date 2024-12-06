@@ -1,3 +1,3 @@
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.geocoder import Geocoder
 
-geo_decoder = GeoCoder()
+geo_decoder = Geocoder()

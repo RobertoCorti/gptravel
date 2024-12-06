@@ -52,7 +52,7 @@ class TestTravelPlanScore:
 
     def test_add_score_missing_key(self):
         score = TravelPlanScore()
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             score.add_score("score extra", {"score_value": 90})
 
 
@@ -152,15 +152,15 @@ class TestOptimizedItineraryScorer:
         score_container: TravelPlanScore,
     ) -> None:
         itinerary_scorer.score(italian_travel_plan, score_container)
-        score_dict = score_container.score_map[itinerary_scorer.service_name]
-        #assert score_dict["score_value"] == pytest.approx(0.58256, 0.0001)
+        score_container.score_map[itinerary_scorer.service_name]
+        # assert score_dict["score_value"] == pytest.approx(0.58256, 0.0001)
         """assert score_dict["tsp_solution"]["solution"] == [
             "venice",
             "florence",
             "palermo",
         ]"""
         assert True
-        #assert score_dict["tsp_solution"]["open_problem"]
-        #assert score_dict["tsp_solution"]["distance"] == pytest.approx(856.79, 0.1)
-        #assert score_dict["itinerary"]["distance"] == pytest.approx(1470.73, 0.1)
-        #assert score_dict["itinerary"]["solution"] == ["venice", "florence", "palermo"]
+        # assert score_dict["tsp_solution"]["open_problem"]
+        # assert score_dict["tsp_solution"]["distance"] == pytest.approx(856.79, 0.1)
+        # assert score_dict["itinerary"]["distance"] == pytest.approx(1470.73, 0.1)
+        # assert score_dict["itinerary"]["solution"] == ["venice", "florence", "palermo"]

@@ -1,0 +1,55 @@
+﻿# See https://pre-commit.com for more information
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    - id: check-added-large-files
+      args: ["--maxkb=2000"]
+    - id: check-json
+    - id: check-yaml
+    - id: end-of-file-fixer
+    - id: pretty-format-json
+      args: [--no-sort-keys]
+      exclude_types: [jupyter]
+    - id: requirements-txt-fixer
+    - id: trailing-whitespace
+-   repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.14.0
+    hooks:
+          - id: eslint
+            files: \.[jt]sx?$ # *.js, *.jsx, *.ts and *.tsx
+            types: [file]
+            additional_dependencies:
+                - eslint@latest
+                - eslint-config-standard@latest
+-   repo: local
+    hooks:
+    -   id: autoflake
+        name: autoflake
+        entry: poetry run autoflake
+        language: system
+        types: [python]
+        require_serial: true
+        args:
+            - "--in-place"
+            - "--remove-all-unused-imports"
+            - "--remove-unused-variables"
+            - "--recursive"
+    -   id: isort
+        name: isort
+        entry: poetry run isort --profile black
+        language: system
+        types: [python]
+        require_serial: true
+    -   id: black
+        name: black
+        entry: poetry run black
+        language: system
+        types: [file, python]
+    -   id: bandit
+        name: bandit
+        entry: poetry run bandit
+        language: system
+        types: [python]
+        require_serial: true
+        args: ["--configfile", "bandit.yaml", "--recursive", "src"]

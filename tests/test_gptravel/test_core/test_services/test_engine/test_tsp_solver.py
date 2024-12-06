@@ -3,11 +3,11 @@ import os
 import pytest
 
 from gptravel.core.services.engine.tsp_solver import TSPSolver
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.geocoder import Geocoder
 
 
 @pytest.fixture
-def tsp_solver(geo_coder: GeoCoder) -> TSPSolver:
+def tsp_solver(geo_coder: Geocoder) -> TSPSolver:
     return TSPSolver(geo_coder)
 
 
@@ -64,8 +64,10 @@ class TestTSPSolver:
             "Bangkok",
             "Tokyo",
         ]
-        from gptravel.core.io.loggerconfig import logger
         import random
+
+        from gptravel.core.io.loggerconfig import logger
+
         random.seed(1)
         solution, distance = tsp_solver.solve(cities=cities, open_problem=True)
         logger.debug("SOLUTION {}".format(solution))
@@ -84,4 +86,4 @@ class TestTSPSolver:
             "Bangkok",
         ]"""
         assert True
-        #assert distance == pytest.approx(23553.416, 0.001)
+        # assert distance == pytest.approx(23553.416, 0.001)

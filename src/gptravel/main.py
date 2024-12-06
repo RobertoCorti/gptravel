@@ -12,12 +12,13 @@ from gptravel.core.services.engine.classifier import ZeroShotTextClassifier
 from gptravel.core.services.engine.entity_recognizer import EntityRecognizer
 from gptravel.core.services.engine.wikipedia import WikipediaEngine
 from gptravel.core.services.filters import DeparturePlaceFilter
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.geocoder import Geocoder
 from gptravel.core.services.score_builder import ScorerOrchestrator
 from gptravel.core.services.scorer import ActivityPlacesScorer, TravelPlanScore
 from gptravel.core.travel_planner.openai_engine import ChatGPTravelEngine
 from gptravel.core.travel_planner.prompt import PromptFactory
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
+from gptravel.core.utils.regex_tool import JsonExtractor
 
 load_dotenv()
 
@@ -28,7 +29,7 @@ def get_wiki_urls_from_city_entities(
     city_with_entity_map: Dict[str, List[Dict[str, str]]]
 ) -> Dict[str, List[Dict[str, str]]]:
     wiki = WikipediaEngine()
-    output_map: Dict[str, List[Dict[str, str]]] = dict()
+    output_map: Dict[str, List[Dict[str, str]]] = {}
     for city in city_with_entity_map.keys():
         list_of_entities = city_with_entity_map[city]
         entities_list_with_url: List[Dict[str, str]] = []
@@ -59,20 +60,15 @@ def get_wiki_urls_from_city_entities(
 def modify_travel_plan_with_entity_urls_using_mkd(
     entities_with_urls: Dict[str, List[Dict[str, str]]], travel_plan: TravelPlanJSON
 ) -> TravelPlanJSON:
-    import json
-
-    from gptravel.core.utils.regex_tool import JsonExtractor
-
     if len(entities_with_urls) > 0:
-        travel_plan_string = "{}".format(json.dumps(travel_plan.travel_plan))
+        tp_dumped = json.dumps(travel_plan.travel_plan)
+        travel_plan_string = f"{tp_dumped}"
         for city in entities_with_urls.keys():
             entities_in_city = entities_with_urls[city]
             for entity_dict in entities_in_city:
-                for entity_name in entity_dict.keys():
+                for entity_name, value in entity_dict.items():
                     if entity_name.lower() != city.lower():
-                        entity_with_url_in_mkd = "[{}]({})".format(
-                            entity_name, entity_dict[entity_name]
-                        )
+                        entity_with_url_in_mkd = f"[{entity_name}]({value})"
                         travel_plan_string = travel_plan_string.replace(
                             entity_name, entity_with_url_in_mkd
                         )
@@ -159,7 +155,7 @@ def main(
         travel_plan_in_json_format = engine.get_travel_plan_json(prompt_completion)
     middle_time = time.time()
     zs_classifier = ZeroShotTextClassifier(True)
-    geo_decoder = GeoCoder()
+    geo_decoder = Geocoder()
     score_container = TravelPlanScore()
     city_checker = ExistingDestinationsChecker(geo_decoder)
     city_checker.check(travel_plan_in_json_format)
@@ -169,13 +165,6 @@ def main(
     scorer_activities.score(
         travel_plan=travel_plan_in_json_format, travel_plan_scores=score_container
     )
-    places = score_container.score_map["Activity Places"]["recognized_entities"]
-    output = get_wiki_urls_from_city_entities(places)
-
-    out_plan = modify_travel_plan_with_entity_urls_using_mkd(
-        output, travel_plan_in_json_format
-    )
-    print(output)
     scorers_orchestrator = ScorerOrchestrator(
         geocoder=geo_decoder, text_classifier=zs_classifier
     )
@@ -187,9 +176,7 @@ def main(
     )
     print("** Total execution time", time.time() - start_time, "seconds")
     print("** Travel plan overall scores", score_container.weighted_score)
-    with open(
-        "trave-l_plan_{}_{}_scores.json".format(destination_place, n_days), "w"
-    ) as jfile:
+    with open(f"trave-l_plan_{destination_place}_{n_days}_scores.json", "w") as jfile:
         json.dump(score_container.score_map, jfile)
 
 

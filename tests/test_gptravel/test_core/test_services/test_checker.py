@@ -3,12 +3,12 @@ import os
 import pytest
 
 from gptravel.core.services.checker import DaysChecker, ExistingDestinationsChecker
-from gptravel.core.services.geocoder import GeoCoder
+from gptravel.core.services.geocoder import Geocoder
 from gptravel.core.travel_planner.travel_engine import TravelPlanJSON
 
 
 @pytest.fixture
-def existing_cities_checker(geo_coder: GeoCoder) -> ExistingDestinationsChecker:
+def existing_cities_checker(geo_coder: Geocoder) -> ExistingDestinationsChecker:
     return ExistingDestinationsChecker(geo_coder)
 
 
