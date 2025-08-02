@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plane, MapPin, Calendar, Users, Sparkles, ArrowRight } from 'lucide-react';
+import { Plane, MapPin, Calendar, Users, Sparkles, ArrowRight, Zap, Globe, Heart } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import TravelForm from '@/components/forms/TravelForm';
 import { TravelFormData } from '@/types/travel';
@@ -14,8 +14,8 @@ export default function HomePage() {
   };
 
   const handleFormSubmit = (data: TravelFormData) => {
-    console.log('Travel form submitted:', data);
-    // TODO: Integrate with your Python backend
+    console.log('Travel form submitted successfully:', data);
+    // Form now handles its own API integration and results display
   };
 
   return (
@@ -30,7 +30,11 @@ export default function HomePage() {
           <div className="hidden md:flex items-center space-x-6">
             <a href="#features" className="text-gray-600 hover:text-travel-600 transition-colors">Features</a>
             <a href="#about" className="text-gray-600 hover:text-travel-600 transition-colors">About</a>
-            <Button variant="secondary" size="sm">
+            <Button 
+              variant="secondary" 
+              size="sm"
+              onClick={() => window.open('https://github.com/RobertoCorti/gptravel', '_blank')}
+            >
               GitHub
             </Button>
           </div>
@@ -79,8 +83,12 @@ export default function HomePage() {
                   Start Planning
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
-                <Button variant="secondary" size="lg">
-                  View Demo
+                <Button 
+                  variant="secondary" 
+                  size="lg"
+                  onClick={() => window.open('https://gptravel-prototype.streamlit.app/', '_blank')}
+                >
+                  View Live Demo
                 </Button>
               </div>
             </div>
@@ -89,33 +97,33 @@ export default function HomePage() {
             <div className="grid md:grid-cols-3 gap-8 mt-20">
               <div className="card animate-slide-up text-center" style={{ animationDelay: '0.2s' }}>
                 <div className="bg-travel-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="h-8 w-8 text-travel-600" />
+                  <Zap className="h-8 w-8 text-travel-600" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">AI-Powered Planning</h3>
-                <p className="text-gray-600">Advanced algorithms create personalized itineraries based on your preferences</p>
+                <p className="text-gray-600">Advanced algorithms create personalized itineraries based on your preferences and travel style</p>
               </div>
               
               <div className="card animate-slide-up text-center" style={{ animationDelay: '0.4s' }}>
                 <div className="bg-sunset-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="h-8 w-8 text-sunset-600" />
+                  <Globe className="h-8 w-8 text-sunset-600" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Smart Destinations</h3>
-                <p className="text-gray-600">Discover hidden gems and popular attractions perfectly matched to your interests</p>
+                <p className="text-gray-600">Discover hidden gems and popular attractions perfectly matched to your interests and budget</p>
               </div>
               
               <div className="card animate-slide-up text-center" style={{ animationDelay: '0.6s' }}>
                 <div className="bg-emerald-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Calendar className="h-8 w-8 text-emerald-600" />
+                  <Heart className="h-8 w-8 text-emerald-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Optimized Routes</h3>
-                <p className="text-gray-600">Efficient day-by-day schedules that maximize your time and experiences</p>
+                <h3 className="text-xl font-semibold mb-2">Personalized Experience</h3>
+                <p className="text-gray-600">Every itinerary is crafted specifically for you, considering your travel reason and preferences</p>
               </div>
             </div>
           </div>
         </section>
       ) : (
         <section className="px-6 py-10">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-4">
                 Let's Plan Your Adventure

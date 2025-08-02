@@ -55,4 +55,21 @@ export interface ScoreMap {
 export interface TravelPlanScore {
   weighted_score: number | null;
   score_map: ScoreMap;
+}
+
+// UI State types
+export interface TravelPlanState {
+  isLoading: boolean;
+  data: TravelPlanResponse | null;
+  error: string | null;
+}
+
+// Form validation types
+export interface FormErrors {
+  openaiKey?: string;
+  departure?: string;
+  destination?: string;
+  departureDate?: string;
+  returnDate?: string;
+  travelReason?: string;
 } 
