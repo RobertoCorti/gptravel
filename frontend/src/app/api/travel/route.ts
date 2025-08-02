@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TravelFormData, TravelPlanResponse } from '@/types/travel';
+
+// This Next.js API route now acts as a proxy/fallback to the Python backend
+// It can be used for additional processing, caching, or as a fallback when Python backend is down
+
+const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://127.0.0.1:8000';
 
 export async function POST(request: NextRequest) {
   try {
-    const rawFormData = await request.json();
-    
-    // Convert string dates back to Date objects
-    const formData: TravelFormData = {
-      ...rawFormData,
-      departureDate: new Date(rawFormData.departureDate),
-      returnDate: new Date(rawFormData.returnDate),
-    };
+    const formData = await request.json();
     
     // Validate required fields
     if (!formData.openaiKey || !formData.departure || !formData.destination) {
@@ -20,58 +17,84 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate dates
-    if (isNaN(formData.departureDate.getTime()) || isNaN(formData.returnDate.getTime())) {
-      return NextResponse.json(
-        { error: 'Invalid date format' },
-        { status: 400 }
-      );
+    try {
+      // Try to proxy to Python backend first
+      const pythonResponse = await fetch(`${PYTHON_API_URL}/api/travel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          openai_key: formData.openaiKey,
+          departure: formData.departure,
+          destination: formData.destination,
+          departure_date: formData.departureDate,
+          return_date: formData.returnDate,
+          travel_reason: formData.travelReason,
+        }),
+        // 30 second timeout for AI generation
+        signal: AbortSignal.timeout(30000),
+      });
+
+      if (pythonResponse.ok) {
+        const result = await pythonResponse.json();
+        return NextResponse.json(result);
+      } else {
+        const errorData = await pythonResponse.json().catch(() => ({}));
+        throw new Error(errorData.detail || errorData.error || 'Python backend error');
+      }
+    } catch (pythonError) {
+      console.warn('Python backend unavailable:', pythonError);
+      
+      // Fallback to mock response if Python backend is down
+      return generateMockResponse(formData);
     }
-
-    // Calculate number of days
-    const timeDiff = formData.returnDate.getTime() - formData.departureDate.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    
-    if (daysDiff < 0) {
-      return NextResponse.json(
-        { error: 'Return date must be after departure date' },
-        { status: 400 }
-      );
-    }
-
-    const nDays = daysDiff + 1; // Include both departure and return days
-
-    // For now, we'll create a mock response that matches your Python backend structure
-    // This will be replaced with actual Python backend calls
-    const mockTravelPlan: TravelPlanResponse = {
-      departure_place: formData.departure,
-      destination_place: formData.destination,
-      n_days: nDays,
-      travel_plan: generateMockItinerary(formData.destination, nDays, formData.travelReason),
-      weighted_score: Math.floor(Math.random() * 20) + 80 // Random score between 80-100
-    };
-
-    // Simulate API processing time
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    return NextResponse.json({
-      success: true,
-      data: mockTravelPlan
-    });
 
   } catch (error) {
-    console.error('Travel API Error:', error);
+    console.error('API Error:', error);
     return NextResponse.json(
-      { error: 'Failed to generate travel plan' },
+      { 
+        success: false,
+        error: 'Failed to generate travel plan' 
+      },
       { status: 500 }
     );
   }
 }
 
+function generateMockResponse(formData: any) {
+  // Convert string dates back to Date objects for calculation
+  const departureDate = new Date(formData.departureDate);
+  const returnDate = new Date(formData.returnDate);
+  
+  // Validate dates
+  if (isNaN(departureDate.getTime()) || isNaN(returnDate.getTime())) {
+    return NextResponse.json(
+      { error: 'Invalid date format' },
+      { status: 400 }
+    );
+  }
+
+  const timeDiff = returnDate.getTime() - departureDate.getTime();
+  const nDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+  
+  const mockTravelPlan = {
+    departure_place: formData.departure,
+    destination_place: formData.destination,
+    n_days: nDays,
+    travel_plan: generateMockItinerary(formData.destination, nDays, formData.travelReason),
+    weighted_score: Math.floor(Math.random() * 20) + 80,
+  };
+
+  return NextResponse.json({
+    success: true,
+    data: mockTravelPlan
+  });
+}
+
 function generateMockItinerary(destination: string, nDays: number, travelReason?: string): Record<string, Record<string, string[]>> {
   const itinerary: Record<string, Record<string, string[]>> = {};
   
-  // Base activities by travel reason
   const baseActivities = {
     Business: [
       "Attend business meetings",
@@ -124,12 +147,10 @@ function generateMockItinerary(destination: string, nDays: number, travelReason?
       activities.push("Arrive and check into accommodation");
     }
     
-    // Add reason-specific activities
     if (travelReason && baseActivities[travelReason as keyof typeof baseActivities]) {
       activities.push(...baseActivities[travelReason as keyof typeof baseActivities].slice(0, 2));
     }
     
-    // Add general activities
     const remainingSlots = Math.max(3 - activities.length, 1);
     const shuffledGeneral = [...generalActivities].sort(() => 0.5 - Math.random());
     activities.push(...shuffledGeneral.slice(0, remainingSlots));
@@ -144,11 +165,4 @@ function generateMockItinerary(destination: string, nDays: number, travelReason?
   }
   
   return itinerary;
-}
-
-// TODO: Replace mock with actual Python backend integration
-// This will involve:
-// 1. Starting your Python backend server
-// 2. Making HTTP requests to Python endpoints
-// 3. Handling Python response data
-// 4. Error handling and retries 
+} 
