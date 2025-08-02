@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-blue-50 via-white to-cyan-50 text-gray-900;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-travel-600 hover:bg-travel-700 text-white font-medium px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-travel-600 font-medium px-6 py-3 rounded-xl border border-travel-200 transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-2xl shadow-lg border border-gray-100 p-6;
+  }
+  
+  .gradient-travel {
+    background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #10b981 100%);
+  }
+  
+  .gradient-sunset {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fdba74 100%);
+  }
+} 
