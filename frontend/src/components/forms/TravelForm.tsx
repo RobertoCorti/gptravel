@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Calendar, MapPin, Key, Heart, Briefcase, Users, User } from 'lucide-react';
+import { Calendar, MapPin, Key, Heart, Briefcase, Users, User, AlertCircle, CheckCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { TravelFormData } from '@/types/travel';
+import TravelResults from '@/components/travel/TravelResults';
+import { TravelFormData, TravelPlanResponse } from '@/types/travel';
 import { formatDate, isValidDateRange, validateOpenAIKey } from '@/lib/utils';
+import { generateTravelPlan, APIError } from '@/lib/api';
 
 const travelSchema = z.object({
   openaiKey: z.string()
@@ -30,7 +32,7 @@ const travelSchema = z.object({
 type TravelFormValues = z.infer<typeof travelSchema>;
 
 interface TravelFormProps {
-  onSubmit: (data: TravelFormData) => void;
+  onSubmit?: (data: TravelFormData) => void;
 }
 
 const travelReasons = [
@@ -44,6 +46,9 @@ const travelReasons = [
 
 export default function TravelForm({ onSubmit }: TravelFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [travelPlan, setTravelPlan] = useState<TravelPlanResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   
   const {
     register,
@@ -51,6 +56,7 @@ export default function TravelForm({ onSubmit }: TravelFormProps) {
     watch,
     setValue,
     formState: { errors },
+    reset,
   } = useForm<TravelFormValues>({
     resolver: zodResolver(travelSchema),
     defaultValues: {
@@ -62,16 +68,76 @@ export default function TravelForm({ onSubmit }: TravelFormProps) {
 
   const handleFormSubmit = async (data: TravelFormValues) => {
     setIsSubmitting(true);
+    setError(null);
+    setSuccess(false);
+    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      onSubmit(data);
+      const result = await generateTravelPlan(data);
+      setTravelPlan(result);
+      setSuccess(true);
+      
+      // Call optional onSubmit callback
+      if (onSubmit) {
+        onSubmit(data);
+      }
+    } catch (err) {
+      if (err instanceof APIError) {
+        setError(`API Error (${err.status}): ${err.message}`);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+      console.error('Travel plan generation failed:', err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleStartOver = () => {
+    setTravelPlan(null);
+    setError(null);
+    setSuccess(false);
+    reset();
+  };
+
+  // If we have a travel plan, show the results
+  if (travelPlan) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <CheckCircle className="h-6 w-6 text-green-600" />
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Your Travel Plan is Ready!
+            </h2>
+          </div>
+          <Button 
+            variant="secondary" 
+            onClick={handleStartOver}
+          >
+            Plan Another Trip
+          </Button>
+        </div>
+        
+        <TravelResults travelPlan={travelPlan} />
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <p className="text-red-800 font-medium">Error generating travel plan</p>
+          </div>
+          <p className="text-red-700 mt-1">{error}</p>
+        </div>
+      )}
+
       <div className="card">
         <div className="grid md:grid-cols-2 gap-6">
           {/* OpenAI API Key */}
@@ -162,7 +228,7 @@ export default function TravelForm({ onSubmit }: TravelFormProps) {
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Travel Reason
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {travelReasons.slice(1).map((reason) => {
                 const Icon = reason.icon;
                 const isSelected = watch('travelReason') === reason.value;
@@ -197,7 +263,7 @@ export default function TravelForm({ onSubmit }: TravelFormProps) {
             isLoading={isSubmitting}
             className="w-full md:w-auto"
           >
-            {isSubmitting ? 'Creating Your Plan...' : "Let's Go! ✈️"}
+            {isSubmitting ? 'Creating Your Perfect Trip...' : "Let's Go! ✈️"}
           </Button>
         </div>
       </div>
