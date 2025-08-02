@@ -1,13 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, MapPin, Users, Star, Camera, ExternalLink } from 'lucide-react';
+import { Calendar, MapPin, Users, Star, Camera, ExternalLink, Save, Check, X } from 'lucide-react';
 import { TravelPlanResponse } from '@/types/travel';
 import { getActivityPhoto, getDestinationPhoto } from '@/lib/unsplash';
+import { saveTravelPlan, SavedTravelPlan } from '@/lib/storage';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import Button from '@/components/ui/Button';
 
 interface TravelResultsProps {
   travelPlan: TravelPlanResponse;
+  formData?: {
+    departure: string;
+    destination: string;
+    departureDate: Date;
+    returnDate: Date;
+    travelReason?: string;
+  };
 }
 
 // Fallback image component
@@ -17,11 +27,129 @@ const FallbackImage = ({ alt, className }: { alt: string; className: string }) =
   </div>
 );
 
-export default function TravelResults({ travelPlan }: TravelResultsProps) {
+// Save Plan Modal Component
+const SavePlanModal = ({ 
+  isOpen, 
+  onClose, 
+  onSave, 
+  isLoading 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onSave: (name: string, description?: string) => void;
+  isLoading: boolean;
+}) => {
+  const [planName, setPlanName] = useState('');
+  const [planDescription, setPlanDescription] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (planName.trim()) {
+      onSave(planName.trim(), planDescription.trim() || undefined);
+    }
+  };
+
+  const handleClose = () => {
+    setPlanName('');
+    setPlanDescription('');
+    onClose();
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={handleClose}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Save Travel Plan</h3>
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="planName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Plan Name *
+                </label>
+                <input
+                  id="planName"
+                  type="text"
+                  value={planName}
+                  onChange={(e) => setPlanName(e.target.value)}
+                  placeholder="e.g., European Adventure 2024"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-travel-500 focus:border-transparent transition-all"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="planDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                  Description (Optional)
+                </label>
+                <textarea
+                  id="planDescription"
+                  value={planDescription}
+                  onChange={(e) => setPlanDescription(e.target.value)}
+                  placeholder="Add notes about this trip..."
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-travel-500 focus:border-transparent transition-all resize-none"
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleClose}
+                  className="flex-1"
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="flex-1"
+                  isLoading={isLoading}
+                  disabled={!planName.trim() || isLoading}
+                >
+                  Save Plan
+                </Button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default function TravelResults({ travelPlan, formData }: TravelResultsProps) {
   const [selectedDay, setSelectedDay] = useState<string>(
     Object.keys(travelPlan.travel_plan)[0] || 'Day 1'
   );
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const days = Object.keys(travelPlan.travel_plan);
   const selectedActivities = travelPlan.travel_plan[selectedDay];
@@ -31,6 +159,28 @@ export default function TravelResults({ travelPlan }: TravelResultsProps) {
 
   const handleImageError = (imageId: string) => {
     setImageErrors(prev => new Set(prev).add(imageId));
+  };
+
+  const handleSavePlan = async (name: string, description?: string) => {
+    if (!formData) {
+      console.error('Form data is required to save plan');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await saveTravelPlan(travelPlan, formData, name, description);
+      setShowSaveModal(false);
+      setSaveSuccess(true);
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error saving plan:', error);
+      alert('Failed to save travel plan. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -76,6 +226,25 @@ export default function TravelResults({ travelPlan }: TravelResultsProps) {
           </a>
         </div>
       </div>
+
+      {/* Save Success Message */}
+      <AnimatePresence>
+        {saveSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3"
+          >
+            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <Check className="h-4 w-4 text-white" />
+            </div>
+            <p className="text-green-800 font-medium">
+              Travel plan saved successfully! You can find it in your saved plans.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Trip Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -217,6 +386,15 @@ export default function TravelResults({ travelPlan }: TravelResultsProps) {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+        <Button
+          onClick={() => setShowSaveModal(true)}
+          variant="primary"
+          className="flex-1 flex items-center justify-center gap-2"
+          disabled={!formData}
+        >
+          <Save className="h-5 w-5" />
+          Save This Plan
+        </Button>
         <button className="flex-1 bg-travel-500 text-white py-3 px-6 rounded-xl font-medium hover:bg-travel-600 transition-colors flex items-center justify-center gap-2">
           <ExternalLink className="h-5 w-5" />
           Share This Plan
@@ -225,6 +403,14 @@ export default function TravelResults({ travelPlan }: TravelResultsProps) {
           Download PDF
         </button>
       </div>
+
+      {/* Save Plan Modal */}
+      <SavePlanModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        onSave={handleSavePlan}
+        isLoading={isSaving}
+      />
     </div>
   );
 } 

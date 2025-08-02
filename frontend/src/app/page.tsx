@@ -1,175 +1,341 @@
 'use client';
 
 import { useState } from 'react';
-import { Plane, Map, Sparkles, Github, ExternalLink, Users, Heart, Briefcase } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import { motion } from 'framer-motion';
+import { Sparkles, MapPin, Heart, Github, Plane, Camera, Globe } from 'lucide-react';
 import TravelForm from '@/components/forms/TravelForm';
+import SavedPlans from '@/components/travel/SavedPlans';
+import TravelResults from '@/components/travel/TravelResults';
+import { SavedTravelPlan } from '@/lib/storage';
+import { getSavedPlans } from '@/lib/storage';
+import Button from '@/components/ui/Button';
 
-const floatingIcons = [
-  { Icon: Plane, delay: '0s', position: 'top-20 left-20' },
-  { Icon: Map, delay: '1s', position: 'top-32 right-32' },
-  { Icon: Heart, delay: '2s', position: 'bottom-32 left-16' },
-  { Icon: Briefcase, delay: '0.5s', position: 'bottom-20 right-20' },
-  { Icon: Users, delay: '1.5s', position: 'top-1/2 left-8' },
-];
-
-export default function HomePage() {
+export default function Home() {
   const [showForm, setShowForm] = useState(false);
+  const [showSavedPlans, setShowSavedPlans] = useState(false);
+  const [loadedPlan, setLoadedPlan] = useState<SavedTravelPlan | null>(null);
+  const [viewingPlan, setViewingPlan] = useState<SavedTravelPlan | null>(null);
 
-  if (showForm) {
+  const handleLoadPlan = (plan: SavedTravelPlan) => {
+    setLoadedPlan(plan);
+    setShowSavedPlans(false);
+    setShowForm(true);
+  };
+
+  const handleViewPlan = (plan: SavedTravelPlan) => {
+    setViewingPlan(plan);
+    setShowSavedPlans(false);
+    setShowForm(false);
+  };
+
+  const handleBackToHome = () => {
+    setShowForm(false);
+    setShowSavedPlans(false);
+    setLoadedPlan(null);
+    setViewingPlan(null);
+  };
+
+  // Check if we have saved plans
+  const hasSavedPlans = typeof window !== 'undefined' && getSavedPlans().length > 0;
+
+  // If viewing a specific plan
+  if (viewingPlan) {
     return (
-      <main className="min-h-screen p-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <button
-              onClick={() => setShowForm(false)}
-              className="text-travel-600 hover:text-travel-700 font-medium transition-colors"
-            >
-              ← Back to Home
-            </button>
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 text-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {viewingPlan.name}
+              </h1>
+              <Button
+                onClick={handleBackToHome}
+                variant="ghost"
+                className="flex items-center gap-2"
+              >
+                ← Back to Home
+              </Button>
+            </div>
+            <TravelResults 
+              travelPlan={viewingPlan.travelPlan} 
+              formData={viewingPlan.formData}
+            />
           </div>
-          
-          <TravelForm />
         </div>
       </main>
     );
   }
 
-  return (
-    <main className="min-h-screen relative overflow-hidden">
-      {/* Floating Background Icons */}
-      <div className="absolute inset-0 pointer-events-none">
-        {floatingIcons.map(({ Icon, delay, position }, index) => (
-          <Icon
-            key={index}
-            className={`
-              absolute w-12 h-12 text-travel-200 opacity-20
-              animate-float ${position}
-            `}
-            style={{ animationDelay: delay }}
-          />
-        ))}
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="text-center space-y-8 mb-16">
-          {/* Logo/Brand */}
-          <div className="flex items-center justify-center space-x-3 mb-8">
-            <div className="relative">
-              <Plane className="w-12 h-12 text-travel-600 animate-float" />
-              <Sparkles className="w-6 h-6 text-sunset-500 absolute -top-1 -right-1 animate-pulse" />
+  // If showing saved plans
+  if (showSavedPlans) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 text-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="text-3xl font-bold text-gray-900">
+                Your Saved Travel Plans
+              </h1>
+              <Button
+                onClick={handleBackToHome}
+                variant="ghost"
+                className="flex items-center gap-2"
+              >
+                ← Back to Home
+              </Button>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold font-display">
-              <span className="bg-gradient-to-r from-travel-600 to-sunset-500 bg-clip-text text-transparent">
-                GPTravel
-              </span>
-            </h1>
+            <SavedPlans 
+              onLoadPlan={handleLoadPlan}
+              onViewPlan={handleViewPlan}
+              showActions={true}
+            />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // If showing the form
+  if (showForm) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 text-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="text-3xl font-bold text-gray-900">
+                Plan Your Perfect Trip
+              </h1>
+              <Button
+                onClick={handleBackToHome}
+                variant="ghost"
+                className="flex items-center gap-2"
+              >
+                ← Back to Home
+              </Button>
+            </div>
+            <TravelForm 
+              loadedPlan={loadedPlan}
+              onPlanLoaded={() => setLoadedPlan(null)}
+            />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Homepage hero
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 text-gray-900">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Floating Icons */}
+          <div className="relative mb-16">
+            <motion.div
+              className="absolute -top-4 -left-4 w-12 h-12 bg-travel-100 rounded-full flex items-center justify-center"
+              animate={{ 
+                y: [0, -10, 0],
+                rotate: [0, 5, 0] 
+              }}
+              transition={{ 
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Plane className="h-6 w-6 text-travel-600" />
+            </motion.div>
+            
+            <motion.div
+              className="absolute -top-8 right-8 w-10 h-10 bg-sunset-100 rounded-full flex items-center justify-center"
+              animate={{ 
+                y: [0, -15, 0],
+                rotate: [0, -8, 0] 
+              }}
+              transition={{ 
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1
+              }}
+            >
+              <Camera className="h-5 w-5 text-sunset-600" />
+            </motion.div>
+
+            <motion.div
+              className="absolute top-4 -right-2 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"
+              animate={{ 
+                y: [0, -8, 0],
+                rotate: [0, 10, 0] 
+              }}
+              transition={{ 
+                duration: 3.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 2
+              }}
+            >
+              <Globe className="h-4 w-4 text-purple-600" />
+            </motion.div>
+
+            {/* Main Logo */}
+            <div className="flex items-center justify-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-travel-500 to-sunset-500 rounded-2xl flex items-center justify-center shadow-xl mr-4">
+                <Plane className="h-8 w-8 text-white" />
+              </div>
+              <h1 className="text-4xl font-bold text-gray-900">
+                GP<span className="bg-gradient-to-r from-travel-600 to-sunset-600 bg-clip-text text-transparent">Travel</span>
+              </h1>
+            </div>
           </div>
 
-          {/* Main Headline */}
-          <div className="space-y-4">
-            <h2 className="text-5xl md:text-7xl font-bold font-display leading-tight">
-              <span className="block text-gray-900">Your AI-Powered</span>
-              <span className="block bg-gradient-to-r from-travel-600 via-sunset-500 to-travel-700 bg-clip-text text-transparent">
+          {/* Hero Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              Your AI-Powered
+              <br />
+              <span className="bg-gradient-to-r from-travel-600 via-sunset-500 to-travel-600 bg-clip-text text-transparent">
                 Travel Companion
               </span>
             </h2>
-            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Create personalized travel itineraries in seconds using the power of AI. 
-              From romantic getaways to business trips, we craft the perfect journey just for you.
-            </p>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
-              size="lg"
-              onClick={() => setShowForm(true)}
-              className="w-full sm:w-auto text-lg px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
-            >
-              Start Planning ✈️
-            </Button>
             
-            <div className="flex gap-4">
+            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Create personalized travel itineraries in seconds using the power of 
+              AI. From romantic getaways to business trips, we craft the perfect 
+              journey just for you.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
               <Button
+                onClick={() => setShowForm(true)}
+                variant="primary"
+                size="lg"
+                className="flex items-center gap-2 text-lg px-8 py-4"
+              >
+                Start Planning ✈️
+              </Button>
+              
+              {hasSavedPlans && (
+                <Button
+                  onClick={() => setShowSavedPlans(true)}
+                  variant="secondary"
+                  size="lg"
+                  className="flex items-center gap-2 text-lg px-8 py-4"
+                >
+                  <MapPin className="h-5 w-5" />
+                  View Saved Plans
+                </Button>
+              )}
+              
+              <Button
+                onClick={() => window.open('https://github.com/RobertoCorti/gptravel', '_blank')}
                 variant="ghost"
                 size="lg"
-                onClick={() => window.open('https://github.com/RobertoCorti/gptravel', '_blank')}
-                className="text-gray-600 hover:text-travel-600 transition-colors"
+                className="flex items-center gap-2 text-lg px-8 py-4"
               >
-                <Github className="w-5 h-5 mr-2" />
+                <Github className="h-5 w-5" />
                 GitHub
               </Button>
               
               <Button
+                onClick={() => window.open('#', '_blank')}
                 variant="ghost"
                 size="lg"
-                onClick={() => window.open('https://gptravel-demo.vercel.app', '_blank')}
-                className="text-gray-600 hover:text-travel-600 transition-colors"
+                className="flex items-center gap-2 text-lg px-8 py-4"
               >
-                <ExternalLink className="w-5 h-5 mr-2" />
-                Live Demo
+                🌐 Live Demo
               </Button>
             </div>
-          </div>
-        </div>
+          </motion.div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            {
-              icon: Sparkles,
-              title: 'AI-Powered',
-              description: 'Advanced GPT-4 technology creates personalized itineraries based on your preferences and travel style.',
-              gradient: 'from-purple-500 to-pink-500',
-            },
-            {
-              icon: Map,
-              title: 'Smart Planning',
-              description: 'Intelligent routing and activity suggestions that optimize your time and maximize your experiences.',
-              gradient: 'from-travel-500 to-cyan-500',
-            },
-            {
-              icon: Heart,
-              title: 'Personalized',
-              description: 'Whether business, romantic, or adventure - every itinerary is tailored to your unique travel goals.',
-              gradient: 'from-sunset-500 to-red-500',
-            },
-          ].map((feature, index) => (
-            <div
-              key={index}
-              className="group p-8 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          {/* Recent Saved Plans Preview */}
+          {hasSavedPlans && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mb-16"
             >
-              <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                <feature.icon className="w-8 h-8 text-white" />
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">Recent Travel Plans</h3>
+                  <Button
+                    onClick={() => setShowSavedPlans(true)}
+                    variant="ghost"
+                    className="text-travel-600 hover:text-travel-700"
+                  >
+                    View All →
+                  </Button>
+                </div>
+                <SavedPlans 
+                  onLoadPlan={handleLoadPlan}
+                  onViewPlan={handleViewPlan}
+                  maxPlans={3}
+                  showActions={true}
+                />
               </div>
-              
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-travel-600 transition-colors">
-                {feature.title}
-              </h3>
-              
-              <p className="text-gray-600 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
+            </motion.div>
+          )}
 
-        {/* Bottom CTA */}
-        <div className="text-center mt-16 space-y-4">
-          <p className="text-gray-600 text-lg">
-            Ready to explore the world with AI as your guide?
-          </p>
-          <Button
-            size="lg"
-            onClick={() => setShowForm(true)}
-            className="shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+          {/* Feature Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
-            Create Your Journey 🗺️
-          </Button>
+            {/* AI-Powered Feature */}
+            <motion.div
+              className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">AI-Powered</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Advanced GPT-4 technology creates personalized itineraries based on 
+                your preferences and travel style.
+              </p>
+            </motion.div>
+
+            {/* Smart Planning Feature */}
+            <motion.div
+              className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-blue-500 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <MapPin className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Smart Planning</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Intelligent routing and activity suggestions that optimize your time 
+                and maximize your experiences.
+              </p>
+            </motion.div>
+
+            {/* Personalized Feature */}
+            <motion.div
+              className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <Heart className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Personalized</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Whether business, romantic, or adventure - every itinerary is tailored 
+                to your unique travel goals.
+              </p>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </main>
