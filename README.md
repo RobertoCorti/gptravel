@@ -1,64 +1,129 @@
-# GPTravel ✈️
-[![python](https://img.shields.io/badge/python-3.9_%7C_3.10_%7C_3.11-blue?link=https%3A%2F%2Fwww.python.org%2F)](https://www.python.org)
-![Tests](https://github.com/RobertoCorti/gptravel/actions/workflows/python-tests.yml/badge.svg)
-![GitHub Tags](https://img.shields.io/github/tag/RobertoCorti/gptravel.svg)
-[![Streamlit](https://img.shields.io/pypi/v/streamlit?logo=streamlit&logoColor=white&label=Streamlit&color=magenta)](https://streamlit.io)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+# GPTravel 🛫
 
-GPTravel is a Web App that generates a travel plan based on Large-Language Models (LLMs). It helps users create personalized itineraries giving the best destinations, activities, and routes.
+**Your AI-Powered Travel Companion** - Create personalized travel itineraries in seconds using the power of AI. From romantic getaways to business trips, we craft the perfect journey just for you.
 
-## Idea 💡
-Our goal is to build an AI-powered travel assistant that could help people on planning their trips. We understand that planning a trip can be overwhelming, with countless options for destinations, activities, and prices. GPTravel aims to simplify this process by providing users with personalized recommendations and insights.
+![GPTravel Homepage](./img/homepage.png)
 
-By leveraging GPT models, GPTravel generates customized itineraries tailored to each user's specific travel needs and preferences. Whether it's a weekend getaway or a month-long adventure, GPTravel aims to assist users at every step of their travel planning journey.
+## ✨ Features
 
-The AI travel assistant that we aim to build would provide recommendations for destinations, attractions, accommodations, transportation options, and even estimated budgets. It takes into account factors such as travel duration, budget constraints, travel interests, and any specific preferences or requirements provided by the user. GPTravel aims to make trip planning more efficient, enjoyable, and stress-free by offering intelligent suggestions and insights.
+### 🤖 **AI-Powered Planning**
+- **Advanced AI Integration**: Creates intelligent, personalized travel itineraries
+- **Smart Suggestions**: Activity recommendations based on your preferences and travel style
+- **Contextual Planning**: Considers travel dates, location, and trip purpose
 
-At this moment we prepared a prototype on a Streamlit app with few of these functionalities. The future work will be focused on adding to the app a more strong and reliable travel assistant.
+### 💾 **Plan Management** 
+- **Save & Load Plans**: Keep your favorite itineraries for future reference
+- **Plan Library**: Browse and manage up to 10 recent travel plans
+- **Export Functionality**: Download plans as JSON files
+- **Quick Edit**: Load saved plans and modify them to create new variations
 
-## Installation ⚙️
+### 🎨 **Modern User Experience**
+- **Beautiful Interface**: Clean, responsive design built with Next.js and Tailwind CSS
+- **Interactive Forms**: Engaging travel reason selector with animated icons
+- **Real-time Feedback**: Live backend status and error handling
+- **Smooth Animations**: Powered by Framer Motion for delightful interactions
 
-This project uses the package manager poetry. To install poetry then run
-```
-pip install poetry
-```
-After installing poetry then you must config the following flag
-```
-poetry config virtualenvs.in-project true
-```
-To install the dependendencies then run the command
-```
+### 🌍 **Visual Travel Experience**
+- **Dynamic Photos**: Beautiful destination and activity images from Unsplash
+- **Interactive Itineraries**: Day-by-day navigation with photo galleries
+- **Graceful Fallbacks**: Elegant placeholders when images fail to load
+- **Responsive Design**: Perfect experience on desktop and mobile
+
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Node.js** 18+ and npm
+- **Python** 3.8+ and Poetry
+- **OpenAI API Key** ([Get one here](https://platform.openai.com/api-keys))
+
+### 1. Clone and Setup
+```bash
+git clone https://github.com/RobertoCorti/gptravel.git
+cd gptravel
+
+# Install Python dependencies
 poetry install
+
+# Install frontend dependencies
+cd frontend
+npm install
 ```
-To activate the virtual environment then run
+
+### 2. Start the Backend
+```bash
+# From project root
+poetry run python start_backend.py
+# Backend runs on http://127.0.0.1:8000
 ```
-poetry shell
+
+### 3. Start the Frontend
+```bash
+# From frontend directory
+cd frontend
+npm run dev
+# Frontend runs on http://localhost:3000
 ```
 
-## Usage 🚀
-Our prototype application is available on [Streamlit Cloud](https://gptravel-prototype.streamlit.app/); you will only need an OpenAI API key and a willingness to travel.
+### 4. Start Planning! ✈️
+1. Open your browser to `http://localhost:3000`
+2. Click **"Start Planning"**
+3. Enter your OpenAI API key
+4. Fill in your travel details
+5. Choose your travel style with the interactive selector
+6. Generate and save your perfect itinerary!
 
-To run the GPTravel web app on your local machine, use the following command:
+
+## 🛠️ Development
+
+### **Project Structure**
 ```
-streamlit run Home.py
+gptravel/
+├── frontend/                 # Next.js React app
+│   ├── src/
+│   │   ├── app/             # Next.js app router pages
+│   │   ├── components/      # Reusable UI components
+│   │   ├── lib/             # Utilities and API clients
+│   │   └── types/           # TypeScript type definitions
+│   └── public/              # Static assets
+├── src/gptravel/            # Python backend modules
+│   ├── core/               # Core business logic
+│   ├── prototype/          # Legacy Streamlit app
+│   └── main.py             # Application entry point
+├── backend_api.py          # FastAPI server
+├── start_backend.py        # Backend startup script
+└── tests/                  # Test suites
 ```
-This will start the GPTravel app using Streamlit. You can then access the web app through your browser.
 
-## Next Steps 🌟
-Here are some suggested next steps to enhance GPTravel:
+### **Key Technologies**
+- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS, Framer Motion
+- **Backend**: FastAPI, Pydantic, OpenAI API, Python 3.8+
+- **Development**: Poetry, ESLint, Prettier, Hot reload
+- **Deployment**: Docker support, Vercel-ready frontend
 
-* Implement a user interface (different from Streamlit) for the web app to provide a seamless experience for users when generating travel plans.
-* Enhance the recommendation algorithm to consider user preferences, such as budget constraints, travel interests, and accommodation preferences.
-* Integrate with external APIs to fetch real-time data on flights options, weather conditions and tourist attractions tickets.
-* Implement user authentication and user profile management to allow users to save and revisit their travel plans.
-* Enable social sharing features to allow users to share their travel plans with friends and family.
+### **Contributing**
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and test thoroughly
+4. Commit: `git commit -m 'Add amazing feature'`
+5. Push: `git push origin feature/amazing-feature`
+6. Open a Pull Request
 
-Contributions are welcome! Feel free to explore the GitHub repository and submit pull requests or open issues to contribute to the development of GPTravel.
 
-## License 📄
-This project is licensed under the MIT License.
+## 🔧 Configuration
 
-## Authors ✍️
-GPTravel is developed and maintained by:
-- [Roberto Corti](https://github.com/RobertoCorti)
-- [Stefano Polo](https://github.com/stefano-polo)
+### **Environment Variables**
+```bash
+
+# Backend 
+OPENAI_API_KEY=your_openai_key_here  # Optional, can be provided via form
+```
+
+### **Customization**
+- **Colors**: Edit `frontend/tailwind.config.js` for custom color schemes
+- **Components**: Modify UI components in `frontend/src/components/`
+- **AI Prompts**: Customize travel planning logic in `src/gptravel/core/`
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
