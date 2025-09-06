@@ -146,3 +146,5 @@ poetry.lock
 
 # git config files
 .gitconfig
+
+frontend/.env.local
