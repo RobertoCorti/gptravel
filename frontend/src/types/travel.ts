@@ -64,6 +64,48 @@ export interface TravelPlanState {
   error: string | null;
 }
 
+// Flight search types
+export interface FlightSearchParams {
+  departure: string;
+  destination: string;
+  departureDate: Date;
+  returnDate?: Date;
+  passengers?: number;
+  class?: 'economy' | 'business' | 'first';
+}
+
+export interface FlightOffer {
+  id: string;
+  airline: string;
+  flightNumber: string;
+  departure: {
+    airport: string;
+    city: string;
+    time: string;
+    date: string;
+  };
+  arrival: {
+    airport: string;
+    city: string;
+    time: string;
+    date: string;
+  };
+  duration: string;
+  price: {
+    amount: number;
+    currency: string;
+  };
+  stops: number;
+  class: string;
+  bookingUrl?: string;
+}
+
+export interface FlightSearchResponse {
+  outbound: FlightOffer[];
+  return?: FlightOffer[];
+  searchParams: FlightSearchParams;
+}
+
 // Form validation types
 export interface FormErrors {
   openaiKey?: string;
