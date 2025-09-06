@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Calendar, MapPin, Users, Star, Camera, ExternalLink, Save, Check, X } from 'lucide-react';
 import { TravelPlanResponse } from '@/types/travel';
-import { getActivityPhoto, getDestinationPhoto } from '@/lib/unsplash';
+import { getDynamicActivityPhoto, getDestinationPhoto } from '@/lib/unsplash';
 import { saveTravelPlan, SavedTravelPlan } from '@/lib/storage';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -318,7 +318,7 @@ export default function TravelResults({ travelPlan, formData }: TravelResultsPro
 
               <div className="grid gap-4">
                 {activities.map((activity, activityIndex) => {
-                  const photo = getActivityPhoto(activity, city);
+                  const photo = getDynamicActivityPhoto(activity, city);
                   const imageId = `activity-${selectedDay}-${cityIndex}-${activityIndex}`;
                   
                   return (
