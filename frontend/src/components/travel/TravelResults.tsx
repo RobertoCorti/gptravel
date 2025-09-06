@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Calendar, MapPin, Users, Star, Camera, ExternalLink, Save, Check, X } from 'lucide-react';
-import { TravelPlanResponse } from '@/types/travel';
+import { useState, useEffect } from 'react';
+import { Calendar, MapPin, Users, Star, Camera, ExternalLink, Save, Check, X, Plane } from 'lucide-react';
+import { TravelPlanResponse, FlightSearchResponse } from '@/types/travel';
 import { getDynamicActivityPhoto, getDestinationPhoto } from '@/lib/unsplash';
 import { saveTravelPlan, SavedTravelPlan } from '@/lib/storage';
+import { getFlightRecommendationsAPI } from '@/lib/api';
+import FlightSearch from './FlightSearch';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '@/components/ui/Button';
@@ -150,6 +152,13 @@ export default function TravelResults({ travelPlan, formData }: TravelResultsPro
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [showFlightSearch, setShowFlightSearch] = useState(false);
+  const [flightRecommendations, setFlightRecommendations] = useState<FlightSearchResponse | null>(null);
+  const [isLoadingFlights, setIsLoadingFlights] = useState(false);
+  const [selectedFlights, setSelectedFlights] = useState<{
+    outbound?: FlightOffer;
+    return?: FlightOffer;
+  }>({});
 
   const days = Object.keys(travelPlan.travel_plan);
   const selectedActivities = travelPlan.travel_plan[selectedDay];
@@ -181,6 +190,40 @@ export default function TravelResults({ travelPlan, formData }: TravelResultsPro
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const loadFlightRecommendations = async () => {
+    if (!formData) return;
+    
+    setIsLoadingFlights(true);
+    try {
+      const recommendations = await getFlightRecommendationsAPI(
+        formData.departure,
+        formData.destination,
+        formData.departureDate,
+        formData.returnDate
+      );
+      setFlightRecommendations(recommendations);
+    } catch (error) {
+      console.error('Failed to load flight recommendations:', error);
+    } finally {
+      setIsLoadingFlights(false);
+    }
+  };
+
+  // Load flight recommendations when component mounts
+  useEffect(() => {
+    if (formData && !flightRecommendations) {
+      loadFlightRecommendations();
+    }
+  }, [formData]);
+
+  const handleFlightSelect = (flight: FlightOffer, type: 'outbound' | 'return') => {
+    setSelectedFlights(prev => ({
+      ...prev,
+      [type]: flight
+    }));
+    console.log(`Selected ${type} flight:`, flight.airline, flight.flightNumber, `$${flight.price.amount}`);
   };
 
   return (
@@ -383,6 +426,137 @@ export default function TravelResults({ travelPlan, formData }: TravelResultsPro
           ))}
         </div>
       )}
+
+      {/* Flight Search Section */}
+      <div className="border-t border-gray-200 pt-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-8 h-8 bg-travel-500 text-white rounded-full flex items-center justify-center">
+              <Plane className="h-4 w-4" />
+            </div>
+            Flight Options
+          </h2>
+          <Button
+            onClick={() => setShowFlightSearch(!showFlightSearch)}
+            variant="secondary"
+            className="flex items-center gap-2"
+          >
+            <Plane className="h-4 w-4" />
+            {showFlightSearch ? 'Hide Flight Search' : 'Find Flights'}
+          </Button>
+        </div>
+
+        {/* Flight Recommendations Preview */}
+        {!showFlightSearch && flightRecommendations && (
+          <div className="bg-gradient-to-r from-travel-50 to-sunset-50 rounded-xl p-6 mb-6">
+            <h3 className="font-semibold text-gray-900 mb-4">
+              {selectedFlights.outbound || selectedFlights.return ? 'Selected Flights' : 'Recommended Flights'}
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Outbound Flight - Selected or Best Available */}
+              {(selectedFlights.outbound || flightRecommendations.outbound[0]) && (
+                <div className={`bg-white rounded-lg p-4 border-2 ${selectedFlights.outbound ? 'border-travel-500 bg-travel-50' : 'border-gray-200'}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-travel-600">Outbound</span>
+                      {selectedFlights.outbound && (
+                        <span className="bg-travel-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          Selected
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-lg font-bold text-gray-900">
+                      ${(selectedFlights.outbound || flightRecommendations.outbound[0]).price.amount}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <p className="font-medium">{(selectedFlights.outbound || flightRecommendations.outbound[0]).airline}</p>
+                    <p>{(selectedFlights.outbound || flightRecommendations.outbound[0]).departure.time} - {(selectedFlights.outbound || flightRecommendations.outbound[0]).arrival.time}</p>
+                    <p>{(selectedFlights.outbound || flightRecommendations.outbound[0]).duration} • {(selectedFlights.outbound || flightRecommendations.outbound[0]).stops === 0 ? 'Direct' : `${(selectedFlights.outbound || flightRecommendations.outbound[0]).stops} stop${(selectedFlights.outbound || flightRecommendations.outbound[0]).stops > 1 ? 's' : ''}`}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Return Flight - Selected or Best Available */}
+              {(selectedFlights.return || flightRecommendations.return?.[0]) && (
+                <div className={`bg-white rounded-lg p-4 border-2 ${selectedFlights.return ? 'border-sunset-500 bg-sunset-50' : 'border-gray-200'}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-sunset-600">Return</span>
+                      {selectedFlights.return && (
+                        <span className="bg-sunset-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          Selected
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-lg font-bold text-gray-900">
+                      ${(selectedFlights.return || flightRecommendations.return[0]).price.amount}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <p className="font-medium">{(selectedFlights.return || flightRecommendations.return[0]).airline}</p>
+                    <p>{(selectedFlights.return || flightRecommendations.return[0]).departure.time} - {(selectedFlights.return || flightRecommendations.return[0]).arrival.time}</p>
+                    <p>{(selectedFlights.return || flightRecommendations.return[0]).duration} • {(selectedFlights.return || flightRecommendations.return[0]).stops === 0 ? 'Direct' : `${(selectedFlights.return || flightRecommendations.return[0]).stops} stop${(selectedFlights.return || flightRecommendations.return[0]).stops > 1 ? 's' : ''}`}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                <p>Total estimated cost: <span className="font-semibold text-lg text-gray-900">
+                  ${((selectedFlights.outbound || flightRecommendations.outbound[0])?.price.amount || 0) + ((selectedFlights.return || flightRecommendations.return?.[0])?.price.amount || 0)}
+                </span></p>
+                {(selectedFlights.outbound || selectedFlights.return) && (
+                  <p className="text-xs text-travel-600 mt-1">
+                    ✓ {selectedFlights.outbound && selectedFlights.return ? 'Both flights selected' : 
+                        selectedFlights.outbound ? 'Outbound flight selected' : 'Return flight selected'}
+                  </p>
+                )}
+              </div>
+              <Button
+                onClick={() => setShowFlightSearch(true)}
+                variant="primary"
+                size="sm"
+              >
+                {selectedFlights.outbound || selectedFlights.return ? 'Change Selection' : 'View All Options'}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {isLoadingFlights && !flightRecommendations && (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-travel-600"></div>
+            <span className="ml-3 text-gray-600">Finding flight options...</span>
+          </div>
+        )}
+
+        {/* Full Flight Search */}
+        <AnimatePresence>
+          {showFlightSearch && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FlightSearch
+                initialParams={formData ? {
+                  departure: formData.departure,
+                  destination: formData.destination,
+                  departureDate: formData.departureDate,
+                  returnDate: formData.returnDate,
+                  passengers: 1,
+                  class: 'economy'
+                } : undefined}
+                onFlightSelect={handleFlightSelect}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
